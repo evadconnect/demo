@@ -2088,7 +2088,68 @@ const MAP_PLACES = [
   }
 ];
 
-const MAP_BATISSEURS = [];
+const MAP_BATISSEURS = [
+  {
+    nom:'Les Compagnons Bâtisseurs Nouvelle-Aquitaine', role:'Éco-construction & rénovation', ville:'Bordeaux', icon:'🔨', niveau:5,
+    lat:44.83365, lng:-0.57108,
+    bio:"Mouvement associatif d'auto-réhabilitation accompagnée : chantiers participatifs d'éco-rénovation et de lutte contre le mal-logement.",
+    graines:1850, quetes_realisees:24, quetes_actives:3, graines_passifs:120,
+    competences:['Isolation biosourcée','Maçonnerie','Accompagnement chantier','Formation bénévoles'],
+    disponibilite:'Chantiers en semaine et week-ends',
+    lieux_frequentes:['Le Garage Moderne','Darwin Écosystème','La Halle des Douves'],
+    certifications:['Chantier participatif','Isolation paille']
+  },
+  {
+    nom:"Étu'Récup", role:'Réemploi étudiant', ville:'Talence', icon:'♻️', niveau:3,
+    lat:44.80403, lng:-0.59435,
+    bio:"Association étudiante bordelaise qui collecte et redistribue le matériel en fin d'année universitaire pour lutter contre le gaspillage.",
+    graines:640, quetes_realisees:11, quetes_actives:2, graines_passifs:45,
+    competences:['Collecte','Tri & réemploi','Logistique','Mobilisation étudiante'],
+    disponibilite:'Période universitaire',
+    lieux_frequentes:['Supercoop','Le Garage Moderne'],
+    certifications:['Réemploi matériaux']
+  },
+  {
+    nom:'Unis-Cité Nouvelle-Aquitaine', role:'Mobilisation citoyenne', ville:'Bordeaux', icon:'🤝', niveau:4,
+    lat:44.83618, lng:-0.57147,
+    bio:"Pionnière du service civique en France : des équipes de jeunes volontaires sur des missions de transition écologique et de solidarité.",
+    graines:1280, quetes_realisees:18, quetes_actives:4, graines_passifs:90,
+    competences:['Sensibilisation','Animation','Médiation','Solidarité'],
+    disponibilite:'Missions de 6 à 8 mois',
+    lieux_frequentes:['La Maison Écocitoyenne','Le Jardin de ta Sœur','Darwin Écosystème'],
+    certifications:['Médiation environnementale']
+  },
+  {
+    nom:'Zero Waste Bordeaux', role:'Zéro déchet', ville:'Bordeaux', icon:'🗑', niveau:4,
+    lat:44.82521, lng:-0.56992,
+    bio:"Antenne locale du mouvement Zero Waste : ateliers, défis « rien de neuf » et accompagnement des lieux vers la réduction des déchets.",
+    graines:1120, quetes_realisees:16, quetes_actives:3, graines_passifs:80,
+    competences:['Compostage','Zéro déchet','Ateliers DIY','Sensibilisation'],
+    disponibilite:'Ateliers le week-end',
+    lieux_frequentes:['Supercoop','La Halle des Douves','Le Jardin de ta Sœur'],
+    certifications:['Maître composteur']
+  },
+  {
+    nom:"Récup'R", role:'Réparation & mobilité douce', ville:'Bordeaux', icon:'🚲', niveau:4,
+    lat:44.83266, lng:-0.56369,
+    bio:"Recyclerie et atelier participatif de réparation vélo et couture à Bordeaux, pour prolonger la vie des objets.",
+    graines:980, quetes_realisees:14, quetes_actives:2, graines_passifs:70,
+    competences:['Réparation vélo','Couture','Réemploi','Atelier participatif'],
+    disponibilite:'Permanences hebdo',
+    lieux_frequentes:['Le Garage Moderne',"Les Vivres de l'Art"],
+    certifications:['Repair café']
+  },
+  {
+    nom:'Les Petits Débrouillards Nouvelle-Aquitaine', role:'Médiation & pédagogie', ville:'Bordeaux', icon:'🔬', niveau:3,
+    lat:44.83372, lng:-0.57503,
+    bio:"Réseau d'éducation populaire qui rend les sciences et les enjeux écologiques accessibles à tous, par l'expérimentation.",
+    graines:720, quetes_realisees:12, quetes_actives:2, graines_passifs:50,
+    competences:['Médiation scientifique','Pédagogie','Animation jeunesse'],
+    disponibilite:'Animations scolaires et grand public',
+    lieux_frequentes:['La Maison Écocitoyenne','Le Jardin de ta Sœur'],
+    certifications:['Animateur scientifique']
+  }
+];
 
 const MAP_SEMEURS = [
   {
@@ -2773,6 +2834,35 @@ function mapRenderCommunity() {
     });
     const countEl = document.getElementById('map-lieux-count');
     if (countEl) countEl.textContent = `🏡 ${MAP_PLACES.length} Lieu${MAP_PLACES.length>1?'x':''}`;
+  }
+
+  const sBat = document.getElementById('map-section-batisseurs');
+  if (sBat && MAP_BATISSEURS.length) {
+    sBat.querySelectorAll(':scope > div').forEach(el => { if (/Aucun bâtisseur/i.test(el.textContent)) el.remove(); });
+    MAP_BATISSEURS.forEach((b, idx) => {
+      const stars = '★'.repeat(b.niveau) + '☆'.repeat(5 - b.niveau);
+      const card = document.createElement('div');
+      card.className = 'place-card-mini';
+      card.style.cssText = 'background:rgba(200,115,42,0.06);border-left:3px solid var(--amber);cursor:pointer';
+      card.onclick = () => { mapShowBatisseur(idx); document.getElementById('map-panel-main').style.display='none'; document.getElementById('map-acteur-panel').style.display=''; };
+      card.innerHTML = `
+        <div class="pcm-top">
+          <div class="pcm-icon" style="background:rgba(200,115,42,0.15);color:var(--amber)">${b.icon}</div>
+          <div>
+            <div class="pcm-name">${b.nom}</div>
+            <div class="pcm-type">${b.role} · ${b.ville}</div>
+          </div>
+        </div>
+        <div class="pcm-score-row">
+          <div style="font-size:.62rem;color:var(--amber);flex:1">${stars}</div>
+          <div class="score-label" style="color:var(--amber)">${b.graines} 🌱</div>
+        </div>
+        <div class="pcm-quetes" style="color:var(--amber)">⚡ ${b.quetes_realisees} quêtes réalisées · ${b.quetes_actives} en cours</div>
+      `;
+      sBat.appendChild(card);
+    });
+    const batCount = document.getElementById('map-bat-count');
+    if (batCount) batCount.textContent = `🌿 ${MAP_BATISSEURS.length} Bâtisseur${MAP_BATISSEURS.length>1?'s':''}`;
   }
 
   const sSem = document.getElementById('map-section-semeurs');
