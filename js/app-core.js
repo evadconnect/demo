@@ -1901,6 +1901,18 @@ function updateRoleNavigation(role){
     if(!roles){el.classList.remove('nav-hidden');return;}
     el.classList.toggle('nav-hidden', !roleAllows(role, roles));
   });
+  // garder le sélecteur de profil synchronisé avec le rôle actif
+  document.querySelectorAll('.role-switch3 .rsw-btn').forEach(b=>b.classList.toggle('active', b.dataset.role===role));
+}
+
+// Bascule de profil depuis la sidebar (sans relancer l'onboarding).
+function switchRole(role){
+  if(!ROLE_CONFIG[role]) return;
+  currentRole = role;
+  updateRoleNavigation(role);
+  const dest = { pilote:'pilote', batisseur:'quete', semeur:'semeur' };
+  showScreen(dest[role] || 'carte');  // renderProfileContext() est appelé dans showScreen
+  if (typeof mmBubble === 'function') mmBubble('Profil actif : ' + (ROLE_CONFIG[role].label || role).trim());
 }
 
 function firstAllowedScreen(role){

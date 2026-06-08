@@ -2575,6 +2575,10 @@ body {
   #evad-feedback-btn .oib-txt { display: none !important; }
   #evad-feedback-btn .oib-ico { font-size: 1rem; }
 
+  /* Sélecteur de profil : en nav réduite, icônes seules empilées */
+  #role-switch3 { flex-direction: column !important; margin: 0 0.4rem 0.6rem !important; }
+  #role-switch3 .rsw-lbl { display: none !important; }
+
   /* Masquer le texte des nav-items, garder l'icône */
   .nav-item {
     justify-content: center !important;
@@ -3673,3 +3677,25 @@ body {
 .auth-profil-icon{width:52px;height:52px;border-radius:.75rem;display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0}
 .auth-profil-name{font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:.15rem}
 .auth-profil-desc{font-size:.75rem;color:var(--moss);opacity:.75}
+
+/* ─── Sélecteur de profil (sidebar) ─── */
+.role-switch3 .rsw-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .15rem;
+  padding: .45rem .2rem;
+  border-radius: 10px;
+  border: 1px solid rgba(130,184,148,0.18);
+  background: rgba(130,184,148,0.06);
+  color: var(--mist);
+  font-family: 'Satoshi', sans-serif;
+  font-size: .6rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+}
+.role-switch3 .rsw-btn .rsw-ic { font-size: 1rem; line-height: 1; }
+.role-switch3 .rsw-btn:hover { background: rgba(207,238,231,0.12); color: var(--cream); }
+.role-switch3 .rsw-btn.active { background: var(--cream); color: var(--forest); border-color: var(--cream); }
