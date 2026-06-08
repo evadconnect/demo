@@ -5572,6 +5572,8 @@ let _qdFrom = 'quete';
 let _qdQuestOverride = null;  // quête arbitraire (ex. quête Pilote) affichée dans la fiche
 let _qdEdit = false;          // mode édition de la fiche quête
 function qdSet(field, val, num){ const q = qdQuest(); if(!q) return; const t = String(val).trim(); q[field] = num ? (parseFloat(t.replace(',','.'))||0) : t; }
+function qdSetArr(field, i, val){ const q = qdQuest(); if(!q || !Array.isArray(q[field])) return; q[field][i] = String(val).trim(); }
+function qdSetObj(field, i, key, val){ const q = qdQuest(); if(!q || !Array.isArray(q[field]) || !q[field][i]) return; q[field][i][key] = String(val).trim(); }
 
 function showQueteDetail(id, from) {
   _qdQuestOverride = null;
@@ -5674,6 +5676,20 @@ function renderQueteDetail() {
   const q = _qdQuestOverride || BAT_QUETES[_qdCurrentId];
   if (!q) return;
 
+  // Helpers d'édition (mode "Modifier les paramètres")
+  const ED = _qdEdit;
+  const _eb = (f,v,num,dark)=> ED
+    ? `<span contenteditable="true" onblur="qdSet('${f}',this.textContent${num?',1':''})" style="outline:1px dashed ${dark?'rgba(255,255,255,.5)':'rgba(46,102,66,.4)'};border-radius:4px;padding:0 .25rem;cursor:text;min-width:1ch;display:inline-block">${v}</span>`
+    : `${v}`;
+  const edDark = (f,v,num)=>_eb(f,v,num,true);
+  const edLight= (f,v,num)=>_eb(f,v,num,false);
+  const edArr = (f,i,v)=> ED
+    ? `<span contenteditable="true" onblur="qdSetArr('${f}',${i},this.textContent)" style="outline:1px dashed rgba(46,102,66,.4);border-radius:4px;padding:0 .25rem;cursor:text;min-width:1ch;display:inline-block">${v}</span>`
+    : `${v}`;
+  const edObj = (f,i,k,v)=> ED
+    ? `<span contenteditable="true" onblur="qdSetObj('${f}',${i},'${k}',this.textContent)" style="outline:1px dashed rgba(46,102,66,.4);border-radius:4px;padding:0 .25rem;cursor:text;min-width:1ch;display:inline-block">${v}</span>`
+    : `${v}`;
+
   // Topbar
   document.getElementById('qd-topbar-title').textContent = q.titre;
   document.getElementById('qd-topbar-sub').textContent = q.lieu + ' · ' + q.ville + ' · ' + q.duree;
@@ -5694,8 +5710,8 @@ function renderQueteDetail() {
   const steps = Array.from({length:_stepCount},(_,i)=>{
     const done=i<q.etape_actuelle-1, active=i===q.etape_actuelle-1;
     const ps = _planSteps ? _planSteps[i] : null;
-    const titre = ps ? ((ps.ic?ps.ic+' ':'')+(ps.titre||('Étape '+(i+1)))) : (labels[i]||('Étape '+(i+1)));
-    const desc = ps && ps.desc ? `<div style="font-size:.66rem;font-weight:400;color:var(--moss);opacity:.8;line-height:1.45;margin-top:.15rem">${ps.desc}</div>` : '';
+    const titre = ps ? ((ps.ic?ps.ic+' ':'')+(ED ? edObj('plan', i, 'titre', ps.titre||('Étape '+(i+1))) : (ps.titre||('Étape '+(i+1))))) : (labels[i]||('Étape '+(i+1)));
+    const desc = (ps && (ps.desc || ED)) ? `<div style="font-size:.66rem;font-weight:400;color:var(--moss);opacity:.8;line-height:1.45;margin-top:.15rem">${ED ? edObj('plan', i, 'desc', ps.desc||'(description)') : ps.desc}</div>` : '';
     return `<div style="display:flex;align-items:flex-start;gap:.7rem;padding:.55rem .8rem;border-radius:var(--r);border:1px solid ${active?'rgba(200,115,42,.35)':done?'rgba(74,140,92,.2)':'rgba(46,102,66,.1)'};background:${active?'rgba(200,115,42,.04)':done?'rgba(74,140,92,.04)':'transparent'};margin-bottom:.35rem">
       <div style="width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;margin-top:.05rem;background:${done?'var(--fern)':active?'var(--amber)':'rgba(46,102,66,.12)'};color:${done||active?'white':'var(--moss)'}">
         ${done?'✓':i+1}
@@ -5740,17 +5756,11 @@ function renderQueteDetail() {
   const esrsBadges = (q.esrs||[]).map(e=>`<span style="font-size:.62rem;padding:.18rem .5rem;border-radius:var(--r);background:${esrsColors[e]||'#546e7a'}22;color:${esrsColors[e]||'#546e7a'};border:1px solid ${esrsColors[e]||'#546e7a'}44;font-weight:600">📋 ESRS ${e}</span>`).join('');
 
   // Dates
-  const datesHtml = q.dates ? `<div style="display:flex;gap:.4rem;flex-wrap:wrap">
-    ${q.dates.map(d=>`<span style="font-size:.68rem;padding:.3rem .7rem;border-radius:var(--r);background:rgba(46,102,66,.07);border:1px solid rgba(46,102,66,.15);color:var(--ink)">📅 ${d}</span>`).join('')}
+  const datesHtml = (q.dates && q.dates.length) ? `<div style="display:flex;gap:.4rem;flex-wrap:wrap">
+    ${q.dates.map((d,i)=>`<span style="font-size:.68rem;padding:.3rem .7rem;border-radius:var(--r);background:rgba(46,102,66,.07);border:1px solid rgba(46,102,66,.15);color:var(--ink)">📅 ${edArr('dates', i, d)}</span>`).join('')}
   </div>` : '';
 
   // Colonne principale (mode édition: champs contenteditable)
-  const ED = _qdEdit;
-  const _eb = (f,v,num,dark)=> ED
-    ? `<span contenteditable="true" onblur="qdSet('${f}',this.textContent${num?',1':''})" style="outline:1px dashed ${dark?'rgba(255,255,255,.5)':'rgba(46,102,66,.4)'};border-radius:4px;padding:0 .25rem;cursor:text;min-width:1ch;display:inline-block">${v}</span>`
-    : `${v}`;
-  const edDark = (f,v,num)=>_eb(f,v,num,true);
-  const edLight= (f,v,num)=>_eb(f,v,num,false);
   document.getElementById('qd-main').innerHTML = `
     ${ED ? '<button onclick="qdModifier()" style="width:100%;background:var(--forest);color:#fff;border:none;border-radius:100px;padding:.65rem;font-size:.82rem;font-weight:700;cursor:pointer;margin-bottom:.2rem">✓ Enregistrer les modifications</button>' : ''}
 
@@ -5769,6 +5779,7 @@ function renderQueteDetail() {
       <div style="font-family:'Satoshi', sans-serif;font-size:1.5rem;font-weight:900;color:white;line-height:1.15;margin-bottom:.5rem">${edDark('titre', q.titre)}</div>
       <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:1rem;flex-wrap:wrap">
         <div style="font-size:.72rem;color:rgba(255,255,255,.5)">🏡 Pilote : ${edDark('pilote', q.pilote)}</div>
+        <div style="font-size:.72rem;color:rgba(255,255,255,.5)">⏱ ${edDark('duree', q.duree)}</div>
       </div>
       <div style="display:flex;gap:.8rem;flex-wrap:wrap">
         <div style="text-align:center;background:rgba(255,255,255,.07);border-radius:var(--r);padding:.55rem .9rem">
@@ -5807,8 +5818,9 @@ function renderQueteDetail() {
         <div style="font-size:.72rem;font-weight:600;color:var(--ink)">🧰 Matériel nécessaire <span style="font-weight:400;opacity:.5">· depuis la Bibliothèque</span></div>
         <span id="qd-mat-count" style="font-size:.62rem;font-weight:700;color:${nb===q.materiel.length?'var(--fern)':'var(--moss)'}">${nb}/${q.materiel.length}</span>
       </div>
-      <div style="display:flex;flex-direction:column;gap:.1rem">${q.materiel.map((m, i) => `
-        <label style="display:flex;align-items:center;gap:.6rem;padding:.42rem .2rem;cursor:pointer;border-bottom:1px solid rgba(46,102,66,.05)">
+      <div style="display:flex;flex-direction:column;gap:.1rem">${q.materiel.map((m, i) => ED
+        ? `<div style="display:flex;align-items:center;gap:.6rem;padding:.42rem .2rem;border-bottom:1px solid rgba(46,102,66,.05)"><span style="opacity:.5">🔩</span><span style="font-size:.74rem;color:var(--ink);flex:1">${edArr('materiel', i, m)}</span></div>`
+        : `<label style="display:flex;align-items:center;gap:.6rem;padding:.42rem .2rem;cursor:pointer;border-bottom:1px solid rgba(46,102,66,.05)">
           <input type="checkbox" ${checked[i] ? 'checked' : ''} onchange="qdToggleMat(${i}, this)" style="width:16px;height:16px;accent-color:var(--forest);cursor:pointer;flex-shrink:0">
           <span style="font-size:.74rem;color:${checked[i] ? 'var(--moss)' : 'var(--ink)'};${checked[i] ? 'text-decoration:line-through;opacity:.6' : ''}">${m}</span>
         </label>`).join('')}</div>
