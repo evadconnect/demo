@@ -6163,7 +6163,7 @@ function pmktFormHtml(o) {
     <div style="height:.75rem"></div>
     <div class="pmkt-form-row">
       <label class="pmkt-label">Description courte</label>
-      <textarea class="pmkt-textarea" id="pf-desc" placeholder="Décrivez l'offre en 1-2 phrases…">${o ? '' : ''}</textarea>
+      <textarea class="pmkt-textarea" id="pf-desc" placeholder="Décrivez l'offre en 1-2 phrases…">${o && o.desc ? o.desc : ''}</textarea>
     </div>
     <div class="pmkt-two-col">
       <div class="pmkt-form-row" style="margin-bottom:0">
@@ -6188,16 +6188,18 @@ function pmktSaveOffer() {
   const emoji = document.getElementById('pf-emoji').value.trim() || '🌿';
   const prix  = parseInt(document.getElementById('pf-prix').value) || 0;
   const stock = parseInt(document.getElementById('pf-stock').value) || 0;
+  const descEl = document.getElementById('pf-desc');
+  const desc  = descEl ? descEl.value.trim() : '';
   if (!titre) { document.getElementById('pf-titre').style.borderColor='var(--terracotta)'; return; }
 
   if (pmktEditingId !== null) {
     const o = pmktOffers.find(o => o.id === pmktEditingId);
-    if (o) { o.titre=titre; o.cat=cat; o.emoji=emoji; o.prix=prix; o.stock=stock; o.stockMax=stock; if(stock>0 && o.status==='full') o.status='active'; }
+    if (o) { o.titre=titre; o.cat=cat; o.emoji=emoji; o.prix=prix; o.stock=stock; o.stockMax=stock; o.desc=desc; if(stock>0 && o.status==='full') o.status='active'; }
     mmBubble(`Offre "${titre.substring(0,28)}…" mise à jour ✅`);
   } else {
     const newId = Date.now();
-    pmktOffers.push({ id:newId, emoji, bg:'rgba(74,140,92,.1)', titre, cat, prix, stock, stockMax:stock, status:'active', vues:0, echanges:0 });
-    mmBubble(`Nouvelle offre "${titre.substring(0,28)}…" publiée 🎉`);
+    pmktOffers.push({ id:newId, emoji, bg:'rgba(74,140,92,.1)', titre, cat, prix, stock, stockMax:stock, desc, status:'active', vues:0, echanges:0 });
+    mmBubble(`Nouvelle offre "${titre.substring(0,28)}…" publiée dans le Marketplace 🎉`);
   }
   document.getElementById('pmkt-modal').style.display = 'none';
   pmktRenderOffers();
@@ -6224,10 +6226,32 @@ function mktSort(sort, btn) {
   mktRender();
 }
 
+// Convertit une offre du tableau de bord Pilote vers le format Marketplace.
+function pmktToMkt(o) {
+  const lieu = (typeof myLieuData !== 'undefined' && myLieuData && myLieuData.nom) ? myLieuData.nom : (typeof EVAD !== 'undefined' ? EVAD.activeLieu.nom : 'Mon lieu');
+  const ville = (typeof myLieuData !== 'undefined' && myLieuData && myLieuData.localisation) ? myLieuData.localisation : 'Bordeaux';
+  return {
+    id: o.id, cat: o.cat, titre: o.titre,
+    desc: o.desc || ('Offre proposée par ' + lieu + '.'),
+    lieu: lieu, ville: ville, prix: o.prix,
+    unite: o.unite || (o.prix > 0 ? 'à échanger en graines' : 'accès libre'),
+    emoji: o.emoji, bg: o.bg || 'rgba(74,140,92,.1)', badge: o.badge || 'new',
+    stock: o.stock, impact: o.impact || "Soutient l'économie locale et circulaire du lieu."
+  };
+}
+// Offres affichées dans le Marketplace = catalogue + offres publiées au tableau de bord.
+function mktAllOffres() {
+  const extra = (typeof pmktOffers !== 'undefined') ? pmktOffers.filter(o => o.status !== 'full' && o.stock > 0).map(pmktToMkt) : [];
+  return [...MKT_OFFRES, ...extra];
+}
+
 function mktRender() {
   const grid = document.getElementById('mkt-grid');
   if (!grid) return;
-  let offres = [...MKT_OFFRES];
+  // Solde de démo : graines du bâtisseur, sinon un solde par défaut
+  if (!mktBalance) mktBalance = (typeof batProfileGraines === 'function' ? batProfileGraines() : 0) || 200;
+  const _bal = document.getElementById('mkt-balance'); if (_bal) _bal.textContent = mktBalance;
+  let offres = mktAllOffres();
   if (mktCurrentCat !== 'tous') offres = offres.filter(o => o.cat === mktCurrentCat);
   if (mktCurrentSort === 'prix_asc') offres.sort((a,b) => a.prix - b.prix);
   else if (mktCurrentSort === 'prix_desc') offres.sort((a,b) => b.prix - a.prix);
@@ -6263,7 +6287,7 @@ function mktRender() {
 }
 
 function mktOpenModal(id) {
-  const o = MKT_OFFRES[id];
+  const o = mktAllOffres().find(x => x.id === id) || MKT_OFFRES[id];
   if (!o) return;
   const canAfford = mktBalance >= o.prix;
   const modal = document.getElementById('mkt-modal');
@@ -6302,13 +6326,17 @@ function mktOpenModal(id) {
 }
 
 function mktConfirmBuy(id) {
-  const o = MKT_OFFRES[id];
+  const o = mktAllOffres().find(x => x.id === id) || MKT_OFFRES[id];
   if (!o || mktBalance < o.prix) return;
   mktBalance -= o.prix;
-  document.getElementById('mkt-balance').textContent = mktBalance;
+  const _b = document.getElementById('mkt-balance'); if (_b) _b.textContent = mktBalance;
+  // Décrémente le stock à la source (offre du tableau de bord ou catalogue)
+  const src = (typeof pmktOffers !== 'undefined') ? pmktOffers.find(x => x.id === id) : null;
+  if (src) { src.stock = Math.max(0, (src.stock || 0) - 1); src.echanges = (src.echanges || 0) + 1; if (src.stock === 0) src.status = 'full'; }
+  else { const m = MKT_OFFRES.find(x => x.id === id); if (m && m.stock != null) m.stock = Math.max(0, m.stock - 1); }
   document.getElementById('mkt-modal').style.display = 'none';
   mktRender();
-  mmBubble(`✅ Échangé ! "${o.titre}" chez ${o.lieu}, ${o.prix>0?'−'+o.prix+' tokens':'gratuit'}`);
+  mmBubble(`✅ Échangé ! "${o.titre}" chez ${o.lieu}, ${o.prix>0?'−'+o.prix+' graines':'gratuit'}`);
 }
 
 /* ─── PILOTE TABS JS ─── */
