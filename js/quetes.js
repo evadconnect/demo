@@ -3,11 +3,42 @@
    QUÊTES × PERMA-COMPTABILITÉ
    ═══════════════════════════════════════════════════════ */
 
-/* Quêtes de démo pour le Pilote (tirées des BDD_SPACES) */
+/* Quêtes du Pilote : générées à partir des solutions de la fiche lieu créée */
 const PILOTE_QUETES_DEMO = [];
 
 /* État des quêtes validées (session) */
 const quetesValidees = new Set();
+
+/* Reconstruit les quêtes du Pilote depuis les solutions choisies à la
+   création de fiche (chaque solution SOLS porte une quête .quete). */
+function syncPiloteQuetesFromLieu() {
+  if (typeof PILOTE_QUETES_DEMO === 'undefined') return;
+  const d = (typeof myLieuData !== 'undefined' && myLieuData) ? myLieuData
+          : (typeof cData !== 'undefined' ? cData : null);
+  let sols = [];
+  if (d) {
+    if (d.solutions && d.solutions.length) sols = d.solutions.slice();
+    else if (d.solsByEspace) sols = [...new Set(Object.values(d.solsByEspace).flat())];
+  }
+  PILOTE_QUETES_DEMO.length = 0;
+  if (typeof SOLS === 'undefined') return;
+  sols.forEach(nom => {
+    const sol = SOLS.find(s => s.nom === nom);
+    if (!sol || !sol.quete) return;
+    const q = sol.quete;
+    PILOTE_QUETES_DEMO.push({
+      id: 'q-' + String(nom).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+      titre: q.titre || ('Quête · ' + nom),
+      statut: 'ouverte',
+      duree: q.duree || '—',
+      nb: q.nb || '—',
+      graines: sol.tok || 50,
+      impact: q.impact_quete || sol.impact || '',
+      source: nom,
+      sourceIc: sol.img || '✦'
+    });
+  });
+}
 
 /* ─── Détection automatique du type de convergence ─── */
 function detectConvType(titre, impact) {
