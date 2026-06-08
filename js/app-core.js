@@ -5604,11 +5604,49 @@ function qdActionButtons() {
   </div>`;
 }
 
-function qdContactPilote() { const q = _qdQuestOverride || BAT_QUETES[_qdCurrentId] || {}; mmBubble('✉️ Message envoyé au Pilote' + (q.pilote ? ' (' + q.pilote + ')' : '') + ', réponse sous 48h'); }
-function qdDeposerPreuve() { mmBubble('📎 Dépôt de preuve ouvert, ajoute photos et indicateurs'); }
-function qdModifier() { mmBubble('✏️ Mode édition de la quête ouvert'); }
-function qdPause() { mmBubble('⏸ Quête mise en pause, plus visible des Bâtisseurs'); }
-function qdSupprimer() { mmBubble('🗑 Quête supprimée'); setTimeout(queteDetailBack, 300); }
+// ─── Actions fonctionnelles de la fiche quête (mutent la quête + re-render) ───
+function qdQuest() { return _qdQuestOverride || (typeof BAT_QUETES !== 'undefined' ? BAT_QUETES[_qdCurrentId] : null) || null; }
+function qdRerender() { try { renderQueteDetail(); } catch (e) {} }
+
+function qdContactPilote() {
+  const q = qdQuest() || {};
+  if (typeof devaToggleChat === 'function') { try { devaToggleChat(); } catch (e) {} }
+  mmBubble('✉️ Conversation ouverte avec le Pilote' + (q.pilote ? ' (' + String(q.pilote).split('·')[0].trim() + ')' : ''));
+}
+
+function qdDeposerPreuve() {
+  const q = qdQuest(); if (!q) return;
+  q.proofSubmitted = true;
+  if (q.etape_actuelle < q.etapes) q.etape_actuelle = Math.max(q.etape_actuelle, 3); // passe en "Réalisation"
+  mmBubble('📎 Preuve déposée · en attente de validation du Pilote');
+  qdRerender();
+}
+
+function qdModifier() {
+  const q = qdQuest(); if (!q) return;
+  const t = document.getElementById('qd-topbar-title'); if (!t || t.querySelector('input')) return;
+  t.innerHTML = '<input id="qd-edit-title" value="' + String(q.titre || '').replace(/"/g, '&quot;') + '" style="font:inherit;font-weight:800;color:var(--ink);border:1px solid rgba(46,102,66,.35);border-radius:8px;padding:.2rem .5rem;width:min(440px,60vw)">';
+  const inp = document.getElementById('qd-edit-title'); inp.focus(); inp.select();
+  let done = false;
+  const save = () => { if (done) return; done = true; const v = inp.value.trim(); if (v) q.titre = v; mmBubble('✏️ Quête modifiée'); qdRerender(); };
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') save(); });
+  inp.addEventListener('blur', save);
+}
+
+function qdPause() {
+  const q = qdQuest(); if (!q) return;
+  q.paused = !q.paused;
+  mmBubble(q.paused ? '⏸ Quête mise en pause · masquée aux Bâtisseurs' : '▶️ Quête réactivée');
+  qdRerender();
+}
+
+function qdSupprimer() {
+  const q = qdQuest(); if (!q) return;
+  if (!_qdQuestOverride && typeof BAT_QUETES !== 'undefined') { const i = BAT_QUETES.indexOf(q); if (i >= 0) BAT_QUETES.splice(i, 1); }
+  else if (typeof PILOTE_QUETES_DEMO !== 'undefined') { const i = PILOTE_QUETES_DEMO.findIndex(x => x.titre === q.titre); if (i >= 0) PILOTE_QUETES_DEMO.splice(i, 1); }
+  mmBubble('🗑 Quête supprimée');
+  setTimeout(queteDetailBack, 250);
+}
 
 function queteDetailBack() {
   showScreen(_qdFrom);
@@ -5621,11 +5659,13 @@ function renderQueteDetail() {
   // Topbar
   document.getElementById('qd-topbar-title').textContent = q.titre;
   document.getElementById('qd-topbar-sub').textContent = q.lieu + ' · ' + q.ville + ' · ' + q.duree;
-  // Actions (bandeau + colonne de droite selon le rôle)
+  // Actions (bandeau + colonne de droite selon le rôle, conscientes de l'état)
+  const funded = q.financement && q.financement.objectif > 0 && q.financement.montant >= q.financement.objectif;
+  const done = (k) => `<button class="btn" disabled style="opacity:.65;cursor:default;background:rgba(74,140,92,.12);color:var(--fern);border:1px solid rgba(74,140,92,.3)">${k}</button>`;
   const ctas = {
-    batisseur: `<button class="btn btn-primary" onclick="qdJoindre()">✅ Rejoindre cette quête</button>`,
-    semeur: `<button class="btn btn-primary" onclick="qdFinancer()">💰 Financer cette quête</button>`,
-    pilote: `<button class="btn btn-ghost" onclick="qdModifier()">✏️ Modifier la quête</button><button class="btn btn-primary" onclick="qdValider()">✅ Valider les preuves</button>`
+    batisseur: q.joined ? done('✓ Tu participes') : `<button class="btn btn-primary" onclick="qdJoindre()">✅ Rejoindre cette quête</button>`,
+    semeur: funded ? done('✓ Quête financée') : `<button class="btn btn-primary" onclick="qdFinancer()">💰 Financer cette quête</button>`,
+    pilote: q.validated ? done('✓ Quête validée') : `<button class="btn btn-ghost" onclick="qdModifier()">✏️ Modifier</button><button class="btn btn-primary" onclick="qdValider()">✅ Valider la preuve</button>`
   };
   const _qdta = document.getElementById('qd-topbar-actions'); if (_qdta) _qdta.innerHTML = ctas[currentRole] || ctas.batisseur;
 
@@ -5691,6 +5731,10 @@ function renderQueteDetail() {
         <span style="font-size:.65rem;padding:.18rem .55rem;border-radius:100px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.8)">${q.type}</span>
         <span style="font-size:.65rem;padding:.18rem .55rem;border-radius:100px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6)">📍 ${q.ville}</span>
         ${(q.esrs||[]).map(e=>`<span style="font-size:.62rem;padding:.18rem .5rem;border-radius:100px;background:rgba(33,150,243,.15);color:#90caf9;border:1px solid rgba(33,150,243,.25)">ESRS ${e}</span>`).join('')}
+        ${q.validated ? '<span style="font-size:.62rem;padding:.18rem .5rem;border-radius:100px;background:rgba(74,140,92,.25);color:#9be3a6;border:1px solid rgba(74,140,92,.4);font-weight:700">✓ Validée</span>' : ''}
+        ${q.closed ? '<span style="font-size:.62rem;padding:.18rem .5rem;border-radius:100px;background:rgba(200,115,42,.2);color:#f0b96a;border:1px solid rgba(200,115,42,.35);font-weight:700">🔒 Clôturée</span>' : ''}
+        ${q.paused ? '<span style="font-size:.62rem;padding:.18rem .5rem;border-radius:100px;background:rgba(240,200,74,.2);color:#f0d878;border:1px solid rgba(240,200,74,.35);font-weight:700">⏸ En pause</span>' : ''}
+        ${q.joined ? '<span style="font-size:.62rem;padding:.18rem .5rem;border-radius:100px;background:rgba(74,140,92,.2);color:#9be3a6;border:1px solid rgba(74,140,92,.35);font-weight:700">✓ Tu participes</span>' : ''}
       </div>
       <div style="font-family:'Satoshi', sans-serif;font-size:1.5rem;font-weight:900;color:white;line-height:1.15;margin-bottom:.5rem">${q.titre}</div>
       <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:1rem;flex-wrap:wrap">
@@ -5782,12 +5826,15 @@ function renderQueteDetail() {
       <div style="background:rgba(58,110,140,.06);border:1px solid rgba(58,110,140,.2);border-radius:var(--r-lg);padding:.9rem 1rem">
         <div style="font-size:.68rem;font-weight:600;color:var(--sky);margin-bottom:.45rem">📸 Preuve d'impact attendue</div>
         <div style="font-size:.72rem;color:var(--ink);line-height:1.5;margin-bottom:.7rem">${q.preuve}</div>
-        <button class="btn" style="width:100%;font-size:.68rem;padding:.45rem;background:rgba(58,110,140,.12);color:var(--sky);border:1px solid rgba(58,110,140,.25)" onclick="mmBubble('📸 Interface de soumission de preuve ouverte')">Soumettre une preuve →</button>
+        <button class="btn" style="width:100%;font-size:.68rem;padding:.45rem;background:rgba(58,110,140,.12);color:var(--sky);border:1px solid rgba(58,110,140,.25)" onclick="qdDeposerPreuve()">Soumettre une preuve →</button>
       </div>
 
       <!-- CTA -->
-      <button class="btn btn-primary" style="width:100%;padding:.8rem;font-size:.82rem" onclick="qdJoindre()">✅ Rejoindre cette quête</button>
-      <button class="btn btn-ghost" style="width:100%;font-size:.72rem" onclick="mmBubble('✦ Deva · Question envoyée au Pilote ${q.pilote.split('·')[0].trim()}')">💬 Poser une question au Pilote</button>
+      ${q.joined
+        ? `<button class="btn" disabled style="width:100%;padding:.8rem;font-size:.82rem;background:rgba(74,140,92,.12);color:var(--fern);border:1px solid rgba(74,140,92,.3);cursor:default">✓ Tu participes à cette quête</button>
+           <button class="btn btn-ghost" style="width:100%;font-size:.72rem" onclick="qdDeposerPreuve()">📎 Déposer une preuve</button>`
+        : `<button class="btn btn-primary" style="width:100%;padding:.8rem;font-size:.82rem" onclick="qdJoindre()">✅ Rejoindre cette quête</button>`}
+      <button class="btn btn-ghost" style="width:100%;font-size:.72rem" onclick="qdContactPilote()">💬 Poser une question au Pilote</button>
     `;
   } else if (currentRole === 'semeur') {
     const fin = q.financement;
@@ -5847,7 +5894,7 @@ function renderQueteDetail() {
       <div style="background:rgba(46,102,66,.05);border:1px solid rgba(46,102,66,.15);border-radius:var(--r-lg);padding:.85rem 1rem">
         <div style="font-size:.68rem;font-weight:600;color:var(--ink);margin-bottom:.3rem">🏡 Pilote responsable</div>
         <div style="font-size:.73rem;color:var(--moss);margin-bottom:.6rem">${q.pilote}</div>
-        <button class="btn btn-ghost" style="width:100%;font-size:.7rem" onclick="mmBubble('💬 Message envoyé à ${q.pilote.split('·')[0].trim()} · Réponse sous 48h')">Contacter le Pilote →</button>
+        <button class="btn btn-ghost" style="width:100%;font-size:.7rem" onclick="qdContactPilote()">Contacter le Pilote →</button>
       </div>
     `;
   } else if (currentRole === 'pilote') {
@@ -5856,10 +5903,10 @@ function renderQueteDetail() {
       <div style="background:white;border:1px solid rgba(46,102,66,.12);border-radius:var(--r-lg);padding:.9rem 1rem">
         <div style="font-size:.68rem;font-weight:600;color:var(--ink);margin-bottom:.6rem">⚙️ Gestion de la quête</div>
         <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.7rem">
-          <button class="btn" style="font-size:.65rem;padding:.3rem .7rem;background:rgba(74,140,92,.1);color:var(--fern);border:1px solid rgba(74,140,92,.25)" onclick="mmBubble('Quête mise en pause')">⏸ Mettre en pause</button>
-          <button class="btn" style="font-size:.65rem;padding:.3rem .7rem;background:rgba(200,115,42,.1);color:var(--amber);border:1px solid rgba(200,115,42,.25)" onclick="mmBubble('Quête clôturée')">🔒 Clôturer</button>
+          <button class="btn" style="font-size:.65rem;padding:.3rem .7rem;background:rgba(74,140,92,.1);color:var(--fern);border:1px solid rgba(74,140,92,.25)" onclick="qdPause()">${q.paused ? '▶️ Réactiver' : '⏸ Mettre en pause'}</button>
+          <button class="btn" style="font-size:.65rem;padding:.3rem .7rem;background:rgba(200,115,42,.1);color:var(--amber);border:1px solid rgba(200,115,42,.25)" onclick="qdCloturer()">🔒 Clôturer</button>
         </div>
-        <button class="btn btn-ghost" style="width:100%;font-size:.7rem" onclick="mmBubble('✏️ Éditeur de quête ouvert')">✏️ Modifier les paramètres →</button>
+        <button class="btn btn-ghost" style="width:100%;font-size:.7rem" onclick="qdModifier()">✏️ Modifier les paramètres →</button>
       </div>
 
       <!-- Preuves à valider -->
@@ -5893,15 +5940,39 @@ function renderQueteDetail() {
 }
 
 function qdJoindre() {
-  const q = BAT_QUETES[_qdCurrentId];
-  mmBubble('✅ Inscription confirmée · ' + (q?.titre||'Quête').substring(0,30) + '… rejointe !');
+  const q = qdQuest(); if (!q) return;
+  if (q.joined) { mmBubble('Tu participes déjà à cette quête'); return; }
+  q.joined = true;
+  q.equipe = q.equipe || [];
+  q.equipe.push({ i: 'M', c: '#018262' });
+  const m = String(q.places || '0/6').split('/');
+  const cur = Math.min((parseInt(m[0], 10) || 0) + 1, parseInt(m[1], 10) || 6);
+  q.places = cur + '/' + (m[1] || 6);
+  mmBubble('✅ Inscription confirmée · tu as rejoint « ' + (q.titre || 'la quête') + ' »');
+  qdRerender();
 }
 function qdFinancer() {
-  const q = BAT_QUETES[_qdCurrentId];
-  mmBubble('💰 Proposition de financement envoyée à ' + (q?.pilote||'le Pilote').split('·')[0].trim() + ' · En attente de validation');
+  const q = qdQuest(); if (!q) return;
+  const semNom = (typeof semFicheData !== 'undefined' && semFicheData && semFicheData.nom) ? semFicheData.nom : 'Mon organisation';
+  q.financement = q.financement || {};
+  if (!q.financement.objectif || q.financement.objectif <= 0) q.financement.objectif = Math.max(2000, (q.tokens || 50) * 40);
+  q.financement.montant = q.financement.objectif;
+  q.financement.semeur = semNom;
+  mmBubble('💰 Quête financée par ' + semNom + ' · preuve auditable certifiée EVAD');
+  qdRerender();
 }
 function qdValider() {
-  mmBubble('✅ 2 preuves validées · Les bâtisseurs reçoivent leurs graines !');
+  const q = qdQuest(); if (!q) return;
+  if (q.etape_actuelle < q.etapes) {
+    q.etape_actuelle++;
+    if (q.etape_actuelle >= q.etapes) { q.validated = true; mmBubble('✅ Preuve certifiée · quête complétée, graines distribuées 🌱'); }
+    else mmBubble('✅ Étape validée · progression ' + q.etape_actuelle + '/' + q.etapes);
+  } else { q.validated = true; mmBubble('✅ Toutes les preuves sont validées'); }
+  qdRerender();
+}
+function qdCloturer() {
+  const q = qdQuest(); if (!q) return;
+  q.closed = true; mmBubble('🔒 Quête clôturée'); qdRerender();
 }
 
 /* ─── GESTION MARKETPLACE PILOTE ─── */
