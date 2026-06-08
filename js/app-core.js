@@ -5566,9 +5566,12 @@ function batSelectQuete(id) {
 let _qdCurrentId = 0;
 let _qdFrom = 'quete';
 let _qdQuestOverride = null;  // quête arbitraire (ex. quête Pilote) affichée dans la fiche
+let _qdEdit = false;          // mode édition de la fiche quête
+function qdSet(field, val, num){ const q = qdQuest(); if(!q) return; const t = String(val).trim(); q[field] = num ? (parseFloat(t.replace(',','.'))||0) : t; }
 
 function showQueteDetail(id, from) {
   _qdQuestOverride = null;
+  _qdEdit = false;
   _qdCurrentId = id;
   _qdFrom = from || 'quete';
   showScreen('quete-detail');
@@ -5577,6 +5580,7 @@ function showQueteDetail(id, from) {
 // Ouvre la fiche quête (même présentation) pour n'importe quelle quête.
 function showQueteFiche(quest, from) {
   _qdQuestOverride = quest;
+  _qdEdit = false;
   _qdFrom = from || (typeof currentRole !== 'undefined' ? currentRole : 'quete');
   showScreen('quete-detail');
 }
@@ -5623,14 +5627,10 @@ function qdDeposerPreuve() {
 }
 
 function qdModifier() {
-  const q = qdQuest(); if (!q) return;
-  const t = document.getElementById('qd-topbar-title'); if (!t || t.querySelector('input')) return;
-  t.innerHTML = '<input id="qd-edit-title" value="' + String(q.titre || '').replace(/"/g, '&quot;') + '" style="font:inherit;font-weight:800;color:var(--ink);border:1px solid rgba(46,102,66,.35);border-radius:8px;padding:.2rem .5rem;width:min(440px,60vw)">';
-  const inp = document.getElementById('qd-edit-title'); inp.focus(); inp.select();
-  let done = false;
-  const save = () => { if (done) return; done = true; const v = inp.value.trim(); if (v) q.titre = v; mmBubble('✏️ Quête modifiée'); qdRerender(); };
-  inp.addEventListener('keydown', e => { if (e.key === 'Enter') save(); });
-  inp.addEventListener('blur', save);
+  if (!qdQuest()) return;
+  _qdEdit = !_qdEdit;
+  if (!_qdEdit) mmBubble('✏️ Modifications enregistrées');
+  qdRerender();
 }
 
 function qdPause() {
@@ -5721,36 +5721,43 @@ function renderQueteDetail() {
     ${q.dates.map(d=>`<span style="font-size:.68rem;padding:.3rem .7rem;border-radius:var(--r);background:rgba(46,102,66,.07);border:1px solid rgba(46,102,66,.15);color:var(--ink)">📅 ${d}</span>`).join('')}
   </div>` : '';
 
-  // Colonne principale
+  // Colonne principale (mode édition: champs contenteditable)
+  const ED = _qdEdit;
+  const _eb = (f,v,num,dark)=> ED
+    ? `<span contenteditable="true" onblur="qdSet('${f}',this.textContent${num?',1':''})" style="outline:1px dashed ${dark?'rgba(255,255,255,.5)':'rgba(46,102,66,.4)'};border-radius:4px;padding:0 .25rem;cursor:text;min-width:1ch;display:inline-block">${v}</span>`
+    : `${v}`;
+  const edDark = (f,v,num)=>_eb(f,v,num,true);
+  const edLight= (f,v,num)=>_eb(f,v,num,false);
   document.getElementById('qd-main').innerHTML = `
+    ${ED ? '<button onclick="qdModifier()" style="width:100%;background:var(--forest);color:#fff;border:none;border-radius:100px;padding:.65rem;font-size:.82rem;font-weight:700;cursor:pointer;margin-bottom:.2rem">✓ Enregistrer les modifications</button>' : ''}
 
     <!-- Hero -->
     <div style="background:linear-gradient(135deg,#0e2a1a,#1a3a22);border-radius:var(--r-xl);padding:1.4rem 1.8rem;position:relative;overflow:hidden">
       <div style="position:absolute;right:-30px;top:-30px;width:150px;height:150px;background:radial-gradient(circle,rgba(122,184,64,.12),transparent);pointer-events:none;border-radius:50%"></div>
       <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.7rem">
         <span style="font-size:.65rem;padding:.18rem .55rem;border-radius:100px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.8)">${q.type}</span>
-        <span style="font-size:.65rem;padding:.18rem .55rem;border-radius:100px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6)">📍 ${q.ville}</span>
+        <span style="font-size:.65rem;padding:.18rem .55rem;border-radius:100px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6)">📍 ${edDark('ville', q.ville)}</span>
         ${(q.esrs||[]).map(e=>`<span style="font-size:.62rem;padding:.18rem .5rem;border-radius:100px;background:rgba(33,150,243,.15);color:#90caf9;border:1px solid rgba(33,150,243,.25)">ESRS ${e}</span>`).join('')}
         ${q.validated ? '<span style="font-size:.62rem;padding:.18rem .5rem;border-radius:100px;background:rgba(74,140,92,.25);color:#9be3a6;border:1px solid rgba(74,140,92,.4);font-weight:700">✓ Validée</span>' : ''}
         ${q.closed ? '<span style="font-size:.62rem;padding:.18rem .5rem;border-radius:100px;background:rgba(200,115,42,.2);color:#f0b96a;border:1px solid rgba(200,115,42,.35);font-weight:700">🔒 Clôturée</span>' : ''}
         ${q.paused ? '<span style="font-size:.62rem;padding:.18rem .5rem;border-radius:100px;background:rgba(240,200,74,.2);color:#f0d878;border:1px solid rgba(240,200,74,.35);font-weight:700">⏸ En pause</span>' : ''}
         ${q.joined ? '<span style="font-size:.62rem;padding:.18rem .5rem;border-radius:100px;background:rgba(74,140,92,.2);color:#9be3a6;border:1px solid rgba(74,140,92,.35);font-weight:700">✓ Tu participes</span>' : ''}
       </div>
-      <div style="font-family:'Satoshi', sans-serif;font-size:1.5rem;font-weight:900;color:white;line-height:1.15;margin-bottom:.5rem">${q.titre}</div>
+      <div style="font-family:'Satoshi', sans-serif;font-size:1.5rem;font-weight:900;color:white;line-height:1.15;margin-bottom:.5rem">${edDark('titre', q.titre)}</div>
       <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:1rem;flex-wrap:wrap">
-        <div style="font-size:.72rem;color:rgba(255,255,255,.5)">🏡 Pilote : ${q.pilote}</div>
+        <div style="font-size:.72rem;color:rgba(255,255,255,.5)">🏡 Pilote : ${edDark('pilote', q.pilote)}</div>
       </div>
       <div style="display:flex;gap:.8rem;flex-wrap:wrap">
         <div style="text-align:center;background:rgba(255,255,255,.07);border-radius:var(--r);padding:.55rem .9rem">
-          <div style="font-family:'Satoshi', sans-serif;font-size:1.3rem;font-weight:900;color:var(--amber)">${q.tokens}</div>
+          <div style="font-family:'Satoshi', sans-serif;font-size:1.3rem;font-weight:900;color:var(--amber)">${edDark('tokens', q.tokens, true)}</div>
           <div style="font-size:.55rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.1em">graines</div>
         </div>
         <div style="text-align:center;background:rgba(255,255,255,.07);border-radius:var(--r);padding:.55rem .9rem">
-          <div style="font-family:'Satoshi', sans-serif;font-size:1.3rem;font-weight:900;color:#7ceb6a">${q.co2}t</div>
+          <div style="font-family:'Satoshi', sans-serif;font-size:1.3rem;font-weight:900;color:#7ceb6a">${edDark('co2', q.co2, true)}t</div>
           <div style="font-size:.55rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.1em">CO₂ évité</div>
         </div>
         <div style="text-align:center;background:rgba(255,255,255,.07);border-radius:var(--r);padding:.55rem .9rem">
-          <div style="font-family:'Satoshi', sans-serif;font-size:1.3rem;font-weight:900;color:var(--sky)">${q.places}</div>
+          <div style="font-family:'Satoshi', sans-serif;font-size:1.3rem;font-weight:900;color:var(--sky)">${edDark('places', q.places)}</div>
           <div style="font-size:.55rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.1em">participants</div>
         </div>
       </div>
@@ -5759,7 +5766,7 @@ function renderQueteDetail() {
     <!-- Description -->
     <div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-lg);padding:1rem 1.1rem">
       <div style="font-size:.72rem;font-weight:600;color:var(--ink);margin-bottom:.5rem">📝 Description</div>
-      <p style="font-size:.8rem;color:var(--moss);line-height:1.6;margin:0">${q.desc || '—'}</p>
+      <p style="font-size:.8rem;color:var(--moss);line-height:1.6;margin:0">${edLight('desc', q.desc || '—')}</p>
     </div>
 
     <!-- Dates -->
@@ -5783,7 +5790,7 @@ function renderQueteDetail() {
     <!-- Impact -->
     <div style="background:rgba(74,140,92,.05);border:1px solid rgba(74,140,92,.2);border-radius:var(--r-lg);padding:.9rem 1rem">
       <div style="font-size:.72rem;font-weight:600;color:var(--fern);margin-bottom:.4rem">🌿 Impact si complétée</div>
-      <div style="font-size:.78rem;color:var(--ink);line-height:1.6">${q.impact}</div>
+      <div style="font-size:.78rem;color:var(--ink);line-height:1.6">${edLight('impact', q.impact)}</div>
       <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.6rem">${esrsBadges}</div>
     </div>
   `;
