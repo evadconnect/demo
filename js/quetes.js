@@ -62,9 +62,10 @@ function openQueteModal(qid) {
   +     (sol && sol.budget ? `<div style="display:flex;align-items:center;gap:.5rem;font-size:.74rem;color:var(--ink);margin-bottom:1rem"><span style="font-weight:700;color:var(--moss)">💶 Budget indicatif :</span> ${sol.budget}</div>` : '')
   +     (indics ? `<div style="font-size:.55rem;font-weight:700;color:var(--moss);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem">Indicateurs à suivre</div><div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:1rem">${indics}</div>` : '')
   +     (esrs ? `<div style="font-size:.55rem;font-weight:700;color:var(--moss);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem">Référentiels ESRS</div><div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.4rem">${esrs}</div>${sol && sol.esrs_detail ? `<div style="font-size:.66rem;color:var(--moss);opacity:.8;line-height:1.5;margin-bottom:1rem">${sol.esrs_detail}</div>` : ''}` : '')
-  +     `<div style="display:flex;gap:.6rem;margin-top:.6rem">
-            <button onclick="closeQueteModal()" style="flex:0 0 auto;background:none;border:1px solid rgba(46,102,66,.25);color:var(--moss);border-radius:100px;padding:.55rem 1rem;font-size:.78rem;font-weight:700;cursor:pointer">Fermer</button>
-            <button onclick="validerQuete('${q.id}');closeQueteModal()" style="flex:1;background:var(--forest);color:#fff;border:none;border-radius:100px;padding:.55rem 1rem;font-size:.78rem;font-weight:700;cursor:pointer">✅ Valider la preuve</button>
+  +     `<div style="display:flex;gap:.5rem;margin-top:.6rem;flex-wrap:wrap">
+            <button onclick="closeQueteModal()" style="background:none;border:1px solid rgba(46,102,66,.25);color:var(--moss);border-radius:100px;padding:.55rem 1rem;font-size:.78rem;font-weight:700;cursor:pointer">Fermer</button>
+            <button onclick="publishQueteToReseau('${q.id}')" style="flex:1;min-width:130px;background:rgba(240,176,50,.14);color:#a06c00;border:1px solid rgba(240,176,50,.35);border-radius:100px;padding:.55rem 1rem;font-size:.78rem;font-weight:700;cursor:pointer">📣 Publier au réseau</button>
+            <button onclick="validerQuete('${q.id}');closeQueteModal()" style="flex:1;min-width:130px;background:var(--forest);color:#fff;border:none;border-radius:100px;padding:.55rem 1rem;font-size:.78rem;font-weight:700;cursor:pointer">✅ Valider la preuve</button>
           </div>`
   +   '</div>'
   + '</div>';
@@ -74,6 +75,33 @@ function openQueteModal(qid) {
 function closeQueteModal() {
   const w = document.getElementById('quete-modal');
   if (w) w.style.display = 'none';
+}
+
+/* Publie la quête dans le fil d'action du Réseau, au nom du lieu créé. */
+function publishQueteToReseau(qid) {
+  const q = (typeof PILOTE_QUETES_DEMO !== 'undefined') ? PILOTE_QUETES_DEMO.find(x => x.id === qid) : null;
+  if (!q || typeof RESEAU_POSTS === 'undefined') return;
+  const lieu = (typeof myLieuData !== 'undefined' && myLieuData && myLieuData.nom)
+    ? { nom: myLieuData.nom, ville: myLieuData.localisation || (typeof EVAD !== 'undefined' ? EVAD.activeLieu.ville : 'Bordeaux') }
+    : (typeof EVAD !== 'undefined' ? EVAD.activeLieu : { nom: 'Mon lieu', ville: 'Bordeaux' });
+  const ville = (String(lieu.ville).match(/[A-Za-zÀ-ÿ' -]+$/) || [lieu.ville])[0].replace(/^\s*\d{5}\s*/, '').trim() || 'Bordeaux';
+  // éviter les doublons exacts en tête de fil
+  if (!(RESEAU_POSTS[0] && RESEAU_POSTS[0].quest && RESEAU_POSTS[0].quest.titre === q.titre && RESEAU_POSTS[0].author === lieu.nom)) {
+    RESEAU_POSTS.unshift({
+      profile: 'pilote', author: lieu.nom, lieu: ville, time: "à l'instant",
+      type: 'quete', regen: 'entreprendre',
+      text: "On lance une nouvelle quête sur notre lieu ⚡ « " + q.titre + " ». On mobilise des Bâtisseurs, rejoignez-nous !",
+      quest: { titre: q.titre, meta: [q.duree, q.nb, (q.graines + ' graines')].filter(Boolean).join(' · ') },
+      cta: 'Rejoindre la quête'
+    });
+  }
+  closeQueteModal();
+  showScreen('reseau');
+  setTimeout(() => {
+    if (typeof reseauTab === 'function') { try { reseauTab('fil', document.getElementById('rtab-fil')); } catch (e) {} }
+    if (typeof reseauSetFilter === 'function') reseauSetFilter('tout', document.querySelector('.reseau-filter[data-f="tout"]'));
+  }, 120);
+  if (typeof mmBubble === 'function') mmBubble('📣 Quête publiée au Réseau !');
 }
 
 /* Reconstruit les quêtes du Pilote depuis les solutions choisies à la
