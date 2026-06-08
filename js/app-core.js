@@ -5471,9 +5471,57 @@ function batFilterQuetes(filter, btn) {
   batRenderQuetes();
 }
 
+// Génère des quêtes proposées EN FONCTION du profil bâtisseur
+// (compétences déclarées + ville), à partir des solutions hébergées par les lieux réels.
+const BAT_SKILL_KW = {
+  maraichage:  ['jardin','permacult','potager','compost','maraîch','aliment','amap','graine'],
+  energie:     ['solaire','énergie','chauffe','pv','électr','low-tech'],
+  reparation:  ['repair','réemploi','réparation','recycl','vélo','matériau'],
+  facilitation:['atelier','animation','formation','sensibilis','médiation','amap'],
+  construction:['isolation','paille','toiture','construction','chantier','bois','maçonn'],
+  biodiversite:['haie','mare','biodiv','pollinis','arbre','verger','permacult','jardin'],
+};
+function batBuildQuetesFromProfile() {
+  if (typeof BAT_QUETES === 'undefined' || typeof SOLS === 'undefined') return;
+  const fd = (typeof batFicheData !== 'undefined') ? batFicheData : {};
+  const skills = fd.skills || [];
+  const ville = (fd.ville || '').trim().toLowerCase();
+  const lieux = (typeof MAP_PLACES !== 'undefined') ? MAP_PLACES : [];
+  BAT_QUETES.length = 0;
+  SOLS.filter(s => s.quete).forEach((sol, idx) => {
+    const text = (sol.nom + ' ' + (sol.cat || '') + ' ' + sol.quete.titre).toLowerCase();
+    const matched = skills.some(sk => (BAT_SKILL_KW[sk] || []).some(k => text.includes(k)));
+    // lieu hôte : un lieu dont le type accueille cette solution, sinon rotation
+    let host = lieux.find(l => {
+      const tid = (typeof TYPES_LIEU !== 'undefined') ? (TYPES_LIEU.find(t => t.l === l.type) || {}).id : null;
+      return tid && (sol.lieux || []).includes(tid);
+    }) || lieux[idx % Math.max(1, lieux.length)] || { nom: 'Lieu EVAD', ville: 'Bordeaux' };
+    const villeMatch = ville && host.ville && host.ville.toLowerCase().includes(ville);
+    let match = 62 + (matched ? 28 : 0) + (villeMatch ? 8 : 0) - (idx % 3);
+    match = Math.max(55, Math.min(99, match));
+    BAT_QUETES.push({
+      id: 0, type: (sol.img || '⚡') + ' ' + (sol.cat || 'Quête'),
+      titre: sol.quete.titre, match: match,
+      lieu: host.nom, ville: host.ville || 'Bordeaux',
+      duree: sol.quete.duree || '1 journée',
+      places: '2/' + (parseInt(sol.quete.nb, 10) || 6),
+      etape_actuelle: 1, etapes: 4,
+      etapeLabels: ['Lancement', 'Préparation', 'Réalisation', 'Certification'],
+      tokens: sol.tok || 50, co2: sol.co2 || 0,
+      esrs: (sol.esrs || []).map(e => String(e).replace('ESRS ', '').trim()),
+      financement: { objectif: 0, montant: 0, semeur: null },
+      equipe: [{ i: 'L', c: '#4a8c5c' }, { i: 'H', c: '#c8732a' }],
+      dates: [], _matched: matched
+    });
+  });
+  BAT_QUETES.sort((a, b) => b.match - a.match);
+  BAT_QUETES.forEach((q, i) => { q.id = i; });
+}
+
 function batRenderQuetes() {
   const list = document.getElementById('bat-quetes-list');
   if (!list) return;
+  batBuildQuetesFromProfile();
   let quetes = [...BAT_QUETES];
   if (batCurrentFilter === 'proches') quetes = quetes.filter(q => q.ville === 'Bordeaux' || q.ville === 'Libourne');
   if (batCurrentFilter === 'competences') quetes = quetes.filter(q => q.match >= 85);
