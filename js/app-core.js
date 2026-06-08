@@ -6040,7 +6040,16 @@ function piloteTab(tab, btn) {
   if (tab === 'marketplace') setTimeout(pmktRenderOffers, 50);
   if (tab === 'dossiers')   setTimeout(initDossiers, 50);
   if (tab === 'quetes')     setTimeout(renderPiloteQuetes, 50);
-  if (tab === 'fiche')      { ficheFillFromMyLieu(); setTimeout(ficheMmRender, 80); }
+  if (tab === 'fiche')      {
+    // Reflète le lieu créé : identité + espaces + carte mentale
+    if (typeof myLieuData !== 'undefined' && myLieuData) {
+      ficheEspaces = (myLieuData.espacesData || []).map(e => Object.assign({}, e));
+      ficheSolsByEspace = {};
+    }
+    ficheFillFromMyLieu();
+    ficheRenderEspaces();
+    setTimeout(ficheMmRender, 80);
+  }
   if (tab === 'apercu') setTimeout(() => {
     const arc = document.getElementById('regen-arc');
     if (arc) arc.style.strokeDashoffset = '63';
@@ -8810,7 +8819,10 @@ function ficheMmRender() {
   });
 
   const W = ficheMmW(), H = ficheMmH(), cx = W / 2, cy = H / 2;
-  const nomLieu = (document.getElementById('fiche-nom-input') ? document.getElementById('fiche-nom-input').value : '') || 'Mon lieu';
+  const nomLieu = (document.getElementById('fiche-f-nom') && document.getElementById('fiche-f-nom').value)
+    || (document.getElementById('fiche-nom-input') && document.getElementById('fiche-nom-input').value)
+    || (typeof myLieuData !== 'undefined' && myLieuData && myLieuData.nom)
+    || 'Mon lieu';
   ficheMmAdd('c', nomLieu, cx, cy, 'center');
 
   espItems.forEach((item, i) => {
