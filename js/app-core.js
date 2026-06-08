@@ -247,9 +247,9 @@ function obGoStep(i) {
 
 function obSkip() {
   const d = OB_DATA[obRole];
-  // Navigate to role's first screen
-  const dest = { pilote: 'carte', batisseur: 'quete', semeur: 'semeur' };
-  showScreen(dest[obRole] || 'carte');
+  // Après l'onboarding, on enchaîne sur la création de fiche du rôle
+  const dest = { pilote: 'creer', batisseur: 'fiche-bat', semeur: 'fiche-sem' };
+  showScreen(dest[obRole] || 'creer');
 }
 
 function obAction(screen) {
@@ -1905,14 +1905,13 @@ function updateRoleNavigation(role){
   document.querySelectorAll('.role-switch3 .rsw-btn').forEach(b=>b.classList.toggle('active', b.dataset.role===role));
 }
 
-// Bascule de profil depuis la sidebar (sans relancer l'onboarding).
+// Bascule de profil depuis la sidebar : relance l'onboarding du rôle,
+// qui enchaîne ensuite sur l'écran de création de fiche (comme à l'inscription).
 function switchRole(role){
   if(!ROLE_CONFIG[role]) return;
   currentRole = role;
-  updateRoleNavigation(role);
-  const dest = { pilote:'pilote', batisseur:'quete', semeur:'semeur' };
-  showScreen(dest[role] || 'carte');  // renderProfileContext() est appelé dans showScreen
-  if (typeof mmBubble === 'function') mmBubble('Profil actif : ' + (ROLE_CONFIG[role].label || role).trim());
+  updateRoleNavigation(role);            // met à jour la nav + le bouton actif
+  showOnboarding(role);                  // assistant du rôle → puis création de fiche
 }
 
 function firstAllowedScreen(role){
