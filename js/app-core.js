@@ -2090,64 +2090,64 @@ const MAP_PLACES = [
 
 const MAP_BATISSEURS = [
   {
-    nom:'Les Compagnons Bâtisseurs Nouvelle-Aquitaine', role:'Éco-construction & rénovation', ville:'Bordeaux', icon:'🔨', niveau:5,
-    lat:44.83365, lng:-0.57108,
-    bio:"Mouvement associatif d'auto-réhabilitation accompagnée : chantiers participatifs d'éco-rénovation et de lutte contre le mal-logement.",
-    graines:1850, quetes_realisees:24, quetes_actives:3, graines_passifs:120,
-    competences:['Isolation biosourcée','Maçonnerie','Accompagnement chantier','Formation bénévoles'],
-    disponibilite:'Chantiers en semaine et week-ends',
-    lieux_frequentes:['Le Garage Moderne','Darwin Écosystème','La Halle des Douves'],
-    certifications:['Chantier participatif','Isolation paille']
+    nom:'Léa M.', role:'Maraîchère & permacultrice', ville:'Bordeaux', icon:'🌾', niveau:4,
+    lat:44.83372, lng:-0.57503,
+    bio:"Maraîchère installée près de Bordeaux, je partage mes techniques de permaculture et de compostage sur les chantiers participatifs.",
+    graines:1240, quetes_realisees:17, quetes_actives:2, graines_passifs:70,
+    competences:['Permaculture','Maraîchage','Compostage',"Gestion de l'eau"],
+    disponibilite:'En semaine, hors saison de récolte',
+    lieux_frequentes:['Le Jardin de ta Sœur','Darwin Écosystème','Supercoop'],
+    certifications:['Permaculture (CCP)','Maître composteur']
   },
   {
-    nom:"Étu'Récup", role:'Réemploi étudiant', ville:'Talence', icon:'♻️', niveau:3,
+    nom:'Hugo D.', role:'Charpentier & éco-constructeur', ville:'Bègles', icon:'🪚', niveau:5,
+    lat:44.81506, lng:-0.55503,
+    bio:"Charpentier de métier, passionné de construction bois et paille. J'anime des chantiers d'éco-rénovation le week-end.",
+    graines:1820, quetes_realisees:23, quetes_actives:3, graines_passifs:110,
+    competences:['Charpente bois','Isolation paille','Maçonnerie','Chantier participatif'],
+    disponibilite:'Week-ends et soirées',
+    lieux_frequentes:['Le Garage Moderne','La Halle des Douves'],
+    certifications:['RGE','Isolation paille']
+  },
+  {
+    nom:'Sarah B.', role:'Étudiante en environnement', ville:'Talence', icon:'🎓', niveau:2,
     lat:44.80403, lng:-0.59435,
-    bio:"Association étudiante bordelaise qui collecte et redistribue le matériel en fin d'année universitaire pour lutter contre le gaspillage.",
-    graines:640, quetes_realisees:11, quetes_actives:2, graines_passifs:45,
-    competences:['Collecte','Tri & réemploi','Logistique','Mobilisation étudiante'],
+    bio:"Étudiante en master environnement à Bordeaux, je m'engage sur des missions de réemploi et de sensibilisation près du campus.",
+    graines:430, quetes_realisees:8, quetes_actives:2, graines_passifs:30,
+    competences:['Sensibilisation','Réemploi','Collecte','Communication'],
     disponibilite:'Période universitaire',
-    lieux_frequentes:['Supercoop','Le Garage Moderne'],
+    lieux_frequentes:['Supercoop','Le Jardin de ta Sœur'],
     certifications:['Réemploi matériaux']
   },
   {
-    nom:'Unis-Cité Nouvelle-Aquitaine', role:'Mobilisation citoyenne', ville:'Bordeaux', icon:'🤝', niveau:4,
-    lat:44.83618, lng:-0.57147,
-    bio:"Pionnière du service civique en France : des équipes de jeunes volontaires sur des missions de transition écologique et de solidarité.",
-    graines:1280, quetes_realisees:18, quetes_actives:4, graines_passifs:90,
-    competences:['Sensibilisation','Animation','Médiation','Solidarité'],
-    disponibilite:'Missions de 6 à 8 mois',
-    lieux_frequentes:['La Maison Écocitoyenne','Le Jardin de ta Sœur','Darwin Écosystème'],
-    certifications:['Médiation environnementale']
+    nom:'Karim T.', role:'Électricien & énergies renouvelables', ville:'Bordeaux', icon:'☀️', niveau:4,
+    lat:44.83266, lng:-0.56369,
+    bio:"Électricien indépendant, je conçois des installations solaires et des systèmes low-tech pour les lieux en transition.",
+    graines:1360, quetes_realisees:19, quetes_actives:2, graines_passifs:85,
+    competences:['Panneaux solaires','Électricité','Low-tech','Chauffe-eau solaire'],
+    disponibilite:'Sur rendez-vous',
+    lieux_frequentes:['Darwin Écosystème','La Maison Écocitoyenne'],
+    certifications:['QualiPV','Électricien']
   },
   {
-    nom:'Zero Waste Bordeaux', role:'Zéro déchet', ville:'Bordeaux', icon:'🗑', niveau:4,
-    lat:44.82521, lng:-0.56992,
-    bio:"Antenne locale du mouvement Zero Waste : ateliers, défis « rien de neuf » et accompagnement des lieux vers la réduction des déchets.",
-    graines:1120, quetes_realisees:16, quetes_actives:3, graines_passifs:80,
-    competences:['Compostage','Zéro déchet','Ateliers DIY','Sensibilisation'],
+    nom:'Manon L.', role:'Animatrice zéro déchet', ville:'Bordeaux', icon:'♻️', niveau:3,
+    lat:44.83618, lng:-0.57147,
+    bio:"J'anime des ateliers zéro déchet et compostage de quartier, pour rendre la réduction des déchets accessible et conviviale.",
+    graines:910, quetes_realisees:14, quetes_actives:3, graines_passifs:60,
+    competences:['Compostage','Zéro déchet','Ateliers DIY','Animation'],
     disponibilite:'Ateliers le week-end',
-    lieux_frequentes:['Supercoop','La Halle des Douves','Le Jardin de ta Sœur'],
+    lieux_frequentes:['La Halle des Douves','Supercoop','Le Jardin de ta Sœur'],
     certifications:['Maître composteur']
   },
   {
-    nom:"Récup'R", role:'Réparation & mobilité douce', ville:'Bordeaux', icon:'🚲', niveau:4,
-    lat:44.83266, lng:-0.56369,
-    bio:"Recyclerie et atelier participatif de réparation vélo et couture à Bordeaux, pour prolonger la vie des objets.",
-    graines:980, quetes_realisees:14, quetes_actives:2, graines_passifs:70,
-    competences:['Réparation vélo','Couture','Réemploi','Atelier participatif'],
+    nom:'Théo R.', role:'Réparateur vélo & mécanicien', ville:'Bordeaux', icon:'🚲', niveau:3,
+    lat:44.83365, lng:-0.57108,
+    bio:"Bricoleur et cycliste, je remets sur roues les vélos abandonnés et j'initie les habitants à l'autoréparation.",
+    graines:780, quetes_realisees:12, quetes_actives:2, graines_passifs:50,
+    competences:['Réparation vélo','Soudure','Réemploi','Mobilité douce'],
     disponibilite:'Permanences hebdo',
     lieux_frequentes:['Le Garage Moderne',"Les Vivres de l'Art"],
     certifications:['Repair café']
-  },
-  {
-    nom:'Les Petits Débrouillards Nouvelle-Aquitaine', role:'Médiation & pédagogie', ville:'Bordeaux', icon:'🔬', niveau:3,
-    lat:44.83372, lng:-0.57503,
-    bio:"Réseau d'éducation populaire qui rend les sciences et les enjeux écologiques accessibles à tous, par l'expérimentation.",
-    graines:720, quetes_realisees:12, quetes_actives:2, graines_passifs:50,
-    competences:['Médiation scientifique','Pédagogie','Animation jeunesse'],
-    disponibilite:'Animations scolaires et grand public',
-    lieux_frequentes:['La Maison Écocitoyenne','Le Jardin de ta Sœur'],
-    certifications:['Animateur scientifique']
   }
 ];
 
