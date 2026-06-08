@@ -2090,7 +2090,68 @@ const MAP_PLACES = [
 
 const MAP_BATISSEURS = [];
 
-const MAP_SEMEURS = [];
+const MAP_SEMEURS = [
+  {
+    nom:'Région Nouvelle-Aquitaine', type:'Collectivité territoriale', ville:'Bordeaux', icon:'🏛',
+    lat:44.83654, lng:-0.58921,
+    description:"Collectivité qui finance la transition écologique et l'ESS sur tout le territoire néo-aquitain (feuille de route Néo Terra, fonds régionaux).",
+    graines_engages:48000, graines_retournes:31000, contrats_actifs:3, score_impact:86,
+    focus:['Transition énergétique','ESS','Alimentation durable'], esrs:['E1','E5','S3'],
+    lieux_finances:['Darwin Écosystème','La Halle des Douves','Le Garage Moderne'],
+    prochain_jalon:"Comité d'engagement Néo Terra — mars 2026",
+    contact:'Direction Transition écologique'
+  },
+  {
+    nom:'Bordeaux Métropole', type:'Collectivité', ville:'Bordeaux', icon:'🏙',
+    lat:44.83735, lng:-0.58477,
+    description:"Métropole qui soutient les tiers-lieux, l'alimentation durable et la résilience territoriale via ses appels à projets et son budget participatif.",
+    graines_engages:32000, graines_retournes:18500, contrats_actifs:3, score_impact:79,
+    focus:['Tiers-lieux','Biodiversité','Résilience territoriale'], esrs:['E4','S3'],
+    lieux_finances:['Le Jardin de ta Sœur','La Maison Écocitoyenne',"Les Vivres de l'Art"],
+    prochain_jalon:'Validation du budget participatif — avril 2026',
+    contact:'Service Nature & Transitions'
+  },
+  {
+    nom:'ADEME Nouvelle-Aquitaine', type:'Agence publique', ville:'Cenon', icon:'♻️',
+    lat:44.85599, lng:-0.53462,
+    description:"Direction régionale de l'Agence de la transition écologique : aides aux projets énergie, déchets, économie circulaire et adaptation climatique.",
+    graines_engages:27000, graines_retournes:15000, contrats_actifs:2, score_impact:83,
+    focus:['Énergie','Économie circulaire','Climat'], esrs:['E1','E5'],
+    lieux_finances:['Darwin Écosystème','Supercoop'],
+    prochain_jalon:'Audit énergétique des lieux financés — Q2 2026',
+    contact:'Pôle Économie circulaire'
+  },
+  {
+    nom:'France Active Nouvelle-Aquitaine', type:'Financeur solidaire', ville:'Bordeaux', icon:'🤝',
+    lat:44.82768, lng:-0.55176,
+    description:"Financeur solidaire de l'ESS : garanties, prêts et accompagnement des entreprises et associations à impact social et écologique.",
+    graines_engages:21000, graines_retournes:13200, contrats_actifs:2, score_impact:80,
+    focus:['ESS','Emploi','Inclusion'], esrs:['S1','S3'],
+    lieux_finances:['Supercoop','Le Garage Moderne'],
+    prochain_jalon:'Renouvellement des garanties — juin 2026',
+    contact:'Chargé·e de financement ESS'
+  },
+  {
+    nom:'MAIF', type:'Assureur à mission', ville:'Niort', icon:'💚',
+    lat:46.33216, lng:-0.48563,
+    description:"Assureur militant dont le fonds d'impact soutient des projets à utilité sociale et environnementale, en cohérence avec son statut d'entreprise à mission.",
+    graines_engages:18000, graines_retournes:9000, contrats_actifs:2, score_impact:77,
+    focus:['Entreprise à mission','Lien social','Climat'], esrs:['E1','S3'],
+    lieux_finances:['Darwin Écosystème',"Les Vivres de l'Art"],
+    prochain_jalon:"Revue d'impact annuelle — Q1 2026",
+    contact:'MAIF Impact'
+  },
+  {
+    nom:'Fondation Léa Nature', type:'Fondation environnementale', ville:'Périgny', icon:'🌿',
+    lat:46.16104, lng:-1.09958,
+    description:"Fondation d'entreprise (groupe Léa Nature) qui finance la protection de l'environnement, la biodiversité et l'agriculture biologique.",
+    graines_engages:14000, graines_retournes:7600, contrats_actifs:2, score_impact:81,
+    focus:['Biodiversité','Agriculture bio','Reforestation'], esrs:['E4','E3'],
+    lieux_finances:['Le Jardin de ta Sœur','Supercoop'],
+    prochain_jalon:'Sélection appel à projets biodiversité — mai 2026',
+    contact:'Déléguée générale'
+  }
+];
 
 // Fiches complètes des lieux réels (alimentent la modale « fiche complète »).
 // Rattachées par index, dans le même ordre que MAP_PLACES.
@@ -2712,6 +2773,34 @@ function mapRenderCommunity() {
     });
     const countEl = document.getElementById('map-lieux-count');
     if (countEl) countEl.textContent = `🏡 ${MAP_PLACES.length} Lieu${MAP_PLACES.length>1?'x':''}`;
+  }
+
+  const sSem = document.getElementById('map-section-semeurs');
+  if (sSem && MAP_SEMEURS.length) {
+    sSem.querySelectorAll(':scope > div').forEach(el => { if (/Aucun semeur/i.test(el.textContent)) el.remove(); });
+    MAP_SEMEURS.forEach((s, idx) => {
+      const card = document.createElement('div');
+      card.className = 'place-card-mini';
+      card.style.cssText = 'background:rgba(58,110,140,0.06);border-left:3px solid var(--sky);cursor:pointer';
+      card.onclick = () => { mapShowSemeur(idx); document.getElementById('map-panel-main').style.display='none'; document.getElementById('map-acteur-panel').style.display=''; };
+      card.innerHTML = `
+        <div class="pcm-top">
+          <div class="pcm-icon" style="background:rgba(58,110,140,0.15);color:var(--sky)">${s.icon}</div>
+          <div>
+            <div class="pcm-name">${s.nom}</div>
+            <div class="pcm-type">${s.type} · ${s.ville}</div>
+          </div>
+        </div>
+        <div class="pcm-score-row">
+          <div class="score-bar-bg"><div class="score-bar-fill" style="width:${s.score_impact}%;background:linear-gradient(90deg,var(--sky),#6ab0d0)"></div></div>
+          <div class="score-label" style="color:var(--sky)">Impact ${s.score_impact}/100</div>
+        </div>
+        <div class="pcm-quetes" style="color:var(--sky)">🌱 ${s.graines_engages.toLocaleString('fr')} graines · ${s.contrats_actifs} contrat${s.contrats_actifs>1?'s':''}</div>
+      `;
+      sSem.appendChild(card);
+    });
+    const semCount = document.getElementById('map-sem-count');
+    if (semCount) semCount.textContent = `🌾 ${MAP_SEMEURS.length} Semeur${MAP_SEMEURS.length>1?'s':''}`;
   }
 }
 
