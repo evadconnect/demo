@@ -5621,8 +5621,13 @@ function renderQueteDetail() {
   // Topbar
   document.getElementById('qd-topbar-title').textContent = q.titre;
   document.getElementById('qd-topbar-sub').textContent = q.lieu + ' · ' + q.ville + ' · ' + q.duree;
-  // Les actions sont désormais dans la colonne de gauche (par rôle)
-  const _qdta = document.getElementById('qd-topbar-actions'); if (_qdta) _qdta.innerHTML = '';
+  // Actions (bandeau + colonne de droite selon le rôle)
+  const ctas = {
+    batisseur: `<button class="btn btn-primary" onclick="qdJoindre()">✅ Rejoindre cette quête</button>`,
+    semeur: `<button class="btn btn-primary" onclick="qdFinancer()">💰 Financer cette quête</button>`,
+    pilote: `<button class="btn btn-ghost" onclick="qdModifier()">✏️ Modifier la quête</button><button class="btn btn-primary" onclick="qdValider()">✅ Valider les preuves</button>`
+  };
+  const _qdta = document.getElementById('qd-topbar-actions'); if (_qdta) _qdta.innerHTML = ctas[currentRole] || ctas.batisseur;
 
   // Étapes
   const labels = q.etapeLabels || ['Lancement','Préparation','Réalisation','Certification'];
@@ -5706,9 +5711,6 @@ function renderQueteDetail() {
         </div>
       </div>
     </div>
-
-    <!-- Actions selon le profil -->
-    ${qdActionButtons()}
 
     <!-- Description -->
     <div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-lg);padding:1rem 1.1rem">
