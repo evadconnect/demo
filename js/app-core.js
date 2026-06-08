@@ -5519,7 +5519,7 @@ function batBuildQuetesFromProfile() {
       esrs: (sol.esrs || []).map(e => String(e).replace('ESRS ', '').trim()),
       financement: { objectif: 0, montant: 0, semeur: null },
       equipe: [{ i: 'L', c: '#4a8c5c' }, { i: 'H', c: '#c8732a' }],
-      dates: [], _matched: matched
+      dates: ['Samedi · 9h–17h', 'Dimanche · 9h–13h'], _matched: matched
     });
   });
   BAT_QUETES.sort((a, b) => b.match - a.match);
@@ -5792,6 +5792,12 @@ function renderQueteDetail() {
       <p style="font-size:.8rem;color:var(--moss);line-height:1.6;margin:0">${edLight('desc', q.desc || '—')}</p>
     </div>
 
+    <!-- Dates -->
+    ${datesHtml ? `<div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-lg);padding:.9rem 1rem">
+      <div style="font-size:.72rem;font-weight:600;color:var(--ink);margin-bottom:.55rem">📅 Dates</div>
+      ${datesHtml}
+    </div>` : ''}
+
     <!-- Matériel nécessaire (checklist · Bibliothèque) -->
     ${(q.materiel && q.materiel.length) ? (() => {
       const checked = q.materielChecked || (q.materielChecked = []);
@@ -5807,12 +5813,6 @@ function renderQueteDetail() {
           <span style="font-size:.74rem;color:${checked[i] ? 'var(--moss)' : 'var(--ink)'};${checked[i] ? 'text-decoration:line-through;opacity:.6' : ''}">${m}</span>
         </label>`).join('')}</div>
     </div>`; })() : ''}
-
-    <!-- Dates -->
-    ${datesHtml ? `<div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-lg);padding:.9rem 1rem">
-      <div style="font-size:.72rem;font-weight:600;color:var(--ink);margin-bottom:.55rem">📅 Dates</div>
-      ${datesHtml}
-    </div>` : ''}
 
     <!-- Étapes -->
     <div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-lg);padding:.9rem 1rem">
