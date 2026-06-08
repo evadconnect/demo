@@ -5964,7 +5964,8 @@ function renderQueteDetail() {
           <button class="btn" style="font-size:.65rem;padding:.3rem .7rem;background:rgba(74,140,92,.1);color:var(--fern);border:1px solid rgba(74,140,92,.25)" onclick="qdPause()">${q.paused ? '▶️ Réactiver' : '⏸ Mettre en pause'}</button>
           <button class="btn" style="font-size:.65rem;padding:.3rem .7rem;background:rgba(200,115,42,.1);color:var(--amber);border:1px solid rgba(200,115,42,.25)" onclick="qdCloturer()">🔒 Clôturer</button>
         </div>
-        <button class="btn btn-ghost" style="width:100%;font-size:.7rem" onclick="qdModifier()">✏️ Modifier les paramètres →</button>
+        <button class="btn btn-ghost" style="width:100%;font-size:.7rem;margin-bottom:.45rem" onclick="qdModifier()">✏️ Modifier les paramètres →</button>
+        <button class="btn btn-primary" style="width:100%;font-size:.72rem;background:rgba(240,176,50,.16);color:#a06c00;border:1px solid rgba(240,176,50,.35)" onclick="qdPublierReseau()">📣 Publier dans le réseau →</button>
       </div>
 
       <!-- Preuves à valider -->
@@ -6031,6 +6032,26 @@ function qdValider() {
 function qdCloturer() {
   const q = qdQuest(); if (!q) return;
   q.closed = true; mmBubble('🔒 Quête clôturée'); qdRerender();
+}
+function qdPublierReseau() {
+  const q = qdQuest(); if (!q || typeof RESEAU_POSTS === 'undefined') return;
+  const lieuNom = q.pilote || q.lieu || ((typeof myLieuData !== 'undefined' && myLieuData && myLieuData.nom) || 'Mon lieu');
+  const ville = q.ville || 'Bordeaux';
+  if (!(RESEAU_POSTS[0] && RESEAU_POSTS[0].quest && RESEAU_POSTS[0].quest.titre === q.titre && RESEAU_POSTS[0].author === lieuNom)) {
+    RESEAU_POSTS.unshift({
+      profile: 'pilote', author: lieuNom, lieu: ville, time: "à l'instant",
+      type: 'quete', regen: 'entreprendre',
+      text: "On lance une nouvelle quête sur notre lieu ⚡ « " + q.titre + " ». On mobilise des Bâtisseurs, rejoignez-nous !",
+      quest: { titre: q.titre, meta: [q.duree, (q.places ? q.places.split('/')[1] + ' pers.' : ''), (q.tokens + ' graines')].filter(Boolean).join(' · ') },
+      cta: 'Rejoindre la quête'
+    });
+  }
+  showScreen('reseau');
+  setTimeout(() => {
+    if (typeof reseauTab === 'function') { try { reseauTab('fil', document.getElementById('rtab-fil')); } catch (e) {} }
+    if (typeof reseauSetFilter === 'function') reseauSetFilter('tout', document.querySelector('.reseau-filter[data-f="tout"]'));
+  }, 120);
+  if (typeof mmBubble === 'function') mmBubble('📣 Quête publiée au Réseau !');
 }
 
 /* ─── GESTION MARKETPLACE PILOTE ─── */
