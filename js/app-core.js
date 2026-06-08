@@ -1973,7 +1973,92 @@ let evadMap = null;
 let evadMarkers = [];
 let createdLeafletMarkers = [];
 
-const MAP_PLACES = [];
+const MAP_PLACES = [
+  {
+    nom:'Darwin Écosystème', type:'Tiers-lieu', ville:'Bordeaux', icon:'🌿',
+    lat:44.84953, lng:-0.56147, score:82, quetes:4, batisseurs:23, semeurs:5, score_trim:'+7',
+    desc:"Ancienne caserne militaire de la rive droite réhabilitée en écosystème d'économie créative, sociale et solidaire : coworking, ferme urbaine, skatepark, restaurant bio et dizaines d'associations.",
+    dims:[{l:'Environnement',v:88,c:'var(--fern)'},{l:'Social',v:84,c:'var(--sky)'},{l:'Éco. locale',v:80,c:'var(--amber)'},{l:'Gouvernance',v:76,c:'var(--lavender)'}],
+    quetes_list:[
+      {icon:'🌱',title:'Agrandir la ferme urbaine',meta:'Permaculture · 8 pers.',status:'Ouverte',sBg:'rgba(74,140,92,.15)',sC:'var(--fern)'},
+      {icon:'♻️',title:'Tri & compost des événements',meta:'Zéro déchet · 5 pers.',status:'En cours',sBg:'rgba(240,200,74,.18)',sC:'var(--amber)'}
+    ],
+    besoins:['Maraîcher·ère bénévole','Mécène événementiel'],
+    deva:"Darwin est un pilier de la rive droite. Une quête « compost » bien documentée ferait grimper le score Environnement au-dessus de 90."
+  },
+  {
+    nom:'La Halle des Douves', type:'Tiers-lieu', ville:'Bordeaux', icon:'🌿',
+    lat:44.83073, lng:-0.56668, score:64, quetes:3, batisseurs:11, semeurs:2, score_trim:'+5',
+    desc:"Ancienne halle de marché de Saint-Michel devenue tiers-lieu associatif et citoyen : événements, ateliers, permanences d'associations et vie de quartier.",
+    dims:[{l:'Environnement',v:60,c:'var(--fern)'},{l:'Social',v:78,c:'var(--sky)'},{l:'Éco. locale',v:58,c:'var(--amber)'},{l:'Gouvernance',v:62,c:'var(--lavender)'}],
+    quetes_list:[
+      {icon:'🎟',title:'Programmer des ateliers de quartier',meta:'Animation · 4 pers.',status:'Ouverte',sBg:'rgba(74,140,92,.15)',sC:'var(--fern)'},
+      {icon:'🔧',title:'Rénover la cuisine partagée',meta:'Bricolage · 6 pers.',status:'Ouverte',sBg:'rgba(74,140,92,.15)',sC:'var(--fern)'}
+    ],
+    besoins:["Animateur·rice d'ateliers",'Dons de matériel'],
+    deva:"Forte dimension sociale. Ajoute une quête « énergie » pour équilibrer le score REGEN."
+  },
+  {
+    nom:"Les Vivres de l'Art", type:'Tiers-lieu', ville:'Bordeaux', icon:'🌿',
+    lat:44.86453, lng:-0.54952, score:58, quetes:2, batisseurs:9, semeurs:1, score_trim:'+4',
+    desc:"Lieu d'art et de création dans une ancienne usine de Bacalan : ateliers d'artistes, sculptures monumentales en métal recyclé, guinguette et événements culturels.",
+    dims:[{l:'Environnement',v:55,c:'var(--fern)'},{l:'Social',v:66,c:'var(--sky)'},{l:'Éco. locale',v:60,c:'var(--amber)'},{l:'Gouvernance',v:50,c:'var(--lavender)'}],
+    quetes_list:[
+      {icon:'♻️',title:'Sculpture en métal recyclé',meta:'Up-cycling · 5 pers.',status:'Ouverte',sBg:'rgba(74,140,92,.15)',sC:'var(--fern)'},
+      {icon:'🎨',title:"Résidence d'artiste éco-responsable",meta:'Culture · 2 pers.',status:'En cours',sBg:'rgba(240,200,74,.18)',sC:'var(--amber)'}
+    ],
+    besoins:['Soudeur·se bénévole','Métal de récupération'],
+    deva:"L'up-cycling artistique valorise bien l'économie circulaire. Documente les tonnes de métal réemployées."
+  },
+  {
+    nom:'Le Garage Moderne', type:'Repair café', ville:'Bordeaux', icon:'🔨',
+    lat:44.86500, lng:-0.55029, score:71, quetes:3, batisseurs:14, semeurs:2, score_trim:'+6',
+    desc:"Atelier associatif et participatif de Bacalan : on répare soi-même sa voiture ou son vélo, on bricole, on cuisine et on expose, dans un esprit d'entraide et de récup'.",
+    dims:[{l:'Environnement',v:74,c:'var(--fern)'},{l:'Social',v:72,c:'var(--sky)'},{l:'Éco. locale',v:70,c:'var(--amber)'},{l:'Gouvernance',v:66,c:'var(--lavender)'}],
+    quetes_list:[
+      {icon:'🚲',title:'Atelier vélo participatif',meta:'Réparation · 6 pers.',status:'Ouverte',sBg:'rgba(74,140,92,.15)',sC:'var(--fern)'},
+      {icon:'🔧',title:'Donnerie de pièces détachées',meta:'Réemploi · 4 pers.',status:'Ouverte',sBg:'rgba(74,140,92,.15)',sC:'var(--fern)'}
+    ],
+    besoins:['Mécanicien·ne bénévole','Outillage'],
+    deva:"Le réemploi auto/vélo évite beaucoup de CO₂. Une quête « bilan déchets évités » renforcerait l'impact mesuré."
+  },
+  {
+    nom:'La Maison Écocitoyenne', type:'École alternative', ville:'Bordeaux', icon:'📚',
+    lat:44.83841, lng:-0.56776, score:60, quetes:2, batisseurs:7, semeurs:1, score_trim:'+3',
+    desc:"Équipement municipal sur les quais dédié à la sensibilisation au développement durable : expositions, ateliers, conseils en écomobilité, énergie et alimentation.",
+    dims:[{l:'Environnement',v:70,c:'var(--fern)'},{l:'Social',v:64,c:'var(--sky)'},{l:'Éco. locale',v:50,c:'var(--amber)'},{l:'Gouvernance',v:56,c:'var(--lavender)'}],
+    quetes_list:[
+      {icon:'🌍',title:"Cycle d'ateliers climat",meta:'Pédagogie · 3 pers.',status:'Ouverte',sBg:'rgba(74,140,92,.15)',sC:'var(--fern)'},
+      {icon:'🚲',title:'Permanence écomobilité',meta:'Conseil · 2 pers.',status:'En cours',sBg:'rgba(240,200,74,.18)',sC:'var(--amber)'}
+    ],
+    besoins:['Intervenant·e ateliers','Partenaires écoles'],
+    deva:"Lieu pédagogique idéal pour embarquer de nouveaux bâtisseurs. Mets en avant le nombre de personnes sensibilisées."
+  },
+  {
+    nom:'Supercoop', type:'Épicerie solidaire', ville:'Bordeaux', icon:'🛒',
+    lat:44.81506, lng:-0.55503, score:54, quetes:2, batisseurs:18, semeurs:1, score_trim:'+5',
+    desc:"Supermarché coopératif et participatif de la métropole : chaque membre donne un peu de temps pour proposer une alimentation de qualité, locale et à prix juste.",
+    dims:[{l:'Environnement',v:52,c:'var(--fern)'},{l:'Social',v:70,c:'var(--sky)'},{l:'Éco. locale',v:64,c:'var(--amber)'},{l:'Gouvernance',v:80,c:'var(--lavender)'}],
+    quetes_list:[
+      {icon:'🥕',title:'Filière maraîchers locaux',meta:'Circuit court · 5 pers.',status:'Ouverte',sBg:'rgba(74,140,92,.15)',sC:'var(--fern)'},
+      {icon:'🤝',title:'Recruter des coopérateurs',meta:'Communauté · 10 pers.',status:'Ouverte',sBg:'rgba(74,140,92,.15)',sC:'var(--fern)'}
+    ],
+    besoins:['Coopérateurs bénévoles','Producteurs locaux'],
+    deva:"Gouvernance coopérative exemplaire. Travaille la dimension Environnement avec une quête « zéro emballage »."
+  },
+  {
+    nom:'Le Jardin de ta Sœur', type:'Jardin partagé', ville:'Bordeaux', icon:'🪴',
+    lat:44.85912, lng:-0.56259, score:49, quetes:2, batisseurs:6, semeurs:0, score_trim:'+4',
+    desc:"Jardin partagé emblématique des Chartrons né sur une ancienne friche : potager collectif, verger de 22 arbres fruitiers, animations de quartier et biodiversité.",
+    dims:[{l:'Environnement',v:66,c:'var(--fern)'},{l:'Social',v:60,c:'var(--sky)'},{l:'Éco. locale',v:30,c:'var(--amber)'},{l:'Gouvernance',v:40,c:'var(--lavender)'}],
+    quetes_list:[
+      {icon:'🌳',title:'Entretien du verger',meta:'Jardinage · 5 pers.',status:'Ouverte',sBg:'rgba(74,140,92,.15)',sC:'var(--fern)'},
+      {icon:'🐝',title:'Hôtels à insectes',meta:'Biodiversité · 3 pers.',status:'En cours',sBg:'rgba(240,200,74,.18)',sC:'var(--amber)'}
+    ],
+    besoins:['Jardiniers bénévoles','Plants & graines'],
+    deva:"Belle base écologique. Quelques quêtes « économie locale » feraient progresser le score global."
+  }
+];
 
 const MAP_BATISSEURS = [];
 
@@ -2412,7 +2497,42 @@ function popupHTML(place) {
   `;
 }
 
+// Rend les lieux de la communauté dans le panneau latéral + compteur (une fois).
+let _mapCommunityRendered = false;
+function mapRenderCommunity() {
+  if (_mapCommunityRendered) return;
+  _mapCommunityRendered = true;
+  const sLieux = document.getElementById('map-section-lieux');
+  if (sLieux && MAP_PLACES.length) {
+    sLieux.querySelectorAll(':scope > div').forEach(el => { if (/Aucun/i.test(el.textContent)) el.remove(); });
+    MAP_PLACES.forEach((p, idx) => {
+      const card = document.createElement('div');
+      card.className = 'place-card-mini';
+      card.style.cssText = 'cursor:pointer';
+      card.onclick = () => mapShowLieu(idx);
+      card.innerHTML = `
+        <div class="pcm-top">
+          <div class="pcm-icon" style="background:rgba(74,140,92,0.15)">${p.icon}</div>
+          <div>
+            <div class="pcm-name">${p.nom}</div>
+            <div class="pcm-type">${p.type} · ${p.ville}</div>
+          </div>
+        </div>
+        <div class="pcm-score-row">
+          <div class="score-bar-bg"><div class="score-bar-fill" style="width:${p.score}%"></div></div>
+          <div class="score-label">Score ${p.score}/100</div>
+        </div>
+        <div class="pcm-quetes" style="color:var(--fern)">⚡ ${p.quetes} quête${p.quetes>1?'s':''} · ${p.batisseurs} bâtisseur${p.batisseurs>1?'s':''}</div>
+      `;
+      sLieux.appendChild(card);
+    });
+    const countEl = document.getElementById('map-lieux-count');
+    if (countEl) countEl.textContent = `🏡 ${MAP_PLACES.length} Lieu${MAP_PLACES.length>1?'x':''}`;
+  }
+}
+
 function initRealMap() {
+  mapRenderCommunity();
   if (evadMap) {
     setTimeout(() => evadMap.invalidateSize(), 100);
     return;
