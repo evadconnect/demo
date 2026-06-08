@@ -678,7 +678,7 @@
       <div class="topbar-sub" id="bat-topbar-sub">Bâtisseur d'impact · Complète ton profil pour commencer</div>
     </div>
     <div class="topbar-actions">
-      <button class="btn btn-ghost" onclick="batTab('graines',document.getElementById('btab-graines'))">0 🌱 graines</button>
+      <button class="btn btn-ghost" id="bat-topbar-graines" onclick="batTab('graines',document.getElementById('btab-graines'))">0 🌱 graines</button>
       <button class="btn btn-primary" onclick="batTab('quetes',document.getElementById('btab-quetes'))">⚡ Mes quêtes</button>
     </div>
   </div>
@@ -708,8 +708,8 @@
         </div>
         <div style="position:relative;text-align:right;flex-shrink:0">
           <div style="font-size:.58rem;color:var(--sage);opacity:.7;text-transform:uppercase;letter-spacing:.12em;margin-bottom:.15rem">Mes graines</div>
-          <div style="font-family:'Satoshi', sans-serif;font-size:1.7rem;font-weight:900;color:var(--sun);line-height:1">0</div>
-          <div style="font-size:.6rem;color:var(--sage);opacity:.6;margin-bottom:.55rem">—</div>
+          <div id="bat-apercu-graines" style="font-family:'Satoshi', sans-serif;font-size:1.7rem;font-weight:900;color:var(--sun);line-height:1">0</div>
+          <div id="bat-apercu-graines-sub" style="font-size:.6rem;color:var(--sage);opacity:.6;margin-bottom:.55rem">—</div>
           <button class="btn" style="font-size:.65rem;padding:.32rem .8rem;background:rgba(240,200,74,.15);color:var(--sun);border:1px solid rgba(240,200,74,.3)" onclick="batTab('graines',document.getElementById('btab-graines'))">Marketplace →</button>
         </div>
       </div>
@@ -723,12 +723,12 @@
         </div>
         <div style="background:white;border:1px solid rgba(46,102,66,.15);border-top:3px solid var(--fern);border-radius:var(--r-xl);padding:.8rem 1rem">
           <div style="font-size:.62rem;font-weight:600;color:var(--fern);margin-bottom:.35rem">🏅 Compétences</div>
-          <div style="font-family:'Satoshi', sans-serif;font-size:1.25rem;font-weight:900;color:var(--fern);line-height:1;margin-bottom:.2rem">—</div>
+          <div id="bat-kpi-comp" style="font-family:'Satoshi', sans-serif;font-size:1.25rem;font-weight:900;color:var(--fern);line-height:1;margin-bottom:.2rem">—</div>
           <div style="font-size:.62rem;color:var(--moss);opacity:.7">à débloquer</div>
         </div>
         <div style="background:white;border:1px solid rgba(58,110,140,.15);border-top:3px solid var(--sky);border-radius:var(--r-xl);padding:.8rem 1rem">
           <div style="font-size:.62rem;font-weight:600;color:var(--sky);margin-bottom:.35rem">🌱 Graines gagnés</div>
-          <div style="font-family:'Satoshi', sans-serif;font-size:1.25rem;font-weight:900;color:var(--sky);line-height:1;margin-bottom:.2rem">0</div>
+          <div id="bat-kpi-graines" style="font-family:'Satoshi', sans-serif;font-size:1.25rem;font-weight:900;color:var(--sky);line-height:1;margin-bottom:.2rem">0</div>
           <div style="font-size:.62rem;color:var(--moss);opacity:.7">total cumulé</div>
         </div>
         <div style="background:white;border:1px solid rgba(46,153,96,.15);border-top:3px solid #2e9960;border-radius:var(--r-xl);padding:.8rem 1rem">
@@ -864,15 +864,15 @@
   <div class="bat-panel" id="bat-panel-competences">
     <div style="padding:1.1rem 2rem">
       <div class="bat-kpi-row">
-        <div class="bat-kpi" style="border-top:3px solid var(--fern)"><div class="bat-kpi-val" style="color:var(--fern)">—</div><div class="bat-kpi-lbl">Compétences actives</div><div class="bat-kpi-trend" style="color:var(--fern)">à débloquer</div></div>
+        <div class="bat-kpi" style="border-top:3px solid var(--fern)"><div class="bat-kpi-val" id="bat-comp-active" style="color:var(--fern)">—</div><div class="bat-kpi-lbl">Compétences actives</div><div class="bat-kpi-trend" style="color:var(--fern)">déclarées</div></div>
         <div class="bat-kpi" style="border-top:3px solid var(--amber)"><div class="bat-kpi-val" style="color:var(--amber)">—</div><div class="bat-kpi-lbl">Quêtes certifiantes</div><div class="bat-kpi-trend" style="color:var(--moss);opacity:.6">validées EVAD</div></div>
         <div class="bat-kpi" style="border-top:3px solid var(--sky)"><div class="bat-kpi-val" style="color:var(--sky)">—</div><div class="bat-kpi-lbl">Certif. blockchain</div><div class="bat-kpi-trend" style="color:var(--sky)">NFT EVAD</div></div>
-        <div class="bat-kpi" style="border-top:3px solid var(--lavender)"><div class="bat-kpi-val" style="color:var(--lavender)">×1.0</div><div class="bat-kpi-lbl">Multiplicateur graines</div><div class="bat-kpi-trend" style="color:var(--amber)">→ ×2.0 au Niv.5</div></div>
+        <div class="bat-kpi" style="border-top:3px solid var(--lavender)"><div class="bat-kpi-val" id="bat-comp-mult" style="color:var(--lavender)">×1.0</div><div class="bat-kpi-lbl">Multiplicateur graines</div><div class="bat-kpi-trend" style="color:var(--amber)">→ ×2.0 au Niv.5</div></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 265px;gap:1.5rem;align-items:start">
         <div>
           <div style="font-family:'Satoshi', sans-serif;font-size:.9rem;font-weight:700;color:var(--ink);margin-bottom:.8rem">Compétences acquises</div>
-          <div style="padding:2rem;text-align:center;font-size:.78rem;color:var(--moss);opacity:.5;background:white;border:1px dashed rgba(46,102,66,.18);border-radius:var(--r-xl)">Rejoins des quêtes pour développer tes premières compétences</div>
+          <div id="bat-comp-list"><div style="padding:2rem;text-align:center;font-size:.78rem;color:var(--moss);opacity:.5;background:white;border:1px dashed rgba(46,102,66,.18);border-radius:var(--r-xl)">Rejoins des quêtes pour développer tes premières compétences</div></div>
         </div>
 
         <div style="display:flex;flex-direction:column;gap:1rem">

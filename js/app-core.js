@@ -5409,6 +5409,58 @@ function batReflectProfile() {
   if (intro) intro.textContent = (has && (fd.bio || '').trim())
     ? fd.bio
     : 'Rejoins des quêtes pour commencer à contribuer et gagner des graines';
+
+  // Graines liées au profil (bonus de bienvenue + compétences déclarées)
+  const graines = batProfileGraines();
+  const nbComp = (fd.skills || []).length;
+  const tg = document.getElementById('bat-topbar-graines');
+  if (tg) tg.textContent = graines + ' 🌱 graines';
+  const ag = document.getElementById('bat-apercu-graines');
+  if (ag) ag.textContent = graines;
+  const ags = document.getElementById('bat-apercu-graines-sub');
+  if (ags) ags.textContent = has ? 'bonus profil' : '—';
+  const kg = document.getElementById('bat-kpi-graines');
+  if (kg) kg.textContent = graines;
+  const kc = document.getElementById('bat-kpi-comp');
+  if (kc) kc.textContent = nbComp || '—';
+}
+
+// Solde de graines du bâtisseur, dérivé du profil :
+// 50 de bienvenue à la création + 15 par compétence déclarée.
+function batProfileGraines() {
+  const fd = (typeof batFicheData !== 'undefined') ? batFicheData : null;
+  if (!fd) return 0;
+  const has = ((fd.prenom || '') + (fd.nom || '')).trim() !== '';
+  if (!has) return 0;
+  return 50 + (fd.skills || []).length * 15;
+}
+
+// Rend l'onglet « Compétences » à partir des compétences déclarées au profil.
+function batRenderCompetences() {
+  const fd = (typeof batFicheData !== 'undefined') ? batFicheData : null;
+  const list = document.getElementById('bat-comp-list');
+  const skills = (fd && fd.skills) ? fd.skills.map(id => BAT_SKILLS.find(s => s.id === id)).filter(Boolean) : [];
+  const active = document.getElementById('bat-comp-active');
+  if (active) active.textContent = skills.length || '—';
+  const mult = document.getElementById('bat-comp-mult');
+  if (mult) mult.textContent = '×' + (1 + skills.length * 0.2).toFixed(1);
+  if (!list) return;
+  if (!skills.length) {
+    list.innerHTML = '<div style="padding:2rem;text-align:center;font-size:.78rem;color:var(--moss);opacity:.5;background:white;border:1px dashed rgba(46,102,66,.18);border-radius:var(--r-xl)">Renseigne tes compétences dans « Mon profil » pour les afficher ici.</div>';
+    return;
+  }
+  list.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">' + skills.map(s => {
+    const lvl = (fd.skillLevels && fd.skillLevels[s.id] != null) ? fd.skillLevels[s.id] : (s.stars || 1);
+    const stars = '★'.repeat(Math.max(1, lvl)) + '☆'.repeat(Math.max(0, 5 - Math.max(1, lvl)));
+    return '<div style="background:white;border:1px solid rgba(46,102,66,.1);border-left:3px solid ' + s.col + ';border-radius:var(--r-lg);padding:.8rem .9rem">' +
+      '<div style="display:flex;align-items:center;gap:.55rem;margin-bottom:.35rem">' +
+        '<div style="width:34px;height:34px;border-radius:9px;background:' + s.bg + ';display:flex;align-items:center;justify-content:center;font-size:1.05rem">' + s.ic + '</div>' +
+        '<div style="flex:1;min-width:0"><div style="font-size:.8rem;font-weight:700;color:var(--ink)">' + s.label + '</div>' +
+        '<div style="font-size:.7rem;color:' + s.col + '">' + stars + '</div></div>' +
+      '</div>' +
+      '<div style="font-size:.66rem;color:var(--moss);opacity:.75;line-height:1.4">' + (s.desc || '') + '</div>' +
+    '</div>';
+  }).join('') + '</div>';
 }
 
 function batFilterQuetes(filter, btn) {
@@ -6627,6 +6679,7 @@ function batTab(tab, btn) {
   const panel = document.getElementById('bat-panel-' + tab);
   if (panel) panel.classList.add('active');
   if (tab === 'graines') setTimeout(bmktRender, 60);
+  if (tab === 'competences') setTimeout(batRenderCompetences, 60);
   if (tab === 'fiche')   setTimeout(() => { batDashFicheRender(); }, 80);
   if (tab === 'apercu') setTimeout(() => {
     if (document.getElementById('bat-quetes-list') && !document.getElementById('bat-quetes-list').children.length) batInitDashboard();
