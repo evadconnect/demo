@@ -273,12 +273,19 @@ function renderPiloteQuetes() {
       msg.textContent = `${nbValidees} quêtes validées → tes dossiers CSRD et FSE+ sont maintenant renseignés. Génère un rapport depuis l'onglet Dossiers.`;
     }
   }
+
+  // Répercute sur l'aperçu (score REGEN + wallet graines)
+  if (typeof updateApercuFromQuetes === 'function') updateApercuFromQuetes();
 }
 
 /* ─── Validation d'une quête → propagation dans actionsTerrains ─── */
 function validerQuete(id) {
   const quete = PILOTE_QUETES_DEMO.find(q => q.id === id);
   if (!quete || quetesValidees.has(id)) return;
+
+  // Gain visible : points REGEN + graines de la quête
+  const _pts = (String(quete.impact || '').match(/(\d+)\s*pts?/i) || [])[1] || 5;
+  if (typeof mmBubble === 'function') mmBubble(`✓ Preuve validée · +${_pts} pts REGEN · +${quete.graines || 0} graines 🌱`);
 
   const type = detectConvType(quete.titre, quete.impact);
   if (!type) {

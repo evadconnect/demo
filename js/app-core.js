@@ -6051,10 +6051,31 @@ function piloteTab(tab, btn) {
     setTimeout(ficheMmRender, 80);
   }
   if (tab === 'apercu') setTimeout(() => {
-    const arc = document.getElementById('regen-arc');
-    if (arc) arc.style.strokeDashoffset = '63';
     regenInit();
+    updateApercuFromQuetes();
   }, 80);
+}
+
+/* Reflète les quêtes validées sur l'aperçu : score REGEN + wallet graines.
+   Score = base 40 + somme des « +X pts » des quêtes validées (plafonné à 100). */
+function updateApercuFromQuetes() {
+  let bonus = 0, graines = 0;
+  if (typeof PILOTE_QUETES_DEMO !== 'undefined' && typeof quetesValidees !== 'undefined') {
+    PILOTE_QUETES_DEMO.forEach(q => {
+      if (quetesValidees.has(q.id)) {
+        const m = String(q.impact || '').match(/(\d+)\s*pts?/i);
+        bonus += m ? parseInt(m[1], 10) : 5;
+        graines += q.graines || 0;
+      }
+    });
+  }
+  const score = Math.min(100, 40 + bonus);
+  const valEl = document.getElementById('apercu-regen-val');
+  if (valEl) valEl.textContent = score;
+  const arc = document.getElementById('regen-arc');
+  if (arc) arc.style.strokeDashoffset = String(226.2 * (1 - score / 100));
+  const wallet = document.getElementById('apercu-graines-wallet');
+  if (wallet) wallet.textContent = graines.toLocaleString('fr');
 }
 
 /* ─── PARCOURS REGEN (boucle + détail par étape) ─── */
