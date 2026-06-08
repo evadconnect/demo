@@ -2619,8 +2619,8 @@
 <div id="auth-profil-modal" style="display:none;position:fixed;inset:0;z-index:10001;background:rgba(14,26,18,.6);backdrop-filter:blur(6px);align-items:center;justify-content:center">
   <div style="background:white;border-radius:1.5rem;width:min(520px,92vw);padding:2rem 2rem 1.75rem;position:relative;box-shadow:0 24px 64px rgba(0,0,0,.25)">
     <button onclick="closeAuthModal()" style="position:absolute;top:1rem;right:1rem;width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(46,102,66,.2);background:rgba(46,102,66,.06);font-size:.85rem;cursor:pointer;color:var(--moss)">×</button>
-    <h2 id="auth-profil-title" style="font-family:'DM Sans',sans-serif;font-size:1.6rem;font-weight:700;color:#0d2b22;margin:0 0 .35rem">Choisir un profil</h2>
-    <p id="auth-profil-sub" style="font-size:.82rem;color:#3d6b5a;margin:0 0 1.4rem;line-height:1.4;font-family:'DM Sans',sans-serif">Sélectionne ton rôle EVAD avant de te connecter.</p>
+    <h2 id="auth-profil-title" style="font-family:'Satoshi',sans-serif;font-size:1.6rem;font-weight:700;color:#0d2b22;margin:0 0 .35rem">Choisir un profil</h2>
+    <p id="auth-profil-sub" style="font-size:.82rem;color:#3d6b5a;margin:0 0 1.4rem;line-height:1.4;font-family:'Satoshi',sans-serif">Sélectionne ton rôle EVAD avant de te connecter.</p>
     <div style="display:flex;flex-direction:column;gap:.65rem">
       <button onclick="selectAuthProfil('pilote','🏡','Pilote d\'impact','Créer et piloter un lieu durable.')" class="auth-profil-card">
         <div class="auth-profil-icon" style="background:#d4ead9">🏡</div>
@@ -2640,18 +2640,18 @@
 
 <!-- ── Modal : Connexion / Inscription ── -->
 <div id="auth-connexion-modal" style="display:none;position:fixed;inset:0;z-index:10001;background:rgba(14,26,18,.6);backdrop-filter:blur(6px);align-items:center;justify-content:center">
-  <div style="background:white;border-radius:1.5rem;width:min(520px,92vw);padding:2rem 2rem 1.75rem;position:relative;box-shadow:0 24px 64px rgba(0,0,0,.25);font-family:'DM Sans',sans-serif">
-    <button onclick="closeAuthModal()" style="position:absolute;top:1rem;right:1rem;width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(46,102,66,.2);background:rgba(46,102,66,.06);font-size:.85rem;cursor:pointer;color:var(--moss);font-family:'DM Sans',sans-serif">×</button>
-    <div id="auth-role-badge" style="display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .8rem;border-radius:100px;background:rgba(46,107,71,.1);color:var(--forest);font-size:.75rem;font-weight:700;margin-bottom:1rem;font-family:'DM Sans',sans-serif"></div>
-    <h2 style="font-family:'DM Sans',sans-serif;font-size:1.6rem;font-weight:700;color:#0d2b22;margin:0 0 .35rem">Se connecter</h2>
-    <p style="font-size:.82rem;color:#3d6b5a;margin:0 0 1.4rem;line-height:1.4;font-family:'DM Sans',sans-serif">Connecte-toi pour continuer ton parcours EVAD.</p>
+  <div style="background:white;border-radius:1.5rem;width:min(520px,92vw);padding:2rem 2rem 1.75rem;position:relative;box-shadow:0 24px 64px rgba(0,0,0,.25);font-family:'Satoshi',sans-serif">
+    <button onclick="closeAuthModal()" style="position:absolute;top:1rem;right:1rem;width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(46,102,66,.2);background:rgba(46,102,66,.06);font-size:.85rem;cursor:pointer;color:var(--moss);font-family:'Satoshi',sans-serif">×</button>
+    <div id="auth-role-badge" style="display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .8rem;border-radius:100px;background:rgba(46,107,71,.1);color:var(--forest);font-size:.75rem;font-weight:700;margin-bottom:1rem;font-family:'Satoshi',sans-serif"></div>
+    <h2 style="font-family:'Satoshi',sans-serif;font-size:1.6rem;font-weight:700;color:#0d2b22;margin:0 0 .35rem">Se connecter</h2>
+    <p style="font-size:.82rem;color:#3d6b5a;margin:0 0 1.4rem;line-height:1.4;font-family:'Satoshi',sans-serif">Connecte-toi pour continuer ton parcours EVAD.</p>
     <div style="margin-bottom:.75rem">
-      <input type="email" placeholder="Adresse email" style="width:100%;box-sizing:border-box;padding:.85rem 1.1rem;border:1.5px solid rgba(1,130,98,.2);border-radius:.75rem;font-size:.92rem;outline:none;transition:border-color .2s;font-family:'DM Sans',sans-serif;color:#0d2b22" onfocus="this.style.borderColor='#018262'" onblur="this.style.borderColor='rgba(1,130,98,.2)'">
+      <input type="email" placeholder="Adresse email" style="width:100%;box-sizing:border-box;padding:.85rem 1.1rem;border:1.5px solid rgba(1,130,98,.2);border-radius:.75rem;font-size:.92rem;outline:none;transition:border-color .2s;font-family:'Satoshi',sans-serif;color:#0d2b22" onfocus="this.style.borderColor='#018262'" onblur="this.style.borderColor='rgba(1,130,98,.2)'">
     </div>
     <div style="margin-bottom:1.25rem">
-      <input type="password" placeholder="Mot de passe" style="width:100%;box-sizing:border-box;padding:.85rem 1.1rem;border:1.5px solid rgba(1,130,98,.2);border-radius:.75rem;font-size:.92rem;outline:none;transition:border-color .2s;font-family:'DM Sans',sans-serif;color:#0d2b22" onfocus="this.style.borderColor='#018262'" onblur="this.style.borderColor='rgba(1,130,98,.2)'">
+      <input type="password" placeholder="Mot de passe" style="width:100%;box-sizing:border-box;padding:.85rem 1.1rem;border:1.5px solid rgba(1,130,98,.2);border-radius:.75rem;font-size:.92rem;outline:none;transition:border-color .2s;font-family:'Satoshi',sans-serif;color:#0d2b22" onfocus="this.style.borderColor='#018262'" onblur="this.style.borderColor='rgba(1,130,98,.2)'">
     </div>
-    <button onclick="authSubmit()" style="width:100%;padding:1rem;border:none;border-radius:100px;background:#018262;color:white;font-size:1rem;font-weight:600;cursor:pointer;transition:background .18s;font-family:'DM Sans',sans-serif" onmouseover="this.style.background='#005c44'" onmouseout="this.style.background='#018262'">Se connecter</button>
+    <button onclick="authSubmit()" style="width:100%;padding:1rem;border:none;border-radius:100px;background:#018262;color:white;font-size:1rem;font-weight:600;cursor:pointer;transition:background .18s;font-family:'Satoshi',sans-serif" onmouseover="this.style.background='#005c44'" onmouseout="this.style.background='#018262'">Se connecter</button>
   </div>
 </div>
 

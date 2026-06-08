@@ -3120,7 +3120,7 @@ body {
 .sp-logo { display: inline-flex; align-items: center; justify-content: center; margin-bottom: 14px; }
 .sp-logo svg { width: 290px; height: auto; }
 .sp-name {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   font-size: 1rem;
   font-weight: 600;
   color: #018262;
@@ -3130,7 +3130,7 @@ body {
   margin-bottom: 14px;
 }
 .sp-slogan {
-  font-family: 'DM Sans', serif;
+  font-family: 'Satoshi', serif;
   font-size: 1.25rem;
   font-weight: 700;
   color: #0d2b22;
@@ -3138,7 +3138,7 @@ body {
   margin-bottom: 12px;
 }
 .sp-tagline {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   font-size: 0.9rem;
   color: #3d6b5a;
   line-height: 1.65;
@@ -3151,7 +3151,7 @@ body {
   gap: 6px;
   background: #018262;
   color: #fff;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -3173,7 +3173,7 @@ body {
   align-items: center;
   gap: 16px;
   box-shadow: 0 2px 20px rgba(1,130,98,0.1);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Satoshi', sans-serif;
 }
 .sp-card:hover {
   border-color: rgba(1,130,98,0.5);
@@ -3200,7 +3200,7 @@ body {
   font-weight: 600;
   color: #0d2b22;
   margin-bottom: 3px;
-  font-family: 'DM Sans', serif;
+  font-family: 'Satoshi', serif;
 }
 .sp-desc { font-size: 0.8rem; color: #3d6b5a; line-height: 1.4; }
 .sp-badge {
@@ -3222,7 +3222,7 @@ body {
   border: none;
   border-radius: 14px;
   color: #fff;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
@@ -3243,7 +3243,7 @@ body {
 }
 .sp-sep-line { flex: 1; height: 1px; background: rgba(1,130,98,0.18); }
 .sp-sep-label {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Satoshi', sans-serif;
   font-size: 0.72rem; color: #018262;
   font-weight: 500; letter-spacing: 0.1em;
   text-transform: uppercase; opacity: 0.6;
@@ -3260,7 +3260,7 @@ body {
   text-decoration: none; color: inherit;
   transition: all 0.2s ease;
   box-shadow: 0 2px 16px rgba(1,130,98,0.08);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Satoshi', sans-serif;
 }
 .sp-engage-card:hover { box-shadow: 0 6px 28px rgba(1,130,98,0.18); transform: translateX(3px); }
 .sp-e-icon {
@@ -3287,7 +3287,7 @@ body {
   text-decoration: none; color: inherit;
   transition: all 0.2s ease;
   box-shadow: 0 2px 16px rgba(1,130,98,0.07);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Satoshi', sans-serif;
 }
 .sp-eco-link:hover { border-color: rgba(1,130,98,0.4); box-shadow: 0 6px 24px rgba(1,130,98,0.15); transform: translateY(-1px); }
 .sp-eco-icon {
@@ -3302,7 +3302,7 @@ body {
 .sp-footer {
   text-align: center; padding-top: 24px;
   border-top: 1px solid rgba(1,130,98,0.15);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Satoshi', sans-serif;
 }
 .sp-footer-text { font-size: 0.72rem; color: #3d6b5a; opacity: 0.6; letter-spacing: 0.04em; }
 .sp-footer-links { display: flex; justify-content: center; gap: 20px; margin-top: 10px; }
