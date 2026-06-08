@@ -90,6 +90,8 @@ function openPiloteQueteFiche(qid) {
     lieu: lieuNom, pilote: lieuNom, ville: ville,
     desc: (sol && sol.desc) || pq.titre,
     impact: pq.impact || (sol && sol.impact) || '',
+    plan: ((sol && typeof SOLS_INDICATORS !== 'undefined' && SOLS_INDICATORS[sol.nom]) ? SOLS_INDICATORS[sol.nom].plan : null) || [],
+    materiel: ((sol && typeof SOLS_INDICATORS !== 'undefined' && SOLS_INDICATORS[sol.nom]) ? SOLS_INDICATORS[sol.nom].materiel : null) || [],
     preuve: 'Photos de l\'action réalisée + indicateurs mesurés.',
     apprendre: 'Mise en œuvre de « ' + ((sol && sol.nom) || pq.titre) + ' ».',
     duree: pq.duree || '1 journée',

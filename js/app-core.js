@@ -5505,6 +5505,8 @@ function batBuildQuetesFromProfile() {
       lieu: host.nom, pilote: host.nom, ville: host.ville || 'Bordeaux',
       desc: sol.desc || sol.quete.titre,
       impact: sol.quete.impact_quete || sol.impact || '',
+      plan: ((typeof SOLS_INDICATORS !== 'undefined' && SOLS_INDICATORS[sol.nom]) ? SOLS_INDICATORS[sol.nom].plan : null) || [],
+      materiel: ((typeof SOLS_INDICATORS !== 'undefined' && SOLS_INDICATORS[sol.nom]) ? SOLS_INDICATORS[sol.nom].materiel : null) || [],
       preuve: 'Photos de l\'action réalisée + indicateurs mesurés (CO₂, énergie, déchets…).',
       apprendre: 'Mise en œuvre de « ' + sol.nom + ' » et documentation de l\'impact.',
       duree: sol.quete.duree || '1 journée',
@@ -5768,6 +5770,21 @@ function renderQueteDetail() {
       <div style="font-size:.72rem;font-weight:600;color:var(--ink);margin-bottom:.5rem">📝 Description</div>
       <p style="font-size:.8rem;color:var(--moss);line-height:1.6;margin:0">${edLight('desc', q.desc || '—')}</p>
     </div>
+
+    <!-- Plan d'action (Bibliothèque) -->
+    ${(q.plan && q.plan.length) ? `<div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-lg);padding:1rem 1.1rem">
+      <div style="font-size:.72rem;font-weight:600;color:var(--ink);margin-bottom:.6rem">🗂 Plan d'action <span style="font-weight:400;opacity:.5">· depuis la Bibliothèque</span></div>
+      ${q.plan.map((p,i)=>`<div style="display:flex;gap:.65rem;align-items:flex-start;padding:.45rem 0;${i<q.plan.length-1?'border-bottom:1px solid rgba(46,102,66,.06)':''}">
+        <div style="width:22px;height:22px;border-radius:50%;background:rgba(74,140,92,.12);color:var(--fern);display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;flex-shrink:0">${i+1}</div>
+        <div style="flex:1;min-width:0"><div style="font-size:.76rem;font-weight:600;color:var(--ink)">${p.ic||''} ${p.titre||''}</div><div style="font-size:.68rem;color:var(--moss);opacity:.8;line-height:1.5;margin-top:.1rem">${p.desc||''}</div></div>
+      </div>`).join('')}
+    </div>` : ''}
+
+    <!-- Matériel nécessaire (Bibliothèque) -->
+    ${(q.materiel && q.materiel.length) ? `<div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-lg);padding:1rem 1.1rem">
+      <div style="font-size:.72rem;font-weight:600;color:var(--ink);margin-bottom:.6rem">🧰 Matériel nécessaire <span style="font-weight:400;opacity:.5">· depuis la Bibliothèque</span></div>
+      <div style="display:flex;flex-wrap:wrap;gap:.35rem">${q.materiel.map(m=>`<span style="font-size:.66rem;padding:.25rem .6rem;border-radius:100px;background:rgba(46,102,66,.06);border:1px solid rgba(46,102,66,.15);color:var(--moss)">🔩 ${m}</span>`).join('')}</div>
+    </div>` : ''}
 
     <!-- Dates -->
     ${datesHtml ? `<div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-lg);padding:.9rem 1rem">
