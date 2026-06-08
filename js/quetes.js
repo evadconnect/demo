@@ -84,20 +84,21 @@ function openPiloteQueteFiche(qid) {
   const sol = (typeof SOLS !== 'undefined') ? SOLS.find(s => s.nom === pq.source) : null;
   const lieuNom = (typeof myLieuData !== 'undefined' && myLieuData && myLieuData.nom) ? myLieuData.nom : 'Mon lieu';
   const ville = (typeof myLieuData !== 'undefined' && myLieuData && myLieuData.localisation) ? myLieuData.localisation : 'Bordeaux';
+  const _semPlan = ((sol && typeof SOLS_INDICATORS !== 'undefined' && SOLS_INDICATORS[sol.nom]) ? SOLS_INDICATORS[sol.nom].plan : null) || [];
   showQueteFiche({
     titre: pq.titre,
     type: (pq.sourceIc || (sol && sol.img) || '⚡') + ' ' + ((sol && sol.cat) || 'Quête'),
     lieu: lieuNom, pilote: lieuNom, ville: ville,
     desc: (sol && sol.desc) || pq.titre,
     impact: pq.impact || (sol && sol.impact) || '',
-    plan: ((sol && typeof SOLS_INDICATORS !== 'undefined' && SOLS_INDICATORS[sol.nom]) ? SOLS_INDICATORS[sol.nom].plan : null) || [],
+    plan: _semPlan,
     materiel: ((sol && typeof SOLS_INDICATORS !== 'undefined' && SOLS_INDICATORS[sol.nom]) ? SOLS_INDICATORS[sol.nom].materiel : null) || [],
     preuve: 'Photos de l\'action réalisée + indicateurs mesurés.',
     apprendre: 'Mise en œuvre de « ' + ((sol && sol.nom) || pq.titre) + ' ».',
     duree: pq.duree || '1 journée',
     places: '0/' + (parseInt(pq.nb, 10) || 6),
-    etape_actuelle: 1, etapes: 4,
-    etapeLabels: ['Lancement', 'Préparation', 'Réalisation', 'Certification'],
+    etape_actuelle: 1, etapes: _semPlan.length || 4,
+    etapeLabels: _semPlan.length ? _semPlan.map(p => p.titre) : ['Lancement', 'Préparation', 'Réalisation', 'Certification'],
     tokens: pq.graines || 50, co2: (sol && sol.co2) || 0,
     esrs: ((sol && sol.esrs) || []).map(e => String(e).replace('ESRS ', '').trim()),
     financement: { objectif: 0, montant: 0, semeur: null },

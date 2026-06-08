@@ -5499,20 +5499,22 @@ function batBuildQuetesFromProfile() {
     const villeMatch = ville && host.ville && host.ville.toLowerCase().includes(ville);
     let match = 62 + (matched ? 28 : 0) + (villeMatch ? 8 : 0) - (idx % 3);
     match = Math.max(55, Math.min(99, match));
+    const _ind = (typeof SOLS_INDICATORS !== 'undefined') ? SOLS_INDICATORS[sol.nom] : null;
+    const _plan = (_ind && _ind.plan) || [];
     BAT_QUETES.push({
       id: 0, type: (sol.img || '⚡') + ' ' + (sol.cat || 'Quête'),
       titre: sol.quete.titre, match: match,
       lieu: host.nom, pilote: host.nom, ville: host.ville || 'Bordeaux',
       desc: sol.desc || sol.quete.titre,
       impact: sol.quete.impact_quete || sol.impact || '',
-      plan: ((typeof SOLS_INDICATORS !== 'undefined' && SOLS_INDICATORS[sol.nom]) ? SOLS_INDICATORS[sol.nom].plan : null) || [],
-      materiel: ((typeof SOLS_INDICATORS !== 'undefined' && SOLS_INDICATORS[sol.nom]) ? SOLS_INDICATORS[sol.nom].materiel : null) || [],
+      plan: _plan,
+      materiel: (_ind && _ind.materiel) || [],
       preuve: 'Photos de l\'action réalisée + indicateurs mesurés (CO₂, énergie, déchets…).',
       apprendre: 'Mise en œuvre de « ' + sol.nom + ' » et documentation de l\'impact.',
       duree: sol.quete.duree || '1 journée',
       places: '2/' + (parseInt(sol.quete.nb, 10) || 6),
-      etape_actuelle: 1, etapes: 4,
-      etapeLabels: ['Lancement', 'Préparation', 'Réalisation', 'Certification'],
+      etape_actuelle: 1, etapes: _plan.length || 4,
+      etapeLabels: _plan.length ? _plan.map(p => p.titre) : ['Lancement', 'Préparation', 'Réalisation', 'Certification'],
       tokens: sol.tok || 50, co2: sol.co2 || 0,
       esrs: (sol.esrs || []).map(e => String(e).replace('ESRS ', '').trim()),
       financement: { objectif: 0, montant: 0, semeur: null },
@@ -5635,6 +5637,20 @@ function qdModifier() {
   qdRerender();
 }
 
+function qdToggleMat(i, el) {
+  const q = qdQuest(); if (!q || !q.materiel) return;
+  q.materielChecked = q.materielChecked || [];
+  const on = el ? el.checked : !q.materielChecked[i];
+  q.materielChecked[i] = on;
+  if (el) {
+    const span = el.parentElement.querySelector('span');
+    if (span) { span.style.textDecoration = on ? 'line-through' : 'none'; span.style.opacity = on ? '.6' : '1'; span.style.color = on ? 'var(--moss)' : 'var(--ink)'; }
+  }
+  const nb = q.materiel.filter((_, k) => q.materielChecked[k]).length;
+  const c = document.getElementById('qd-mat-count');
+  if (c) { c.textContent = nb + '/' + q.materiel.length; c.style.color = (nb === q.materiel.length) ? 'var(--fern)' : 'var(--moss)'; }
+}
+
 function qdPause() {
   const q = qdQuest(); if (!q) return;
   q.paused = !q.paused;
@@ -5671,16 +5687,21 @@ function renderQueteDetail() {
   };
   const _qdta = document.getElementById('qd-topbar-actions'); if (_qdta) _qdta.innerHTML = ctas[currentRole] || ctas.batisseur;
 
-  // Étapes
+  // Étapes = le plan d'action de la Bibliothèque (sinon labels génériques)
+  const _planSteps = (q.plan && q.plan.length) ? q.plan : null;
+  const _stepCount = _planSteps ? _planSteps.length : q.etapes;
   const labels = q.etapeLabels || ['Lancement','Préparation','Réalisation','Certification'];
-  const steps = Array.from({length:q.etapes},(_,i)=>{
+  const steps = Array.from({length:_stepCount},(_,i)=>{
     const done=i<q.etape_actuelle-1, active=i===q.etape_actuelle-1;
-    return `<div style="display:flex;align-items:center;gap:.7rem;padding:.55rem .8rem;border-radius:var(--r);border:1px solid ${active?'rgba(200,115,42,.35)':done?'rgba(74,140,92,.2)':'rgba(46,102,66,.1)'};background:${active?'rgba(200,115,42,.04)':done?'rgba(74,140,92,.04)':'transparent'};margin-bottom:.35rem">
-      <div style="width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;background:${done?'var(--fern)':active?'var(--amber)':'rgba(46,102,66,.12)'};color:${done||active?'white':'var(--moss)'}">
+    const ps = _planSteps ? _planSteps[i] : null;
+    const titre = ps ? ((ps.ic?ps.ic+' ':'')+(ps.titre||('Étape '+(i+1)))) : (labels[i]||('Étape '+(i+1)));
+    const desc = ps && ps.desc ? `<div style="font-size:.66rem;font-weight:400;color:var(--moss);opacity:.8;line-height:1.45;margin-top:.15rem">${ps.desc}</div>` : '';
+    return `<div style="display:flex;align-items:flex-start;gap:.7rem;padding:.55rem .8rem;border-radius:var(--r);border:1px solid ${active?'rgba(200,115,42,.35)':done?'rgba(74,140,92,.2)':'rgba(46,102,66,.1)'};background:${active?'rgba(200,115,42,.04)':done?'rgba(74,140,92,.04)':'transparent'};margin-bottom:.35rem">
+      <div style="width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;margin-top:.05rem;background:${done?'var(--fern)':active?'var(--amber)':'rgba(46,102,66,.12)'};color:${done||active?'white':'var(--moss)'}">
         ${done?'✓':i+1}
       </div>
-      <div style="flex:1;font-size:.75rem;font-weight:${active?'600':'400'};color:${active?'var(--ink)':done?'var(--moss)':'rgba(46,60,50,.5)'}">${labels[i]||'Étape '+(i+1)}</div>
-      ${active?'<span style="font-size:.58rem;padding:.12rem .4rem;border-radius:100px;background:rgba(200,115,42,.15);color:var(--amber);font-weight:600">En cours</span>':''}
+      <div style="flex:1;min-width:0"><div style="font-size:.75rem;font-weight:${active?'700':done?'600':'500'};color:${active?'var(--ink)':done?'var(--moss)':'var(--ink)'}">${titre}</div>${desc}</div>
+      ${active?'<span style="font-size:.58rem;padding:.12rem .4rem;border-radius:100px;background:rgba(200,115,42,.15);color:var(--amber);font-weight:600;flex-shrink:0;margin-top:.1rem">En cours</span>':''}
     </div>`;
   }).join('');
 
@@ -5771,20 +5792,21 @@ function renderQueteDetail() {
       <p style="font-size:.8rem;color:var(--moss);line-height:1.6;margin:0">${edLight('desc', q.desc || '—')}</p>
     </div>
 
-    <!-- Plan d'action (Bibliothèque) -->
-    ${(q.plan && q.plan.length) ? `<div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-lg);padding:1rem 1.1rem">
-      <div style="font-size:.72rem;font-weight:600;color:var(--ink);margin-bottom:.6rem">🗂 Plan d'action <span style="font-weight:400;opacity:.5">· depuis la Bibliothèque</span></div>
-      ${q.plan.map((p,i)=>`<div style="display:flex;gap:.65rem;align-items:flex-start;padding:.45rem 0;${i<q.plan.length-1?'border-bottom:1px solid rgba(46,102,66,.06)':''}">
-        <div style="width:22px;height:22px;border-radius:50%;background:rgba(74,140,92,.12);color:var(--fern);display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;flex-shrink:0">${i+1}</div>
-        <div style="flex:1;min-width:0"><div style="font-size:.76rem;font-weight:600;color:var(--ink)">${p.ic||''} ${p.titre||''}</div><div style="font-size:.68rem;color:var(--moss);opacity:.8;line-height:1.5;margin-top:.1rem">${p.desc||''}</div></div>
-      </div>`).join('')}
-    </div>` : ''}
-
-    <!-- Matériel nécessaire (Bibliothèque) -->
-    ${(q.materiel && q.materiel.length) ? `<div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-lg);padding:1rem 1.1rem">
-      <div style="font-size:.72rem;font-weight:600;color:var(--ink);margin-bottom:.6rem">🧰 Matériel nécessaire <span style="font-weight:400;opacity:.5">· depuis la Bibliothèque</span></div>
-      <div style="display:flex;flex-wrap:wrap;gap:.35rem">${q.materiel.map(m=>`<span style="font-size:.66rem;padding:.25rem .6rem;border-radius:100px;background:rgba(46,102,66,.06);border:1px solid rgba(46,102,66,.15);color:var(--moss)">🔩 ${m}</span>`).join('')}</div>
-    </div>` : ''}
+    <!-- Matériel nécessaire (checklist · Bibliothèque) -->
+    ${(q.materiel && q.materiel.length) ? (() => {
+      const checked = q.materielChecked || (q.materielChecked = []);
+      const nb = q.materiel.filter((_, i) => checked[i]).length;
+      return `<div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-lg);padding:1rem 1.1rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem">
+        <div style="font-size:.72rem;font-weight:600;color:var(--ink)">🧰 Matériel nécessaire <span style="font-weight:400;opacity:.5">· depuis la Bibliothèque</span></div>
+        <span id="qd-mat-count" style="font-size:.62rem;font-weight:700;color:${nb===q.materiel.length?'var(--fern)':'var(--moss)'}">${nb}/${q.materiel.length}</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.1rem">${q.materiel.map((m, i) => `
+        <label style="display:flex;align-items:center;gap:.6rem;padding:.42rem .2rem;cursor:pointer;border-bottom:1px solid rgba(46,102,66,.05)">
+          <input type="checkbox" ${checked[i] ? 'checked' : ''} onchange="qdToggleMat(${i}, this)" style="width:16px;height:16px;accent-color:var(--forest);cursor:pointer;flex-shrink:0">
+          <span style="font-size:.74rem;color:${checked[i] ? 'var(--moss)' : 'var(--ink)'};${checked[i] ? 'text-decoration:line-through;opacity:.6' : ''}">${m}</span>
+        </label>`).join('')}</div>
+    </div>`; })() : ''}
 
     <!-- Dates -->
     ${datesHtml ? `<div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-lg);padding:.9rem 1rem">
