@@ -261,14 +261,9 @@ function renderPiloteQuetes() {
         </div>
         ${badges}
         <div class="pq-actions">
-          ${!estValidee ? `
-            <button class="btn btn-primary" style="font-size:.65rem;padding:.3rem .75rem"
-              onclick="validerQuete('${q.id}')">✅ Valider la preuve</button>
-            <button class="btn btn-ghost" style="font-size:.65rem;padding:.3rem .75rem"
-              onclick="openPiloteQueteFiche('${q.id}')">Voir détail</button>
-          ` : `
-            <button class="btn btn-ghost" style="font-size:.65rem;padding:.3rem .75rem;opacity:.5" disabled>✓ Validée</button>
-          `}
+          <button class="btn btn-primary" style="font-size:.8rem;font-weight:700;padding:.55rem 1.3rem"
+            onclick="openPiloteQueteFiche('${q.id}')">Voir détail →</button>
+          ${estValidee ? `<span style="font-size:.65rem;color:var(--fern);font-weight:600;margin-left:.2rem">✓ Validée</span>` : ''}
           ${propagBadge}
           ${type ? `<span style="font-size:.58rem;color:var(--moss);opacity:.45;margin-left:auto">Type : ${CONVERGENCE_MATRIX[type]?.label || type}</span>` : ''}
         </div>
