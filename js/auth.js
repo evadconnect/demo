@@ -9,13 +9,8 @@ function openAuthModal(){
   m.style.display='flex';
 }
 
-function openSignupModal(){
-  _authMode = 'signup';
-  document.getElementById('auth-profil-title').textContent = 'Créer un compte';
-  document.getElementById('auth-profil-sub').textContent = 'Choisis ton profil pour démarrer ton aventure EVAD.';
-  const m=document.getElementById('auth-profil-modal');
-  m.style.display='flex';
-}
+// Désactivé en démo : pas de modal « Créer un compte ».
+function openSignupModal(){ /* no-op (démo) */ }
 
 function authSubmit(){
   closeAuthModal();
