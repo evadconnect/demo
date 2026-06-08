@@ -807,6 +807,7 @@ function openLieuModal() {
   lieuRenderPresentation();
   lieuRenderEspaces();
   lieuRenderQuetes();
+  lieuRenderImpact();
 }
 
 function lieuRenderHero() {
@@ -834,6 +835,32 @@ function lieuRenderHero() {
       <span class="acteur-badge" style="background:rgba(74,140,92,0.28);color:var(--sage);border:1px solid rgba(74,140,92,0.35)">${icon} ${typeLbl}</span>
       ${loc ? `<span class="acteur-badge" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.65);border:1px solid rgba(255,255,255,0.12)">📍 ${loc}</span>` : ''}
       ${cData.phase ? `<span class="acteur-badge" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.1)">${phaseLbls[cData.phase]||cData.phase}</span>` : ''}
+    `;
+  }
+
+  // Bandeau score REGEN + dimensions (rempli pour un lieu existant, sinon « à certifier »)
+  const heroStats = document.getElementById('lieu-hero-stats');
+  if (heroStats) {
+    const score = (typeof cData.score === 'number') ? cData.score : null;
+    const trim  = cData.scoreTrim || '';
+    const dims  = (cData.dims && cData.dims.length) ? cData.dims : [
+      {l:'Environnement',v:0,c:'#82b894'},{l:'Social',v:0,c:'#6aa0bc'},
+      {l:'Éco. locale',v:0,c:'#e8a55a'},{l:'Gouvernance',v:0,c:'#a99cd0'}
+    ];
+    const dimCols = ['#82b894','#6aa0bc','#e8a55a','#a99cd0'];
+    const dimGrad = ['linear-gradient(90deg,#4a8c5c,#82b894)','linear-gradient(90deg,#3a6e8c,#6aa0bc)','linear-gradient(90deg,#c8732a,#e8a55a)','linear-gradient(90deg,#7a6ea8,#a99cd0)'];
+    heroStats.innerHTML = `
+      <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(74,140,92,0.3);border-radius:var(--r-lg);padding:.7rem .9rem;text-align:center">
+        <div style="font-family:'Satoshi', sans-serif;font-size:1.8rem;font-weight:900;color:var(--sun);line-height:1">${score!=null?score:'0'}</div>
+        <div style="font-size:.55rem;color:var(--sage);text-transform:uppercase;letter-spacing:.1em;margin-top:.15rem">Score REGEN</div>
+        <div style="font-size:.6rem;color:rgba(255,255,255,.45);margin-top:.1rem">${score!=null?(trim?'tendance '+trim:'sur 100'):'à certifier'}</div>
+      </div>
+      ${dims.slice(0,4).map((d,i)=>`
+      <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:var(--r-lg);padding:.6rem .8rem">
+        <div style="font-size:.55rem;color:var(--sage);opacity:.65;text-transform:uppercase;letter-spacing:.09em;margin-bottom:.4rem">${d.l}</div>
+        <div style="height:3px;background:rgba(255,255,255,0.1);border-radius:100px;overflow:hidden;margin-bottom:.25rem"><div style="width:${d.v}%;height:100%;background:${dimGrad[i]};border-radius:100px"></div></div>
+        <div style="font-family:'Satoshi', sans-serif;font-size:1rem;font-weight:700;color:${dimCols[i]}">${d.v}</div>
+      </div>`).join('')}
     `;
   }
 }
@@ -1169,6 +1196,7 @@ function lieuTab(id, btn) {
   btn.classList.add('active');
   document.getElementById('lieu-panel-' + id).classList.add('active');
   if (id === 'ecosysteme') lieuRenderMindmap();
+  if (id === 'impact') lieuRenderImpact();
 }
 
 function lieuMmW() { return document.getElementById('lieu-mm-nodes').parentElement.offsetWidth; }
@@ -2064,6 +2092,162 @@ const MAP_BATISSEURS = [];
 
 const MAP_SEMEURS = [];
 
+// Fiches complètes des lieux réels (alimentent la modale « fiche complète »).
+// Rattachées par index, dans le même ordre que MAP_PLACES.
+[
+  { // Darwin Écosystème
+    type:'tiers', phase:'operationnel', annee:'2009', surface:'10 000 m²', statut:'sas',
+    email:'contact@darwin.camp', tel:'05 56 77 00 00', web:'https://darwin.camp',
+    labels:['bio','zero_dechet'], langues:['fr','en'],
+    reseaux:['France Tiers-Lieux','Coopérative Darwin'],
+    solutions:['Jardin permaculture','Compostage partagé','Panneaux solaires PV','Récupération eau de pluie','AMAP circuit court'],
+    espacesData:[
+      {eid:'bureau', capacite:300, surface:3000, phase:'operationnel', activites:['Coworking','Bureaux partagés']},
+      {eid:'cafe',   capacite:200, surface:600,  phase:'operationnel', activites:['Restaurant bio','Cantine']},
+      {eid:'jardin', capacite:40,  surface:2000, phase:'operationnel', activites:['Ferme urbaine','Permaculture']},
+      {eid:'salle',  capacite:500, surface:800,  phase:'operationnel', activites:['Concerts','Conférences']}
+    ]
+  },
+  { // La Halle des Douves
+    type:'tiers', phase:'operationnel', annee:'2014', surface:'600 m²', statut:'asso',
+    email:'contact@halledesdouves.org', tel:'05 56 00 00 00', web:'https://www.halledesdouves.org',
+    labels:['bienvenue'], langues:['fr'],
+    reseaux:['Centres sociaux','France Tiers-Lieux'],
+    solutions:['Compostage partagé','Repair café','AMAP circuit court'],
+    espacesData:[
+      {eid:'salle',   capacite:150, surface:300, phase:'operationnel', activites:['Événements','Concerts associatifs']},
+      {eid:'cafe',    capacite:50,  surface:120, phase:'operationnel', activites:['Café associatif']},
+      {eid:'cuisine', capacite:12,  surface:60,  phase:'operationnel', activites:['Cuisine partagée','Ateliers cuisine']}
+    ]
+  },
+  { // Les Vivres de l'Art
+    type:'tiers', phase:'operationnel', annee:'2013', surface:'2 000 m²', statut:'asso',
+    email:'contact@lesvivresdelart.org', tel:'06 00 00 00 00', web:'https://www.lesvivresdelart.org',
+    labels:['ressourcerie'], langues:['fr','en'],
+    reseaux:['Réseau arts visuels'],
+    solutions:['Réemploi matériaux','Repair café'],
+    espacesData:[
+      {eid:'atelier', capacite:30, surface:800, phase:'operationnel', activites:["Ateliers d'artistes",'Sculpture métal']},
+      {eid:'salle',   capacite:120,surface:500, phase:'operationnel', activites:['Expositions','Scène']},
+      {eid:'cafe',    capacite:80, surface:200, phase:'operationnel', activites:['Guinguette']}
+    ]
+  },
+  { // Le Garage Moderne
+    type:'repair', phase:'operationnel', annee:'2000', surface:'1 500 m²', statut:'asso',
+    email:'contact@legaragemoderne.org', tel:'05 56 50 91 33', web:'https://www.legaragemoderne.org',
+    labels:['ressourcerie','zero_dechet'], langues:['fr'],
+    reseaux:["L'Heureux Cyclage"],
+    solutions:['Réemploi matériaux','Repair café'],
+    espacesData:[
+      {eid:'atelier',  capacite:40, surface:900, phase:'operationnel', activites:['Réparation auto','Atelier vélo']},
+      {eid:'boutique', capacite:20, surface:200, phase:'operationnel', activites:['Donnerie de pièces']},
+      {eid:'cafe',     capacite:40, surface:150, phase:'operationnel', activites:['Cantine','Concerts']}
+    ]
+  },
+  { // La Maison Écocitoyenne
+    type:'ecole', phase:'operationnel', annee:'2011', surface:'500 m²', statut:'autre',
+    email:'maison.eco@mairie-bordeaux.fr', tel:'05 24 57 65 19', web:'https://www.bordeaux.fr',
+    labels:['ecoLabel'], langues:['fr','en','es'],
+    reseaux:['Ville de Bordeaux'],
+    solutions:['Panneaux solaires PV','Récupération eau de pluie'],
+    espacesData:[
+      {eid:'salle',  capacite:80, surface:250, phase:'operationnel', activites:['Expositions','Ateliers climat']},
+      {eid:'bureau', capacite:10, surface:80,  phase:'operationnel', activites:['Conseil écomobilité','Conseil énergie']}
+    ]
+  },
+  { // Supercoop
+    type:'epicerie', phase:'operationnel', annee:'2016', surface:'700 m²', statut:'coop',
+    email:'contact@supercoop.fr', tel:'05 57 04 73 79', web:'https://supercoop.fr',
+    labels:['bio','fairtrade'], langues:['fr'],
+    reseaux:['Coopératives alimentaires'],
+    solutions:['AMAP circuit court','Réemploi matériaux','Compostage partagé'],
+    espacesData:[
+      {eid:'boutique', capacite:60, surface:500, phase:'operationnel', activites:['Magasin coopératif','Vrac']},
+      {eid:'cafe',     capacite:25, surface:100, phase:'operationnel', activites:['Espace convivial']}
+    ]
+  },
+  { // Le Jardin de ta Sœur
+    type:'jardin', phase:'operationnel', annee:'2003', surface:'7 000 m²', statut:'asso',
+    email:'contact@jardindetasoeur.org', tel:'05 56 00 00 00', web:'https://www.bordeaux.fr/parc-jardin/jardin-de-ta-soeur',
+    labels:['bio','zero_dechet'], langues:['fr'],
+    reseaux:['Jardins partagés Bordeaux'],
+    solutions:['Jardin permaculture','Potager en buttes','Compostage partagé','Haie champêtre','Mare écologique','Récupération eau de pluie'],
+    espacesData:[
+      {eid:'jardin', capacite:60, surface:6000, phase:'operationnel', activites:['Potager collectif','Verger 22 arbres']},
+      {eid:'serre',  capacite:10, surface:80,   phase:'operationnel', activites:['Semis','Plants']}
+    ]
+  }
+].forEach((f, i) => { if (MAP_PLACES[i]) MAP_PLACES[i].fiche = f; });
+
+// Indicateurs d'impact (illustratifs) par lieu, même ordre que MAP_PLACES.
+[
+  {kwh:'42 000', co2:'31 t', pers:'5 200',  dechets:'18 t', emplois:'180', fin:'1,2 M€'},
+  {kwh:'6 500',  co2:'4 t',  pers:'1 800',  dechets:'3 t',  emplois:'12',  fin:'120 k€'},
+  {kwh:'9 000',  co2:'7 t',  pers:'2 400',  dechets:'9 t',  emplois:'25',  fin:'180 k€'},
+  {kwh:'7 200',  co2:'12 t', pers:'3 100',  dechets:'22 t', emplois:'18',  fin:'150 k€'},
+  {kwh:'11 000', co2:'9 t',  pers:'14 000', dechets:'2 t',  emplois:'9',   fin:'public'},
+  {kwh:'5 800',  co2:'15 t', pers:'1 600',  dechets:'6 t',  emplois:'8',   fin:'900 k€'},
+  {kwh:'—',      co2:'3 t',  pers:'2 000',  dechets:'5 t',  emplois:'3',   fin:'60 k€'}
+].forEach((im, i) => { if (MAP_PLACES[i] && MAP_PLACES[i].fiche) MAP_PLACES[i].fiche.impact = im; });
+
+// Remplit l'onglet « Impact » de la modale lieu depuis cData (KPIs + score détaillé).
+function lieuRenderImpact() {
+  const kpisEl = document.getElementById('lieu-impact-kpis');
+  const im = cData.impact;
+  if (kpisEl && im) {
+    const cards = [
+      {lbl:'kWh produits/an',     val:im.kwh,     sub:'énergie renouvelable', col:'var(--forest)',   bd:'var(--fern)'},
+      {lbl:'CO₂ évité/an',        val:im.co2,     sub:'estimation',           col:'var(--amber)',    bd:'var(--amber)'},
+      {lbl:'Pers. touchées/mois', val:im.pers,    sub:'communauté',           col:'var(--sky)',      bd:'var(--sky)'},
+      {lbl:'Déchets évités/an',   val:im.dechets, sub:'réemploi & compost',   col:'var(--forest)',   bd:'var(--fern)'},
+      {lbl:'Emplois soutenus',    val:im.emplois, sub:'ETP équivalents',      col:'var(--lavender)', bd:'var(--lavender)'},
+      {lbl:'Financements levés',  val:im.fin,     sub:'partenaires actifs',   col:'var(--amber)',    bd:'var(--amber)'}
+    ];
+    kpisEl.innerHTML = cards.map(c => `
+      <div style="background:white;border:1px solid rgba(74,140,92,.15);border-radius:var(--r-lg);padding:.85rem 1rem;border-left:3px solid ${c.bd}">
+        <div style="font-size:.58rem;color:var(--moss);opacity:.65;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.3rem">${c.lbl}</div>
+        <div style="font-family:'Satoshi', sans-serif;font-size:1.6rem;font-weight:900;color:${c.col};line-height:1">${c.val}</div>
+        <div style="font-size:.6rem;color:var(--moss);opacity:.5;margin-top:.15rem">${c.sub}</div>
+      </div>`).join('');
+  }
+  const scoreEl = document.getElementById('lieu-impact-score');
+  if (scoreEl) {
+    const score = (typeof cData.score === 'number') ? cData.score : null;
+    const dims = (cData.dims && cData.dims.length) ? cData.dims : [];
+    const cols = ['#82b894','#6aa0bc','#e8a55a','#a09ad8'];
+    const grad = ['linear-gradient(90deg,#4a8c5c,#82b894)','linear-gradient(90deg,#3a6e8c,#6aa0bc)','linear-gradient(90deg,#c8732a,#e8a55a)','linear-gradient(90deg,#7a6ea8,#a09ad8)'];
+    scoreEl.innerHTML = `
+      <div style="font-size:.58rem;color:var(--sage);text-transform:uppercase;letter-spacing:.12em;opacity:.7;margin-bottom:.5rem">Score REGEN global</div>
+      <div style="font-family:'Satoshi', sans-serif;font-size:2.4rem;font-weight:900;color:var(--sun);line-height:1;margin-bottom:.2rem">${score!=null?score:'—'}</div>
+      <div style="font-size:.65rem;color:rgba(255,255,255,.4);margin-bottom:1rem">${score!=null?(cData.scoreTrim?'tendance '+cData.scoreTrim+' ce trimestre':'sur 100'):'à certifier'}</div>
+      <div style="display:flex;flex-direction:column;gap:.45rem">
+        ${dims.slice(0,4).map((d,i)=>`
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:.62rem;color:var(--mist);opacity:.75;margin-bottom:.2rem"><span>${d.l}</span><span style="color:${cols[i]};font-weight:700">${d.v}</span></div>
+          <div style="height:4px;background:rgba(255,255,255,.08);border-radius:100px;overflow:hidden"><div style="width:${d.v}%;height:100%;background:${grad[i]};border-radius:100px"></div></div>
+        </div>`).join('')}
+      </div>`;
+  }
+}
+
+// Ouvre la modale « fiche complète » à partir d'un lieu réel de la carte.
+function openLieuModalFromPlace(idx) {
+  const p = MAP_PLACES[idx];
+  if (!p) return;
+  cData = Object.assign(_CDATA_EMPTY(), (p.fiche || {}), {
+    nom: p.nom,
+    icon: p.icon,
+    localisation: p.ville,
+    lat: p.lat, lng: p.lng,
+    desc: p.desc || '',
+    besoins: p.besoins || [],
+    score: p.score,
+    scoreTrim: p.score_trim,
+    dims: p.dims || []
+  });
+  openLieuModal();
+}
+
 let currentMapFilter = 'tous';
 let batisseurMarkers = [];
 let semeurMarkers = [];
@@ -2411,7 +2595,7 @@ function mapShowLieu(idx) {
         <span style="color:var(--sage);font-weight:700">✦ Deva · </span>${place.deva}
       </div>
 
-      <button class="acteur-cta" style="background:var(--forest);color:white;margin-top:.6rem" onclick="openLieuModal()">
+      <button class="acteur-cta" style="background:var(--forest);color:white;margin-top:.6rem" onclick="openLieuModalFromPlace(${idx})">
         Voir la fiche complète →
       </button>
       <button class="acteur-cta" style="background:transparent;color:var(--moss);border:1px solid rgba(46,102,66,.25);margin-top:.4rem" onclick="showScreen('quete')">
