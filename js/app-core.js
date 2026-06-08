@@ -5388,6 +5388,27 @@ let batCurrentFilter = 'toutes';
 
 function batInitDashboard() {
   batRenderQuetes();
+  batReflectProfile();
+}
+
+// Reflète le profil créé (batFicheData) dans le topbar + l'aperçu du dashboard.
+function batReflectProfile() {
+  const fd = (typeof batFicheData !== 'undefined') ? batFicheData : null;
+  if (!fd) return;
+  const fullName = ((fd.prenom || '') + ' ' + (fd.nom || '')).trim();
+  const has = fullName !== '';
+  const sub = document.getElementById('bat-topbar-sub');
+  if (sub) sub.textContent = has
+    ? (fullName + " · Bâtisseur d'impact" + (fd.ville ? ' · ' + fd.ville : '') + ' · profil complété ✓')
+    : "Bâtisseur d'impact · Complète ton profil pour commencer";
+  const title = document.getElementById('bat-topbar-title');
+  if (title) title.textContent = has ? ('🌿 ' + fullName) : '🌿 Mon profil';
+  const label = document.getElementById('bat-hero-label');
+  if (label) label.textContent = has ? (fullName + " · Bâtisseur d'impact") : 'Mon profil Bâtisseur';
+  const intro = document.getElementById('bat-hero-intro');
+  if (intro) intro.textContent = (has && (fd.bio || '').trim())
+    ? fd.bio
+    : 'Rejoins des quêtes pour commencer à contribuer et gagner des graines';
 }
 
 function batFilterQuetes(filter, btn) {
@@ -6609,6 +6630,7 @@ function batTab(tab, btn) {
   if (tab === 'fiche')   setTimeout(() => { batDashFicheRender(); }, 80);
   if (tab === 'apercu') setTimeout(() => {
     if (document.getElementById('bat-quetes-list') && !document.getElementById('bat-quetes-list').children.length) batInitDashboard();
+    batReflectProfile();
     regenLoopBuild('regenB', 'batisseur');
   }, 50);
 }

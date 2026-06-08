@@ -674,8 +674,8 @@
 
   <div class="topbar">
     <div>
-      <div class="topbar-title">🌿 Mon profil</div>
-      <div class="topbar-sub">Bâtisseur d'impact · Complète ton profil pour commencer</div>
+      <div class="topbar-title" id="bat-topbar-title">🌿 Mon profil</div>
+      <div class="topbar-sub" id="bat-topbar-sub">Bâtisseur d'impact · Complète ton profil pour commencer</div>
     </div>
     <div class="topbar-actions">
       <button class="btn btn-ghost" onclick="batTab('graines',document.getElementById('btab-graines'))">0 🌱 graines</button>
@@ -700,8 +700,8 @@
       <div style="background:linear-gradient(135deg,#0a1e0f,#1a3a20);border-radius:var(--r-xl);padding:1.4rem 2rem;margin-bottom:1.2rem;display:grid;grid-template-columns:1fr auto;gap:2rem;align-items:center;position:relative;overflow:hidden">
         <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(74,140,92,.12),transparent 55%);pointer-events:none"></div>
         <div style="position:relative">
-          <div style="font-size:.58rem;color:var(--sage);text-transform:uppercase;letter-spacing:.15em;opacity:.7;margin-bottom:.3rem">Mon profil Bâtisseur</div>
-          <div style="color:rgba(255,255,255,.82);font-size:.8rem;line-height:1.4;margin-bottom:.65rem">Rejoins des quêtes pour commencer à contribuer et gagner des graines</div>
+          <div style="font-size:.58rem;color:var(--sage);text-transform:uppercase;letter-spacing:.15em;opacity:.7;margin-bottom:.3rem" id="bat-hero-label">Mon profil Bâtisseur</div>
+          <div style="color:rgba(255,255,255,.82);font-size:.8rem;line-height:1.4;margin-bottom:.65rem" id="bat-hero-intro">Rejoins des quêtes pour commencer à contribuer et gagner des graines</div>
           <div style="display:flex;gap:.5rem;flex-wrap:wrap">
             <button class="btn" style="font-size:.65rem;padding:.32rem .8rem;background:rgba(74,140,92,.2);color:var(--sage);border:1px solid rgba(74,140,92,.3)" onclick="batTab('competences',document.getElementById('btab-competences'))">🏅 Mes compétences →</button>
           </div>
