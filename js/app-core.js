@@ -4898,6 +4898,7 @@ async function createLieuOnMap(){
     marker.openPopup();
 
     createdLeafletMarkers.push(marker);
+    evadMyLieuMarker = marker;
     evadMap.flyTo([lat, lng], 11, { duration: 1.2 });
   }, 150);
 
@@ -4907,8 +4908,10 @@ async function createLieuOnMap(){
     sectionLieux.querySelectorAll(':scope > div:not(:first-child)').forEach(el => {
       if(el.textContent.includes('Aucun lieu')) el.remove();
     });
+    const _sd0 = (typeof evadLieuScoreData === 'function') ? evadLieuScoreData() : {score:40, nbValidees:0};
     const card = document.createElement('div');
     card.className = 'place-card-mini';
+    card.id = 'evad-mylieu-card';
     card.style.cssText = 'background:rgba(74,140,92,0.06);border-left:3px solid var(--fern);cursor:pointer';
     card.onclick = () => mapShowNewLieu();
     card.innerHTML = `
@@ -4920,8 +4923,8 @@ async function createLieuOnMap(){
         </div>
       </div>
       <div class="pcm-score-row">
-        <div class="score-bar-bg"><div class="score-bar-fill" style="width:8%"></div></div>
-        <div class="score-label" style="color:var(--amber)">Nouveau · Score 40/100</div>
+        <div class="score-bar-bg"><div id="evad-mylieu-scorebar" class="score-bar-fill" style="width:${_sd0.score}%"></div></div>
+        <div id="evad-mylieu-scorelabel" class="score-label" style="color:${_sd0.nbValidees>0?'var(--fern)':'var(--amber)'}">${_sd0.nbValidees>0?'↑ ':'Nouveau · '}Score ${_sd0.score}/100</div>
       </div>
       <div class="pcm-quetes" style="color:var(--fern)">✦ ${cData.solutions?.length || 0} solution${(cData.solutions?.length||0)!==1?'s':''} · Lieu régénératif</div>
     `;
@@ -5087,17 +5090,18 @@ function mapShowNewLieu() {
   const panel    = document.getElementById('map-acteur-panel');
   const mainPanel= document.getElementById('map-panel-main');
 
-  const nom       = cData.nom        || 'Lieu';
-  const type      = cData.type       || 'Lieu';
-  const adresse   = cData.localisation || 'France';
-  const desc      = cData.desc       || '';
-  const phase     = cData.phase      || '';
-  const surface   = cData.surface    || '';
-  const statut    = cData.statut     || '';
-  const ic        = cData.icon       || '🌿';
-  const espaces   = (cData.espacesData || []);
-  const solutions = (cData.solutions  || []);
-  const activites = (cData.activites  || []);
+  const L = (typeof myLieuData !== 'undefined' && myLieuData && myLieuData.nom) ? myLieuData : cData;
+  const nom       = L.nom        || 'Lieu';
+  const type      = L.type       || 'Lieu';
+  const adresse   = L.localisation || 'France';
+  const desc      = L.desc       || '';
+  const phase     = L.phase      || '';
+  const surface   = L.surface    || '';
+  const statut    = L.statut     || '';
+  const ic        = L.icon       || '🌿';
+  const espaces   = (L.espacesData || []);
+  const solutions = (L.solutions  || []);
+  const activites = (L.activites  || []);
 
   const TYPE_LABELS = {
     'tiers-lieu':'Tiers-lieu','ferme':'Ferme pédagogique','ecolieu':'Écolieu',
@@ -5109,8 +5113,9 @@ function mapShowNewLieu() {
   const PHASE_LABELS = { ideation:'Idéation', conception:'Conception', construction:'Construction', actif:'Actif', expansion:'Expansion' };
   const phaseLabel = PHASE_LABELS[phase] || phase;
 
-  const scoreVal = 0;
-  const scoreBarW = '0%';
+  const _sd = (typeof evadLieuScoreData === 'function') ? evadLieuScoreData() : { score: 40, nbValidees: 0 };
+  const scoreVal = _sd.score;
+  const scoreBarW = _sd.score + '%';
 
   // Build quêtes from solutions
   const quetes = solutions.map(nom => {
@@ -6056,26 +6061,60 @@ function piloteTab(tab, btn) {
   }, 80);
 }
 
-/* Reflète les quêtes validées sur l'aperçu : score REGEN + wallet graines.
-   Score = base 40 + somme des « +X pts » des quêtes validées (plafonné à 100). */
-function updateApercuFromQuetes() {
-  let bonus = 0, graines = 0;
+/* ─── FIL ROUGE : score vivant du lieu de l'utilisateur ───
+   Score = base 40 + somme des « +X pts » des quêtes validées (plafonné à 100).
+   Source unique partagée par l'aperçu, la carte, le marqueur et la fiche. */
+function evadLieuScoreData() {
+  let bonus = 0, graines = 0, nbVal = 0;
   if (typeof PILOTE_QUETES_DEMO !== 'undefined' && typeof quetesValidees !== 'undefined') {
     PILOTE_QUETES_DEMO.forEach(q => {
       if (quetesValidees.has(q.id)) {
         const m = String(q.impact || '').match(/(\d+)\s*pts?/i);
         bonus += m ? parseInt(m[1], 10) : 5;
-        graines += q.graines || 0;
+        graines += q.graines || 0; nbVal++;
       }
     });
   }
-  const score = Math.min(100, 40 + bonus);
+  return { score: Math.min(100, 40 + bonus), bonus: bonus, graines: graines, nbValidees: nbVal };
+}
+
+// Marqueur Leaflet du lieu créé par l'utilisateur (pour MAJ live du popup)
+let evadMyLieuMarker = null;
+
+// Répercute le score vivant sur la carte : carte du panneau + marqueur.
+function evadSyncMyLieuOnMap() {
+  const d = evadLieuScoreData();
+  if (typeof myLieuData !== 'undefined' && myLieuData) myLieuData.score = d.score;
+  const bar = document.getElementById('evad-mylieu-scorebar');
+  if (bar) bar.style.width = d.score + '%';
+  const lbl = document.getElementById('evad-mylieu-scorelabel');
+  if (lbl) {
+    lbl.textContent = (d.nbValidees > 0 ? '↑ ' : 'Nouveau · ') + 'Score ' + d.score + '/100';
+    lbl.style.color = d.nbValidees > 0 ? 'var(--fern)' : 'var(--amber)';
+  }
+  if (evadMyLieuMarker && typeof myLieuData !== 'undefined' && myLieuData) {
+    try {
+      evadMyLieuMarker.setPopupContent(
+        '<div class="popup-place-title">' + (myLieuData.nom || 'Mon lieu') + '</div>' +
+        '<div class="popup-place-meta">' + (myLieuData.localisation || 'Bordeaux') + '</div>' +
+        '<div class="popup-place-score">Score REGEN : ' + d.score + ' · ' + d.nbValidees + ' quête(s) validée(s)</div>'
+      );
+    } catch (e) {}
+  }
+}
+
+/* Reflète les quêtes validées sur l'aperçu (score REGEN + wallet graines)
+   et propage le score sur la carte (fil rouge). */
+function updateApercuFromQuetes() {
+  const d = evadLieuScoreData();
+  if (typeof myLieuData !== 'undefined' && myLieuData) myLieuData.score = d.score;
   const valEl = document.getElementById('apercu-regen-val');
-  if (valEl) valEl.textContent = score;
+  if (valEl) valEl.textContent = d.score;
   const arc = document.getElementById('regen-arc');
-  if (arc) arc.style.strokeDashoffset = String(226.2 * (1 - score / 100));
+  if (arc) arc.style.strokeDashoffset = String(226.2 * (1 - d.score / 100));
   const wallet = document.getElementById('apercu-graines-wallet');
-  if (wallet) wallet.textContent = graines.toLocaleString('fr');
+  if (wallet) wallet.textContent = d.graines.toLocaleString('fr');
+  evadSyncMyLieuOnMap();
 }
 
 /* ─── PARCOURS REGEN (boucle + détail par étape) ─── */
