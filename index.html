@@ -1155,9 +1155,9 @@
               </div>
 
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem">
-                <div class="fiche-field"><div class="fiche-label">Nom du lieu</div><input class="fiche-input" value="" placeholder="Nom de ton lieu"></div>
+                <div class="fiche-field"><div class="fiche-label">Nom du lieu</div><input class="fiche-input" id="fiche-f-nom" value="" placeholder="Nom de ton lieu"></div>
                 <div class="fiche-field"><div class="fiche-label">Type</div>
-                  <select class="fiche-input">
+                  <select class="fiche-input" id="fiche-f-type">
                     <option value="">— Choisir —</option>
                     <optgroup label="🌿 Agriculture & Nature">
                       <option>Ferme régénérative</option>
@@ -1189,8 +1189,8 @@
                 </div>
               </div>
               <div style="display:grid;grid-template-columns:2fr 1fr;gap:0.75rem;margin-bottom:0.75rem">
-                <div class="fiche-field"><div class="fiche-label">Adresse</div><input class="fiche-input" value="" placeholder="Adresse de ton lieu"></div>
-                <div class="fiche-field"><div class="fiche-label">Code postal</div><input class="fiche-input" value="" placeholder="Code postal"></div>
+                <div class="fiche-field"><div class="fiche-label">Adresse</div><input class="fiche-input" id="fiche-f-adresse" value="" placeholder="Adresse de ton lieu"></div>
+                <div class="fiche-field"><div class="fiche-label">Code postal</div><input class="fiche-input" id="fiche-f-cp" value="" placeholder="Code postal"></div>
               </div>
 
               <!-- Phase + Année + Surface + Statut -->
@@ -1204,10 +1204,10 @@
                 </div>
               </div>
               <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem">
-                <div class="fiche-field"><div class="fiche-label">Année de création</div><input class="fiche-input" placeholder="Ex : 2022"></div>
-                <div class="fiche-field"><div class="fiche-label">Surface totale</div><input class="fiche-input" placeholder="Ex : 1 200 m²"></div>
+                <div class="fiche-field"><div class="fiche-label">Année de création</div><input class="fiche-input" id="fiche-f-annee" placeholder="Ex : 2022"></div>
+                <div class="fiche-field"><div class="fiche-label">Surface totale</div><input class="fiche-input" id="fiche-f-surface" placeholder="Ex : 1 200 m²"></div>
                 <div class="fiche-field"><div class="fiche-label">Statut juridique</div>
-                  <select class="fiche-input">
+                  <select class="fiche-input" id="fiche-f-statut">
                     <option value="">— Choisir —</option>
                     <option>Association loi 1901</option>
                     <option>SCIC</option>
@@ -1220,7 +1220,7 @@
 
               <div class="fiche-field">
                 <div class="fiche-label">Description publique</div>
-                <textarea class="fiche-input fiche-textarea" placeholder="Décris ton lieu en quelques phrases, activités, valeurs, public accueilli…"></textarea>
+                <textarea class="fiche-input fiche-textarea" id="fiche-f-desc" placeholder="Décris ton lieu en quelques phrases, activités, valeurs, public accueilli…"></textarea>
               </div>
             </div>
           </div>

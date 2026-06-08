@@ -4821,11 +4821,17 @@ function exportCSRDReport(){
 const TYPE_PIN={tiers:'pin-tiers',ferme:'pin-ferme',ecolieu:'pin-ecolieu',fablab:'pin-fablab',habitat:'pin-tiers',autre:'pin-tiers'};
 const TYPE_IC={tiers:'🌿',ferme:'🌾',ecolieu:'🏡',fablab:'⚙️',habitat:'🏘',autre:'✦'};
 
+// Instantané du dernier lieu créé par l'utilisateur (pour l'onglet « Fiche lieu »)
+let myLieuData = null;
+
 async function createLieuOnMap(){
   const nom = cData.nom || 'Nouveau lieu';
   const ic = TYPE_IC[cData.type] || '✦';
   const typeLabel = (TYPES_LIEU.find(t => t.id === cData.type)?.l) || 'Lieu';
   const adresse = cData.localisation || 'Nouvelle-Aquitaine';
+
+  // On mémorise la fiche saisie pour la refléter dans le tableau de bord
+  try { myLieuData = Object.assign({}, cData); } catch(e) {}
 
   showScreen('carte');
   setTimeout(initRealMap, 80);
@@ -5985,6 +5991,46 @@ function mktConfirmBuy(id) {
 }
 
 /* ─── PILOTE TABS JS ─── */
+// Remplit l'onglet « Fiche lieu » du tableau de bord avec le lieu créé.
+function ficheFillFromMyLieu() {
+  const d = (typeof myLieuData !== 'undefined' && myLieuData) ? myLieuData : (typeof cData !== 'undefined' ? cData : null);
+  if (!d) return;
+  const root = document.getElementById('pilote-panel-fiche');
+  if (!root) return;
+  const set = (id, val) => { const el = document.getElementById(id); if (el && val != null && val !== '') el.value = val; };
+
+  set('fiche-f-nom', d.nom);
+  // Type : id interne -> libellé du select
+  const typeLbl = (typeof TYPES_LIEU !== 'undefined') ? (TYPES_LIEU.find(t => t.id === d.type) || {}).l : null;
+  if (typeLbl) { const s = document.getElementById('fiche-f-type'); if (s) s.value = typeLbl; }
+  // Adresse + code postal (extrait de la localisation si présent)
+  if (d.localisation) {
+    set('fiche-f-adresse', d.localisation);
+    const cp = (String(d.localisation).match(/\b\d{5}\b/) || [])[0];
+    if (cp) set('fiche-f-cp', cp);
+  }
+  set('fiche-f-annee', d.annee);
+  set('fiche-f-surface', d.surface);
+  // Statut : id -> libellé
+  const STAT = { asso:'Association loi 1901', scic:'SCIC', sas:'SAS', coop:'Coopérative', autre:'Autre' };
+  if (d.statut) { const s = document.getElementById('fiche-f-statut'); if (s) s.value = STAT[d.statut] || d.statut; }
+  set('fiche-f-desc', d.desc);
+  // Phase : bouton actif par libellé
+  const PH = { idee:'Idée', conception:'Conception', chantier:'Chantier', operationnel:'Opérationnel' };
+  if (d.phase) {
+    const lbl = PH[d.phase];
+    root.querySelectorAll('.fiche-tag').forEach(b => b.classList.toggle('active', !!lbl && b.textContent.indexOf(lbl) !== -1));
+  }
+  // Logo / couverture
+  const logo = document.getElementById('fiche-logo-preview');
+  if (logo) {
+    if (d.logo) logo.innerHTML = '<img src="' + d.logo + '" style="width:100%;height:100%;object-fit:cover" alt="">';
+    else if (d.icon) logo.textContent = d.icon;
+  }
+  const cover = document.getElementById('fiche-cover-preview');
+  if (cover && d.cover) cover.innerHTML = '<img src="' + d.cover + '" style="width:100%;height:100%;object-fit:cover" alt="">';
+}
+
 function piloteTab(tab, btn) {
   document.querySelectorAll('.pilote-tab').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
@@ -5994,7 +6040,7 @@ function piloteTab(tab, btn) {
   if (tab === 'marketplace') setTimeout(pmktRenderOffers, 50);
   if (tab === 'dossiers')   setTimeout(initDossiers, 50);
   if (tab === 'quetes')     setTimeout(renderPiloteQuetes, 50);
-  if (tab === 'fiche')      setTimeout(ficheMmRender, 80);
+  if (tab === 'fiche')      { ficheFillFromMyLieu(); setTimeout(ficheMmRender, 80); }
   if (tab === 'apercu') setTimeout(() => {
     const arc = document.getElementById('regen-arc');
     if (arc) arc.style.strokeDashoffset = '63';
