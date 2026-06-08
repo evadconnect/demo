@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+
+# Claude Code (réglages locaux à la machine)
+.claude/settings.local.json
+
+# Sauvegardes / temporaires
+*.bak
+*.tmp
