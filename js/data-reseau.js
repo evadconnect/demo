@@ -11,37 +11,61 @@ const REGEN_PHASES = {
   nourrir:      {label:'Nourrir',      letter:'N', color:'#6b5b95'},
 };
 const RESEAU_POSTS = [
-  {profile:'pilote', author:'La Ferme des Possibles', lieu:'Nantes', time:'il y a 2 h', type:'quete', regen:'entreprendre',
-   text:"On lance une quête : installer une cuve de récupération d'eau de pluie 💧 Besoin de 4 Bâtisseurs motivés ce samedi !",
-   quest:{titre:'Installer une cuve de récupération', meta:'1 journée · 4 pers. · +8 pts eau'},
+  {profile:'pilote', author:'Darwin Écosystème', lieu:'Bordeaux', time:'il y a 1 h', type:'quete', regen:'entreprendre',
+   text:"On agrandit la ferme urbaine 🌱 4 Bâtisseurs ce samedi pour planter et installer le compost des événements. Tous niveaux !",
+   quest:{titre:'Agrandir la ferme urbaine', meta:'1 journée · 4 pers. · +8 pts biodiversité'},
    cta:'Rejoindre la quête'},
-  {profile:'batisseur', author:'Léa M.', lieu:'Rezé', time:'il y a 5 h', type:'rencontre', regen:'explorer',
-   text:"Dispo ce week-end pour filer un coup de main sur un chantier solaire 🌞 Qui a un projet près de Nantes ?",
+  {profile:'batisseur', author:'Hugo D.', lieu:'Bègles', time:'il y a 3 h', type:'rencontre', regen:'explorer',
+   text:"Charpentier dispo ce week-end pour un chantier bois & paille 🔨 Un lieu près de Bordeaux a besoin d'un coup de main ?",
    cta:'Proposer un créneau'},
-  {profile:'semeur', author:'Fondation Terre Vivante', lieu:'Nouvelle-Aquitaine', time:'hier', type:'quete', regen:'entreprendre',
-   text:"On finance 3 nouvelles quêtes énergie ce trimestre 🌱 Lieux à fort impact, à vos candidatures !",
+  {profile:'semeur', author:'Région Nouvelle-Aquitaine', lieu:'Bordeaux', time:'il y a 5 h', type:'quete', regen:'generer',
+   text:"On finance 5 quêtes énergie & alimentation ce trimestre via Néo Terra 🌍 Lieux à impact, candidatez avant fin mars !",
    cta:'Voir les critères'},
-  {profile:'pilote', author:'Tiers-lieu La Centrale', lieu:'Angers', time:'hier', type:'rencontre', regen:'nourrir',
-   text:"Belle rencontre hier, 8 personnes mobilisées pour démarrer la phytoépuration 🌿 Merci à tou·tes les Bâtisseurs présent·es !",
-   img:'🌿', cta:'Voir le lieu'},
-  {profile:'batisseur', author:'Hugo & le collectif', lieu:'Saint-Herblain', time:'il y a 2 j', type:'quete', regen:'nourrir',
-   text:"Quête bois terminée ✅ Mobilier fabriqué pour l'épicerie solidaire. Prochaine étape : l'isolation, on recrute !",
+  {profile:'pilote', author:'Le Garage Moderne', lieu:'Bordeaux', time:'hier', type:'quete', regen:'nourrir',
+   text:"Atelier vélo participatif samedi 🚲 On répare ensemble, on apprend, on partage. Apportez votre vélo en panne !",
+   quest:{titre:'Atelier vélo participatif', meta:'3 h · 6 pers. · mobilité douce'},
+   cta:'Rejoindre la quête'},
+  {profile:'batisseur', author:'Karim T.', lieu:'Bordeaux', time:'hier', type:'rencontre', regen:'explorer',
+   text:"Électricien solaire, je peux dimensionner une installation PV pour un lieu en transition ☀️ Qui démarre un projet ?",
+   cta:'Proposer un créneau'},
+  {profile:'pilote', author:'Supercoop', lieu:'Bordeaux', time:'hier', type:'rencontre', regen:'nourrir',
+   text:"Belle assemblée hier : 18 nouveaux coopérateurs 🤝 Merci aux Bâtisseurs qui ont tenu les permanences du magasin !",
+   img:'🛒', cta:'Voir le lieu'},
+  {profile:'semeur', author:'ADEME Nouvelle-Aquitaine', lieu:'Cenon', time:'il y a 2 j', type:'quete', regen:'generer',
+   text:"Appel à projets économie circulaire ouvert ♻️ Diagnostic déchets financé pour les lieux engagés dans la réduction.",
+   cta:'Voir les critères'},
+  {profile:'batisseur', author:'Manon L.', lieu:'Bordeaux', time:'il y a 2 j', type:'quete', regen:'nourrir',
+   text:"Atelier compostage de quartier terminé ✅ 12 foyers équipés. On remet ça le mois prochain, qui s'inscrit ?",
+   cta:'Rejoindre la quête'},
+  {profile:'pilote', author:'Le Jardin de ta Sœur', lieu:'Bordeaux', time:'il y a 3 j', type:'quete', regen:'entreprendre',
+   text:"Quête verger 🌳 Tailler et pailler les 22 arbres fruitiers avant l'hiver. 5 mains motivées recherchées !",
+   quest:{titre:'Entretien du verger', meta:'1 après-midi · 5 pers. · +6 pts biodiversité'},
+   cta:'Rejoindre la quête'},
+  {profile:'semeur', author:'MAIF', lieu:'Niort', time:'il y a 3 j', type:'rencontre', regen:'rever',
+   text:"Notre fonds d'impact cherche des lieux à utilité sociale et écologique 💚 Présentez-nous vos projets régénératifs !",
+   cta:'Échanger'},
+  {profile:'batisseur', author:'Théo R.', lieu:'Bordeaux', time:'il y a 4 j', type:'rencontre', regen:'explorer',
+   text:"Je remets sur roues les vélos abandonnés et j'initie les habitants à l'autoréparation 🚲 Un lieu pour une permanence ?",
+   cta:'Proposer un créneau'},
+  {profile:'pilote', author:'La Halle des Douves', lieu:'Bordeaux', time:'il y a 4 j', type:'quete', regen:'generer',
+   text:"On rénove la cuisine partagée 🔧 Besoin de bricoleurs et de dons de matériel. On compte sur le réseau bordelais !",
+   quest:{titre:'Rénover la cuisine partagée', meta:'2 week-ends · 6 pers.'},
    cta:'Rejoindre la quête'},
 ];
 const RESEAU_CERCLES = [
   {ic:'💧', theme:'Eau & cycles', color:'#2563a8', bg:'rgba(59,130,180,.14)',
    desc:'Récupération, phytoépuration, gestion et sobriété de l\'eau sur les lieux.',
-   membres:34, seances:8,  format:'Visio · 1h',    anim:'Marie · Pilote',
+   membres:34, seances:8,  format:'Visio · 1h',    anim:'Léa M. · Bâtisseuse',
    sujet:'Mutualiser une cuve de récupération entre 3 lieux voisins',
    next:'jeu. 18h', mix:{p:12,b:18,s:4}},
   {ic:'☀️', theme:'Énergie citoyenne', color:'#c8732a', bg:'rgba(200,115,42,.14)',
    desc:'Solaire, autonomie énergétique et low-tech pour produire et sobriété.',
-   membres:41, seances:11, format:'Visio · 1h',    anim:'Karim · Bâtisseur',
+   membres:41, seances:11, format:'Visio · 1h',    anim:'Karim T. · Bâtisseur',
    sujet:'Monter un projet solaire citoyen : étapes & financement',
    next:'mar. 20h', mix:{p:14,b:23,s:4}},
   {ic:'🌾', theme:'Alimentation locale', color:'#2e6b47', bg:'rgba(46,107,71,.12)',
    desc:'Maraîchage, circuits courts, semences paysannes et résilience alimentaire.',
-   membres:52, seances:14, format:'Visio · 1h30', anim:'Sophie · Pilote',
+   membres:52, seances:14, format:'Visio · 1h30', anim:'Manon L. · Bâtisseuse',
    sujet:'Semences paysannes : créer une grainothèque partagée',
    next:'lun. 19h', mix:{p:20,b:27,s:5}},
   {ic:'🤝', theme:'Gouvernance partagée', color:'#6b5b95', bg:'rgba(107,91,149,.14)',
@@ -51,12 +75,12 @@ const RESEAU_CERCLES = [
    next:'mer. 18h30', mix:{p:11,b:13,s:4}},
   {ic:'🔧', theme:'Low-tech & réparation', color:'#a06c00', bg:'rgba(240,176,50,.18)',
    desc:'Fabriquer, réparer et mutualiser les outils et savoir-faire.',
-   membres:37, seances:9,  format:'Visio · 1h',    anim:'Hugo · Bâtisseur',
+   membres:37, seances:9,  format:'Visio · 1h',    anim:'Théo R. · Bâtisseur',
    sujet:'Lancer un atelier réparation : par où commencer ?',
    next:'ven. 17h', mix:{p:9,b:25,s:3}},
   {ic:'🏘', theme:'Habitat & écolieux', color:'#018262', bg:'rgba(1,130,98,.12)',
    desc:'Construire et habiter autrement : matériaux, statuts, vie collective.',
-   membres:23, seances:5,  format:'Visio · 1h30', anim:'Léa · Semeur',
+   membres:23, seances:5,  format:'Visio · 1h30', anim:'Hugo D. · Bâtisseur',
    sujet:'Financer et sécuriser un habitat groupé',
    next:'sam. 11h', mix:{p:8,b:10,s:5}},
 ];
@@ -101,7 +125,7 @@ function reseauTab(t, btn){
 let reseauFilter = 'tout';
 let reseauRegenFilter = 'tout';
 let reseauProx = false;
-const RESEAU_NEAR = ['Nantes', 'Rezé', 'Saint-Herblain']; // "près de moi" (zone de Nantes)
+const RESEAU_NEAR = ['Bordeaux', 'Bègles', 'Talence', 'Cenon']; // "près de moi" (métropole de Bordeaux)
 function reseauSetFilter(f, btn){
   reseauFilter = f;
   document.querySelectorAll('.reseau-filter').forEach(b=>{ b.style.background='white'; b.style.color='var(--moss)'; });
@@ -261,8 +285,8 @@ function renderReseau(){
           </div>
           <div style="display:flex;align-items:center;gap:.55rem">
             <div style="width:28px;height:28px;border-radius:50%;background:rgba(59,130,180,.14);display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0">🌱</div>
-            <div style="flex:1;min-width:0"><div style="font-size:.7rem;font-weight:700;color:var(--ink)">Fondation Terre Vivante · Semeur</div><div style="font-size:.6rem;color:var(--moss);opacity:.65">💶 critères de financement compatibles</div></div>
-            <button onclick="mmBubble('🤝 Demande envoyée à Fondation Terre Vivante')" style="background:rgba(46,102,66,.08);color:var(--forest);border:none;border-radius:100px;padding:.3rem .7rem;font-size:.64rem;font-weight:700;cursor:pointer;flex-shrink:0">Solliciter</button>
+            <div style="flex:1;min-width:0"><div style="font-size:.7rem;font-weight:700;color:var(--ink)">Région Nouvelle-Aquitaine · Semeur</div><div style="font-size:.6rem;color:var(--moss);opacity:.65">💶 critères de financement compatibles</div></div>
+            <button onclick="mmBubble('🤝 Demande envoyée à la Région Nouvelle-Aquitaine')" style="background:rgba(46,102,66,.08);color:var(--forest);border:none;border-radius:100px;padding:.3rem .7rem;font-size:.64rem;font-weight:700;cursor:pointer;flex-shrink:0">Solliciter</button>
           </div>
         </div>
       </div>` : '';

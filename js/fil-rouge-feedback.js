@@ -1,22 +1,32 @@
 /* ═══════════════ FIL ROUGE : contexte « lieu actif » partagé entre apps ═══════════════
    Fait circuler le lieu d'un écran à l'autre : Tableau de bord → Réseau → Carte.        */
 const EVAD = {
-  activeLieu: { nom:'La Ferme des Possibles', ville:'Nantes', lat:47.2184, lng:-1.5536, icon:'🌾', type:'ferme' }
+  activeLieu: { nom:'Darwin Écosystème', ville:'Bordeaux', lat:44.84953, lng:-0.56147, icon:'🌿', type:'tiers' }
 };
 
-/* Localisation des lieux & acteurs de démo (résolus par nom, puis par ville) */
-const EVAD_LIEU_LOC = {
-  'La Ferme des Possibles' : {ville:'Nantes',            lat:47.2184, lng:-1.5536, icon:'🌾', type:'ferme'},
-  'Tiers-lieu La Centrale' : {ville:'Angers',            lat:47.4712, lng:-0.5518, icon:'🏛', type:'tiers'},
-  'Léa M.'                 : {ville:'Rezé',              lat:47.1963, lng:-1.5490, icon:'🌿', type:'tiers'},
-  'Fondation Terre Vivante': {ville:'Nouvelle-Aquitaine',lat:45.7000, lng:0.3000,  icon:'🌱', type:'tiers'},
-  'Hugo & le collectif'    : {ville:'Saint-Herblain',   lat:47.2146, lng:-1.6490, icon:'🌿', type:'tiers'},
-};
+/* Localisation des lieux & acteurs (résolus par nom, puis par ville).
+   Les lieux/bâtisseurs/semeurs réels sont enregistrés plus bas depuis MAP_*. */
+const EVAD_LIEU_LOC = {};
 const EVAD_VILLE_LOC = {
-  'Nantes':{lat:47.2184,lng:-1.5536}, 'Rezé':{lat:47.1963,lng:-1.5490},
-  'Angers':{lat:47.4712,lng:-0.5518}, 'Saint-Herblain':{lat:47.2146,lng:-1.6490},
-  'Nouvelle-Aquitaine':{lat:45.7000,lng:0.3000},
+  'Bordeaux':{lat:44.8378,lng:-0.5792}, 'Talence':{lat:44.8076,lng:-0.5897},
+  'Bègles':{lat:44.8086,lng:-0.5478},  'Cenon':{lat:44.8560,lng:-0.5269},
+  'Niort':{lat:46.3239,lng:-0.4587},   'Périgny':{lat:46.1610,lng:-1.0996},
+  'Nouvelle-Aquitaine':{lat:44.8378,lng:-0.5792},
 };
+
+// Enregistre tous les acteurs de la carte (lieux, bâtisseurs, semeurs) pour
+// que « Voir le lieu » depuis le réseau les localise précisément.
+(function(){
+  function reg(arr, deftype){
+    if (typeof arr === 'undefined' || !arr) return;
+    arr.forEach(function(a){
+      if (a && a.nom && a.lat != null) EVAD_LIEU_LOC[a.nom] = {ville:a.ville, lat:a.lat, lng:a.lng, icon:a.icon, type:a.type || deftype};
+    });
+  }
+  try { reg(MAP_PLACES, 'tiers'); } catch(e){}
+  try { reg(MAP_BATISSEURS, 'batisseur'); } catch(e){}
+  try { reg(MAP_SEMEURS, 'semeur'); } catch(e){}
+})();
 
 /* Lieu actif courant : le lieu créé (cData) s'il existe, sinon le lieu de démo */
 function evadCurrentLieu(){
