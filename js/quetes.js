@@ -9,6 +9,73 @@ const PILOTE_QUETES_DEMO = [];
 /* État des quêtes validées (session) */
 const quetesValidees = new Set();
 
+/* ─── Modal de présentation d'une quête (depuis la solution source) ─── */
+function openQueteModal(qid) {
+  const q = (typeof PILOTE_QUETES_DEMO !== 'undefined') ? PILOTE_QUETES_DEMO.find(x => x.id === qid) : null;
+  if (!q) return;
+  const sol = (typeof SOLS !== 'undefined') ? SOLS.find(s => s.nom === q.source) : null;
+  const CPLX = { facile:'🟢 Facile', moyen:'🟠 Intermédiaire', difficile:'🔴 Avancé', avance:'🔴 Avancé' };
+  const ic = q.sourceIc || (sol && sol.img) || '⚡';
+
+  let w = document.getElementById('quete-modal');
+  if (!w) {
+    w = document.createElement('div');
+    w.id = 'quete-modal';
+    w.style.cssText = "display:none;position:fixed;inset:0;z-index:100000;font-family:'Satoshi',sans-serif";
+    document.body.appendChild(w);
+  }
+
+  const stat = (val, lbl, col) => `<div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:12px;padding:.6rem .7rem;text-align:center">
+      <div style="font-family:'Satoshi',sans-serif;font-size:1rem;font-weight:800;color:${col||'var(--ink)'}">${val}</div>
+      <div style="font-size:.56rem;color:var(--moss);opacity:.65;text-transform:uppercase;letter-spacing:.06em;margin-top:.15rem">${lbl}</div>
+    </div>`;
+
+  const avantages = (sol && sol.avantages || []).map(a =>
+    `<li style="display:flex;gap:.5rem;align-items:flex-start;font-size:.74rem;color:var(--ink);line-height:1.5;margin-bottom:.35rem"><span style="color:var(--fern);flex-shrink:0">✓</span><span>${a}</span></li>`).join('');
+  const indics = (sol && sol.ind || []).map(i =>
+    `<span style="padding:.2rem .55rem;border-radius:100px;background:rgba(46,102,66,.07);border:1px solid rgba(46,102,66,.15);font-size:.62rem;color:var(--moss)">📊 ${i}</span>`).join('');
+  const esrs = (sol && sol.esrs || []).map(e =>
+    `<span style="padding:.2rem .5rem;border-radius:4px;background:rgba(122,110,168,.1);border:1px solid rgba(122,110,168,.3);font-size:.6rem;color:#7a6ea8;font-weight:600;font-family:monospace">${e}</span>`).join('');
+
+  w.innerHTML =
+    '<div style="position:absolute;inset:0;background:rgba(13,43,34,.6);backdrop-filter:blur(4px)" onclick="closeQueteModal()"></div>'
+  + '<div role="dialog" style="position:relative;max-width:540px;width:calc(100% - 2rem);margin:5vh auto 0;max-height:88vh;overflow-y:auto;background:#fff;border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.32)">'
+  +   (sol && sol.photo ? `<div style="height:150px;background:url('${sol.photo}') center/cover;border-radius:20px 20px 0 0;position:relative"><button onclick="closeQueteModal()" style="position:absolute;top:.7rem;right:.7rem;background:rgba(0,0,0,.45);border:none;color:#fff;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:.85rem">✕</button></div>`
+        : '<div style="display:flex;justify-content:flex-end;padding:.6rem .6rem 0"><button onclick="closeQueteModal()" style="background:none;border:none;font-size:1.2rem;color:var(--moss);opacity:.5;cursor:pointer">✕</button></div>')
+  +   '<div style="padding:1.1rem 1.4rem 1.5rem">'
+  +     `<div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.2rem">
+            <div style="width:46px;height:46px;border-radius:14px;background:rgba(240,176,50,.15);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0">${ic}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:.6rem;font-weight:700;color:#a06c00;text-transform:uppercase;letter-spacing:.08em">⚡ Quête${sol?' · '+sol.nom:''}</div>
+              <div style="font-size:1.1rem;font-weight:800;color:var(--ink);line-height:1.2">${q.titre}</div>
+            </div>
+          </div>`
+  +     `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin:1rem 0">
+            ${stat('⏱ '+q.duree,'Durée')}
+            ${stat('👥 '+q.nb,'Équipe')}
+            ${stat(q.graines+' 🌱','Graines','var(--amber)')}
+            ${stat((sol?CPLX[sol.cplx]||'—':'—'),'Niveau')}
+          </div>`
+  +     (q.impact ? `<div style="background:rgba(74,140,92,.08);border:1px solid rgba(74,140,92,.2);border-radius:10px;padding:.55rem .75rem;font-size:.74rem;color:var(--forest);font-weight:600;margin-bottom:.9rem">📈 Impact : ${q.impact}</div>` : '')
+  +     (sol && sol.desc ? `<div style="font-size:.55rem;font-weight:700;color:var(--moss);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem">La solution</div><p style="font-size:.78rem;color:var(--ink);line-height:1.6;margin-bottom:1rem">${sol.desc}</p>` : '')
+  +     (avantages ? `<div style="font-size:.55rem;font-weight:700;color:var(--moss);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem">Bénéfices</div><ul style="list-style:none;margin:0 0 1rem;padding:0">${avantages}</ul>` : '')
+  +     (sol && sol.budget ? `<div style="display:flex;align-items:center;gap:.5rem;font-size:.74rem;color:var(--ink);margin-bottom:1rem"><span style="font-weight:700;color:var(--moss)">💶 Budget indicatif :</span> ${sol.budget}</div>` : '')
+  +     (indics ? `<div style="font-size:.55rem;font-weight:700;color:var(--moss);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem">Indicateurs à suivre</div><div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:1rem">${indics}</div>` : '')
+  +     (esrs ? `<div style="font-size:.55rem;font-weight:700;color:var(--moss);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem">Référentiels ESRS</div><div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.4rem">${esrs}</div>${sol && sol.esrs_detail ? `<div style="font-size:.66rem;color:var(--moss);opacity:.8;line-height:1.5;margin-bottom:1rem">${sol.esrs_detail}</div>` : ''}` : '')
+  +     `<div style="display:flex;gap:.6rem;margin-top:.6rem">
+            <button onclick="closeQueteModal()" style="flex:0 0 auto;background:none;border:1px solid rgba(46,102,66,.25);color:var(--moss);border-radius:100px;padding:.55rem 1rem;font-size:.78rem;font-weight:700;cursor:pointer">Fermer</button>
+            <button onclick="validerQuete('${q.id}');closeQueteModal()" style="flex:1;background:var(--forest);color:#fff;border:none;border-radius:100px;padding:.55rem 1rem;font-size:.78rem;font-weight:700;cursor:pointer">✅ Valider la preuve</button>
+          </div>`
+  +   '</div>'
+  + '</div>';
+  w.style.display = 'block';
+}
+
+function closeQueteModal() {
+  const w = document.getElementById('quete-modal');
+  if (w) w.style.display = 'none';
+}
+
 /* Reconstruit les quêtes du Pilote depuis les solutions choisies à la
    création de fiche (chaque solution SOLS porte une quête .quete). */
 function syncPiloteQuetesFromLieu() {
@@ -144,7 +211,7 @@ function renderPiloteQuetes() {
             <button class="btn btn-primary" style="font-size:.65rem;padding:.3rem .75rem"
               onclick="validerQuete('${q.id}')">✅ Valider la preuve</button>
             <button class="btn btn-ghost" style="font-size:.65rem;padding:.3rem .75rem"
-              onclick="mmBubble('📋 ${q.titre.substring(0,30)}…, détail de la quête')">Voir détail</button>
+              onclick="openQueteModal('${q.id}')">Voir détail</button>
           ` : `
             <button class="btn btn-ghost" style="font-size:.65rem;padding:.3rem .75rem;opacity:.5" disabled>✓ Validée</button>
           `}
