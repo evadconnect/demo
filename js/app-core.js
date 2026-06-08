@@ -5502,7 +5502,11 @@ function batBuildQuetesFromProfile() {
     BAT_QUETES.push({
       id: 0, type: (sol.img || '⚡') + ' ' + (sol.cat || 'Quête'),
       titre: sol.quete.titre, match: match,
-      lieu: host.nom, ville: host.ville || 'Bordeaux',
+      lieu: host.nom, pilote: host.nom, ville: host.ville || 'Bordeaux',
+      desc: sol.desc || sol.quete.titre,
+      impact: sol.quete.impact_quete || sol.impact || '',
+      preuve: 'Photos de l\'action réalisée + indicateurs mesurés (CO₂, énergie, déchets…).',
+      apprendre: 'Mise en œuvre de « ' + sol.nom + ' » et documentation de l\'impact.',
       duree: sol.quete.duree || '1 journée',
       places: '2/' + (parseInt(sol.quete.nb, 10) || 6),
       etape_actuelle: 1, etapes: 4,
@@ -5561,28 +5565,64 @@ function batSelectQuete(id) {
 /* ─── FICHE QUÊTE DÉDIÉE ─── */
 let _qdCurrentId = 0;
 let _qdFrom = 'quete';
+let _qdQuestOverride = null;  // quête arbitraire (ex. quête Pilote) affichée dans la fiche
 
 function showQueteDetail(id, from) {
+  _qdQuestOverride = null;
   _qdCurrentId = id;
   _qdFrom = from || 'quete';
   showScreen('quete-detail');
 }
+
+// Ouvre la fiche quête (même présentation) pour n'importe quelle quête.
+function showQueteFiche(quest, from) {
+  _qdQuestOverride = quest;
+  _qdFrom = from || (typeof currentRole !== 'undefined' ? currentRole : 'quete');
+  showScreen('quete-detail');
+}
+
+// Boutons d'action de la fiche quête, selon le rôle actif.
+function qdActionButtons() {
+  const B = (l, fn, kind) => {
+    const base = 'width:100%;border:none;border-radius:100px;padding:.6rem 1rem;font-size:.78rem;font-weight:700;cursor:pointer;font-family:\'Satoshi\',sans-serif;text-align:center';
+    const styles = {
+      primary: 'background:var(--forest);color:#fff',
+      ghost:   'background:rgba(46,102,66,.07);color:var(--forest);border:1px solid rgba(46,102,66,.2)',
+      danger:  'background:rgba(184,78,53,.08);color:var(--terracotta);border:1px solid rgba(184,78,53,.25)'
+    };
+    return `<button onclick="${fn}" style="${base};${styles[kind] || styles.ghost}">${l}</button>`;
+  };
+  const byRole = {
+    pilote: [B('✏️ Modifier', 'qdModifier()', 'ghost'), B('⏸ Mettre en pause', 'qdPause()', 'ghost'), B('🗑 Supprimer', 'qdSupprimer()', 'danger'), B('✅ Valider la preuve', 'qdValider()', 'primary')],
+    batisseur: [B('✅ Rejoindre', 'qdJoindre()', 'primary'), B('✉️ Contacter le Pilote', 'qdContactPilote()', 'ghost'), B('📎 Déposer la preuve', 'qdDeposerPreuve()', 'ghost')],
+    semeur: [B('💰 Financer', 'qdFinancer()', 'primary'), B('✉️ Contacter le Pilote', 'qdContactPilote()', 'ghost')]
+  };
+  const btns = byRole[currentRole] || byRole.batisseur;
+  return `<div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-lg);padding:.9rem 1rem;display:flex;flex-direction:column;gap:.5rem">
+    <div style="font-size:.72rem;font-weight:600;color:var(--ink);margin-bottom:.1rem">⚡ Actions</div>
+    ${btns.join('')}
+  </div>`;
+}
+
+function qdContactPilote() { const q = _qdQuestOverride || BAT_QUETES[_qdCurrentId] || {}; mmBubble('✉️ Message envoyé au Pilote' + (q.pilote ? ' (' + q.pilote + ')' : '') + ', réponse sous 48h'); }
+function qdDeposerPreuve() { mmBubble('📎 Dépôt de preuve ouvert, ajoute photos et indicateurs'); }
+function qdModifier() { mmBubble('✏️ Mode édition de la quête ouvert'); }
+function qdPause() { mmBubble('⏸ Quête mise en pause, plus visible des Bâtisseurs'); }
+function qdSupprimer() { mmBubble('🗑 Quête supprimée'); setTimeout(queteDetailBack, 300); }
 
 function queteDetailBack() {
   showScreen(_qdFrom);
 }
 
 function renderQueteDetail() {
-  const q = BAT_QUETES[_qdCurrentId];
+  const q = _qdQuestOverride || BAT_QUETES[_qdCurrentId];
   if (!q) return;
 
   // Topbar
   document.getElementById('qd-topbar-title').textContent = q.titre;
   document.getElementById('qd-topbar-sub').textContent = q.lieu + ' · ' + q.ville + ' · ' + q.duree;
-
-  // Topbar CTA selon profil
-  const ctas = { batisseur: `<button class="btn btn-primary" onclick="qdJoindre()">✅ Rejoindre cette quête</button>`, semeur: `<button class="btn btn-primary" onclick="qdFinancer()">💰 Financer cette quête</button>`, pilote: `<button class="btn btn-ghost" onclick="mmBubble('Mode édition quête ouvert')">✏️ Modifier la quête</button><button class="btn btn-primary" onclick="qdValider()">✅ Valider les preuves</button>` };
-  document.getElementById('qd-topbar-actions').innerHTML = ctas[currentRole] || ctas.batisseur;
+  // Les actions sont désormais dans la colonne de gauche (par rôle)
+  const _qdta = document.getElementById('qd-topbar-actions'); if (_qdta) _qdta.innerHTML = '';
 
   // Étapes
   const labels = q.etapeLabels || ['Lancement','Préparation','Réalisation','Certification'];
@@ -5667,10 +5707,13 @@ function renderQueteDetail() {
       </div>
     </div>
 
+    <!-- Actions selon le profil -->
+    ${qdActionButtons()}
+
     <!-- Description -->
     <div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-lg);padding:1rem 1.1rem">
       <div style="font-size:.72rem;font-weight:600;color:var(--ink);margin-bottom:.5rem">📝 Description</div>
-      <p style="font-size:.8rem;color:var(--moss);line-height:1.6;margin:0">${q.desc}</p>
+      <p style="font-size:.8rem;color:var(--moss);line-height:1.6;margin:0">${q.desc || '—'}</p>
     </div>
 
     <!-- Dates -->

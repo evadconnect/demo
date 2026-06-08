@@ -77,6 +77,32 @@ function closeQueteModal() {
   if (w) w.style.display = 'none';
 }
 
+// Ouvre la quête Pilote dans la fiche quête standard (même présentation que les autres rôles).
+function openPiloteQueteFiche(qid) {
+  const pq = (typeof PILOTE_QUETES_DEMO !== 'undefined') ? PILOTE_QUETES_DEMO.find(x => x.id === qid) : null;
+  if (!pq || typeof showQueteFiche !== 'function') return;
+  const sol = (typeof SOLS !== 'undefined') ? SOLS.find(s => s.nom === pq.source) : null;
+  const lieuNom = (typeof myLieuData !== 'undefined' && myLieuData && myLieuData.nom) ? myLieuData.nom : 'Mon lieu';
+  const ville = (typeof myLieuData !== 'undefined' && myLieuData && myLieuData.localisation) ? myLieuData.localisation : 'Bordeaux';
+  showQueteFiche({
+    titre: pq.titre,
+    type: (pq.sourceIc || (sol && sol.img) || '⚡') + ' ' + ((sol && sol.cat) || 'Quête'),
+    lieu: lieuNom, pilote: lieuNom, ville: ville,
+    desc: (sol && sol.desc) || pq.titre,
+    impact: pq.impact || (sol && sol.impact) || '',
+    preuve: 'Photos de l\'action réalisée + indicateurs mesurés.',
+    apprendre: 'Mise en œuvre de « ' + ((sol && sol.nom) || pq.titre) + ' ».',
+    duree: pq.duree || '1 journée',
+    places: '0/' + (parseInt(pq.nb, 10) || 6),
+    etape_actuelle: 1, etapes: 4,
+    etapeLabels: ['Lancement', 'Préparation', 'Réalisation', 'Certification'],
+    tokens: pq.graines || 50, co2: (sol && sol.co2) || 0,
+    esrs: ((sol && sol.esrs) || []).map(e => String(e).replace('ESRS ', '').trim()),
+    financement: { objectif: 0, montant: 0, semeur: null },
+    equipe: [{ i: 'M', c: '#4a8c5c' }], dates: []
+  }, 'pilote');
+}
+
 /* Publie la quête dans le fil d'action du Réseau, au nom du lieu créé. */
 function publishQueteToReseau(qid) {
   const q = (typeof PILOTE_QUETES_DEMO !== 'undefined') ? PILOTE_QUETES_DEMO.find(x => x.id === qid) : null;
@@ -239,7 +265,7 @@ function renderPiloteQuetes() {
             <button class="btn btn-primary" style="font-size:.65rem;padding:.3rem .75rem"
               onclick="validerQuete('${q.id}')">✅ Valider la preuve</button>
             <button class="btn btn-ghost" style="font-size:.65rem;padding:.3rem .75rem"
-              onclick="openQueteModal('${q.id}')">Voir détail</button>
+              onclick="openPiloteQueteFiche('${q.id}')">Voir détail</button>
           ` : `
             <button class="btn btn-ghost" style="font-size:.65rem;padding:.3rem .75rem;opacity:.5" disabled>✓ Validée</button>
           `}
