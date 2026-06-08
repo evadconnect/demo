@@ -6381,6 +6381,37 @@ function semeurTab(tab, btn) {
   if (tab === 'graines') setTimeout(smktRender, 60);
   if (tab === 'rse') setTimeout(renderESRS, 50);
   if (tab === 'quetes') setTimeout(semRenderQuetes, 60);
+  if (tab === 'fiche')  setTimeout(semFillProfile, 60);
+  semReflectProfile();
+}
+
+// Remplit l'onglet « Mon profil » du dashboard Semeur depuis semFicheData.
+function semFillProfile() {
+  const sd = (typeof semFicheData !== 'undefined') ? semFicheData : null;
+  if (!sd) return;
+  const set = (id, v) => { const e = document.getElementById(id); if (e && v != null && v !== '') e.value = v; };
+  set('sem-f-nom', sd.nom);
+  if (sd.type) { const t = document.getElementById('sem-f-type'); if (t) t.value = sd.type; }
+  set('sem-f-secteur', sd.secteur);
+  set('sem-f-zone', sd.zone);
+  const logo = document.getElementById('sem-logo-preview');
+  if (logo && sd.logo) logo.innerHTML = '<img src="' + sd.logo + '" style="width:100%;height:100%;object-fit:cover" alt="">';
+}
+
+// Reflète le profil financeur créé dans le topbar, l'aperçu, le KPI ESRS et le portefeuille.
+function semReflectProfile() {
+  const sd = (typeof semFicheData !== 'undefined') ? semFicheData : null;
+  if (!sd) return;
+  const has = (sd.nom || '').trim() !== '';
+  const name = sd.nom || 'Mon organisation';
+  const esrs = (sd.selectedCadres || []).length || (sd.axes || []).length || (sd.selectedODD || []).length;
+  const tt = document.getElementById('sem-topbar-title'); if (tt) tt.textContent = '🏢 ' + (has ? name : 'Mon organisation');
+  const ts = document.getElementById('sem-topbar-sub'); if (ts) ts.textContent = has ? ((sd.type || 'Financeur') + (sd.zone ? ' · ' + sd.zone : '') + ' · profil complété ✓') : 'Semeur · Configure ton profil';
+  const hl = document.getElementById('sem-hero-label'); if (hl) hl.textContent = has ? (name + ' · ' + (sd.type || 'Financeur')) : 'Mon organisation · Score RSE Global';
+  const hi = document.getElementById('sem-hero-intro'); if (hi) hi.textContent = has ? ('Finance des lieux à impact' + (sd.zone ? ' alignés ' + sd.zone : '') + '.' + (esrs ? ' ' + esrs + ' cadre(s) ESRS ciblé(s).' : '')) : 'Configure ton profil RSE pour commencer';
+  const ke = document.getElementById('sem-kpi-esrs'); if (ke) ke.textContent = esrs || '—';
+  const pf = document.getElementById('sem-portefeuille-list');
+  if (pf && has) pf.innerHTML = '<div style="padding:1rem;text-align:center;font-size:.72rem;color:var(--moss);opacity:.6">Aucun lieu financé pour l\'instant. Finance un lieu aligné ' + (sd.zone || 'ton territoire') + ' depuis la carte 🌱</div>';
 }
 
 /* ─── QUÊTES À FINANCER (SEMEUR) ─── */

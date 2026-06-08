@@ -1846,8 +1846,8 @@
 
   <div class="topbar">
     <div>
-      <div class="topbar-title">🏢 Mon organisation</div>
-      <div class="topbar-sub">Semeur · Configure ton profil</div>
+      <div class="topbar-title" id="sem-topbar-title">🏢 Mon organisation</div>
+      <div class="topbar-sub" id="sem-topbar-sub">Semeur · Configure ton profil</div>
     </div>
     <div class="topbar-actions">
       <button class="btn btn-ghost" onclick="exportCSRDReport()">📄 Rapport CSRD Q1</button>
@@ -1882,8 +1882,8 @@
           </div>
         </div>
         <div style="position:relative">
-          <div style="font-size:.58rem;color:var(--sage);text-transform:uppercase;letter-spacing:.15em;opacity:.7;margin-bottom:.3rem">Mon organisation · Score RSE Global</div>
-          <div style="color:rgba(255,255,255,.82);font-size:.8rem;line-height:1.4;margin-bottom:.65rem">Configure ton profil RSE pour commencer</div>
+          <div style="font-size:.58rem;color:var(--sage);text-transform:uppercase;letter-spacing:.15em;opacity:.7;margin-bottom:.3rem" id="sem-hero-label">Mon organisation · Score RSE Global</div>
+          <div style="color:rgba(255,255,255,.82);font-size:.8rem;line-height:1.4;margin-bottom:.65rem" id="sem-hero-intro">Configure ton profil RSE pour commencer</div>
           <div style="display:flex;gap:.5rem;flex-wrap:wrap">
           </div>
         </div>
@@ -1917,7 +1917,7 @@
         </div>
         <div style="background:white;border:1px solid rgba(200,115,42,.2);border-top:3px solid var(--amber);border-radius:var(--r-xl);padding:.8rem 1rem">
           <div style="font-size:.62rem;font-weight:600;color:var(--amber);margin-bottom:.35rem">📋 Conformité CSRD</div>
-          <div style="font-family:'Satoshi', sans-serif;font-size:1.25rem;font-weight:900;color:var(--amber);line-height:1;margin-bottom:.2rem">—</div>
+          <div id="sem-kpi-esrs" style="font-family:'Satoshi', sans-serif;font-size:1.25rem;font-weight:900;color:var(--amber);line-height:1;margin-bottom:.2rem">—</div>
           <div style="font-size:.62rem;color:var(--moss);opacity:.7;margin-bottom:.38rem">ESRS couverts</div>
           <div style="height:4px;background:rgba(46,102,66,.1);border-radius:4px"><div style="width:0%;height:100%;background:linear-gradient(90deg,var(--amber),var(--amber-soft));border-radius:4px"></div></div>
         </div>
@@ -1954,7 +1954,7 @@
           <div style="font-size:.76rem;font-weight:600;color:var(--ink)">🏡 Portefeuille lieux</div>
           <button class="btn btn-ghost" style="font-size:.6rem;padding:.18rem .55rem" onclick="semeurTab('portefeuille',document.getElementById('stab-portefeuille'))">Voir tout →</button>
         </div>
-        <div style="padding:.55rem .8rem;display:flex;flex-direction:column;gap:.3rem">
+        <div style="padding:.55rem .8rem;display:flex;flex-direction:column;gap:.3rem" id="sem-portefeuille-list">
           <div style="padding:1rem;text-align:center;font-size:.72rem;color:var(--moss);opacity:.5">Aucun lieu financé pour l'instant</div>
         </div>
       </div>
@@ -2181,9 +2181,9 @@
           </div>
 
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem">
-            <div class="fiche-field"><div class="fiche-label">Nom de l'organisation</div><input class="fiche-input" value="" placeholder="Ex : Fondation Terre Vivante"></div>
+            <div class="fiche-field"><div class="fiche-label">Nom de l'organisation</div><input class="fiche-input" id="sem-f-nom" value="" placeholder="Ex : Fondation Terre Vivante"></div>
             <div class="fiche-field"><div class="fiche-label">Type d'organisation</div>
-              <select class="fiche-input">
+              <select class="fiche-input" id="sem-f-type">
                 <option value="">— Choisir —</option>
                 <option selected>Fondation</option>
                 <option>Entreprise / Mécénat</option>
@@ -2195,8 +2195,8 @@
             </div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem">
-            <div class="fiche-field"><div class="fiche-label">Secteur</div><input class="fiche-input" value="ESS" placeholder="Ex : ESS, finance solidaire…"></div>
-            <div class="fiche-field"><div class="fiche-label">Zone d'intervention</div><input class="fiche-input" value="Nouvelle-Aquitaine" placeholder="Ex : Nouvelle-Aquitaine, National…"></div>
+            <div class="fiche-field"><div class="fiche-label">Secteur</div><input class="fiche-input" id="sem-f-secteur" value="ESS" placeholder="Ex : ESS, finance solidaire…"></div>
+            <div class="fiche-field"><div class="fiche-label">Zone d'intervention</div><input class="fiche-input" id="sem-f-zone" value="Nouvelle-Aquitaine" placeholder="Ex : Nouvelle-Aquitaine, National…"></div>
           </div>
           <div class="fiche-field">
             <div class="fiche-label">Mission & raison d'être</div>
