@@ -5240,7 +5240,9 @@ async function publishBatProfil() {
       </div>
       <div class="pcm-quetes" style="color:var(--amber)">✦ ${bio.substring(0,60)}${bio.length>60?'…':''}</div>
     `;
-    sectionBat.appendChild(card);
+    // Insère en haut de la liste (juste après l'en-tête de section)
+    const header = sectionBat.firstElementChild;
+    sectionBat.insertBefore(card, header ? header.nextElementSibling : sectionBat.firstChild);
     const countEl = document.getElementById('map-bat-count');
     if (countEl) {
       const n = sectionBat.querySelectorAll('.place-card-mini').length;
@@ -5321,7 +5323,9 @@ async function publishSemProfil() {
       </div>
       <div class="pcm-quetes" style="color:var(--sky)">✦ ${odd.length} ODD · ${semFicheData.axes.length} axe${semFicheData.axes.length!==1?'s':''} d'impact</div>
     `;
-    sectionSem.appendChild(card);
+    // Insère en haut de la liste (juste après l'en-tête de section)
+    const header = sectionSem.firstElementChild;
+    sectionSem.insertBefore(card, header ? header.nextElementSibling : sectionSem.firstChild);
     const countEl = document.getElementById('map-sem-count');
     if (countEl) {
       const n = sectionSem.querySelectorAll('.place-card-mini').length;
