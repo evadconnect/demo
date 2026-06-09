@@ -29,12 +29,6 @@ const OB_DATA = {
           { num: '3', title: 'Les Semeurs financent', text: 'Entreprises et fondations financent des projets contre des preuves d\'impact certifiés ESRS.' },
           { num: '4', title: 'Le score REGEN progresse', text: 'Chaque preuve certifiée fait progresser ton lieu et débloque de nouveaux financements.' }
         ]
-      },
-      {
-        eyebrow: 'Étape 2 · Créer ton compte',
-        headline: 'Rejoins\nl\'écosystème.',
-        desc: 'Crée ton compte pour remplir ta fiche lieu et accéder à ton tableau de bord.',
-        type: 'signup'
       }
     ]
   },
@@ -65,12 +59,6 @@ const OB_DATA = {
           { num: '3', title: 'Certifie ta contribution', text: 'Photo, mesure, témoignage pair. La preuve est vérifiée et publiée sur la blockchain légère EVAD.' },
           { num: '4', title: 'Reçois et dépense tes graines', text: 'Échange tes graines contre des avantages locaux : paniers, stages, hébergements, formations.' }
         ]
-      },
-      {
-        eyebrow: 'Étape 2 · Créer ton compte',
-        headline: 'Rejoins\nl\'écosystème.',
-        desc: 'Crée ton compte pour remplir ta fiche particulier et accéder à ton tableau de bord.',
-        type: 'signup'
       }
     ]
   },
@@ -101,12 +89,6 @@ const OB_DATA = {
           { num: '3', title: 'Suivi des jalons & preuves', text: 'Chaque jalon est validé par les Bâtisseurs + oracle EVAD. Preuve NFT générée automatiquement.' },
           { num: '4', title: 'Rapport d\'impact ESRS exportable', text: 'Un rapport complet et auditable est généré à la clôture, intégrable directement dans ton CSRD.' }
         ]
-      },
-      {
-        eyebrow: 'Étape 2 · Créer ton compte',
-        headline: 'Rejoins\nl\'écosystème.',
-        desc: 'Crée ton compte pour remplir ta fiche financeur et accéder à ton tableau de bord.',
-        type: 'signup'
       }
     ]
   }
@@ -134,7 +116,9 @@ function obRender() {
   badge.style.background = d.badgeBg;
   badge.style.color = d.badgeColor;
 
-  // Stepper
+  // Stepper (masqué s'il n'y a qu'une seule étape)
+  const stepperEl = document.getElementById('ob-stepper');
+  if (stepperEl) stepperEl.style.display = d.steps.length > 1 ? '' : 'none';
   const dots = document.querySelectorAll('.ob-step-dot');
   dots.forEach((dot, i) => {
     dot.classList.remove('active', 'done');
@@ -212,22 +196,17 @@ function obRender() {
   const prev = document.getElementById('ob-prev');
   const next = document.getElementById('ob-next');
   prev.style.display = obStep > 0 ? 'block' : 'none';
-  if (obStep < 1) {
-    next.textContent = 'Suivant →';
-    next.style.background = d.color;
-    next.style.color = 'white';
-  } else {
-    next.textContent = 'Commencer ✦';
-    next.style.background = d.color;
-    next.style.color = 'white';
-  }
+  next.textContent = obStep < (d.steps.length - 1) ? 'Suivant →' : 'Commencer ✦';
+  next.style.background = d.color;
+  next.style.color = 'white';
 
   // SVG
   obRenderSVG();
 }
 
 function obNext() {
-  if (obStep < 1) { obStep++; obRender(); }
+  const last = OB_DATA[obRole].steps.length - 1;
+  if (obStep < last) { obStep++; obRender(); }
   else if (obSelectedScreen) { obAction(obSelectedScreen); }
   else { obSkip(); }
 }

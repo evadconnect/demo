@@ -44,7 +44,8 @@ function spObFinish() {
 function spObSkip() { spObFinish(); }
 
 function spObNext() {
-  if (spObStep < 1) { spObStep++; spObRender(); }
+  const last = OB_DATA[splashRole].steps.length - 1;
+  if (spObStep < last) { spObStep++; spObRender(); }
   else if (spObSelectedScreen) { spObAction(spObSelectedScreen); }
   else { spObFinish(); }
 }
@@ -66,6 +67,10 @@ function spObRender() {
 
   const d = OB_DATA[splashRole];
   const step = d.steps[spObStep];
+
+  // Masque le fil d'étapes quand il n'y a qu'une seule étape
+  const stepperEl = document.getElementById('sp-ob-stepper');
+  if (stepperEl) stepperEl.style.display = d.steps.length > 1 ? '' : 'none';
 
   // Badge
   const badge = document.getElementById('sp-ob-badge');
@@ -170,7 +175,7 @@ function spObRender() {
   const prev = document.getElementById('sp-ob-prev');
   const next = document.getElementById('sp-ob-next');
   prev.style.display = spObStep > 0 ? 'block' : 'none';
-  next.textContent = spObStep < 1 ? 'Suivant →' : 'Commencer ✦';
+  next.textContent = spObStep < (d.steps.length - 1) ? 'Suivant →' : 'Commencer ✦';
   next.style.background = d.color;
   next.style.color = 'white';
 
