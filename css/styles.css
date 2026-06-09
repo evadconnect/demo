@@ -3121,7 +3121,7 @@ body {
   width: 100%;
 }
 .sp-header { text-align: center; margin-bottom: 44px; }
-.sp-logo { display: inline-flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+.sp-logo { display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
 .sp-logo svg { width: 290px; height: auto; }
 .sp-name {
   font-family: 'Satoshi', sans-serif;
@@ -3165,6 +3165,8 @@ body {
   margin-bottom: 16px;
 }
 .sp-pill-dot { width: 5px; height: 5px; background: #cfeee7; border-radius: 50%; }
+.sp-pill-leaf { font-size: 0.85rem; line-height: 1; }
+.sp-pill-leaf-r { transform: scaleX(-1); }
 .sp-portails { display: flex; flex-direction: column; gap: 12px; margin-bottom: 36px; }
 .sp-card {
   background: #fff;
