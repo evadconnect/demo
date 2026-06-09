@@ -4928,7 +4928,9 @@ async function createLieuOnMap(){
       </div>
       <div class="pcm-quetes" style="color:var(--fern)">✦ ${cData.solutions?.length || 0} solution${(cData.solutions?.length||0)!==1?'s':''} · Lieu régénératif</div>
     `;
-    sectionLieux.appendChild(card);
+    // Insère en haut de la liste (juste après l'en-tête « 🏡 Lieux »)
+    const header = sectionLieux.firstElementChild;
+    sectionLieux.insertBefore(card, header ? header.nextElementSibling : sectionLieux.firstChild);
     // Update counter
     const countEl = document.getElementById('map-lieux-count');
     if(countEl){
