@@ -6295,7 +6295,32 @@ function pmktSaveOffer() {
 }
 
 /* ─── MARKETPLACE BÂTISSEUR ─── */
-const MKT_OFFRES = [];
+const MKT_OFFRES = [
+  // ── Alimentation ──
+  { id:101, cat:'alimentation', titre:'Panier de légumes bio', desc:'Panier hebdomadaire de légumes de saison cultivés en permaculture, récoltés le matin même.', lieu:'Le Jardin de ta Sœur', ville:'Bordeaux', prix:30, unite:'le panier hebdo', emoji:'🥦', bg:'rgba(74,140,92,.12)', badge:'new', stock:12, impact:'Soutient le maraîchage local et raccourcit les circuits alimentaires.' },
+  { id:102, cat:'alimentation', titre:'Pain au levain bio', desc:'Miche de pain au levain naturel, farine de blés anciens moulue sur place.', lieu:'Supercoop', ville:'Bordeaux', prix:12, unite:'la miche', emoji:'🍞', bg:'rgba(74,140,92,.12)', badge:null, stock:20, impact:'Valorise une filière céréalière paysanne et locale.' },
+  { id:103, cat:'alimentation', titre:'Caisse de fruits de saison', desc:'Caisse de 5 kg de fruits du verger conservatoire, variétés anciennes.', lieu:'Darwin Écosystème', ville:'Bordeaux', prix:25, unite:'la caisse 5 kg', emoji:'🍎', bg:'rgba(74,140,92,.12)', badge:'promo', stock:8, impact:'Préserve la biodiversité fruitière et les vergers urbains.' },
+  // ── Formation ──
+  { id:104, cat:'formation', titre:'Atelier permaculture', desc:'Séance pratique de 3h : design d\'un potager nourricier, buttes et associations de plantes.', lieu:'Le Jardin de ta Sœur', ville:'Bordeaux', prix:60, unite:'la séance · 3h', emoji:'🌱', bg:'rgba(58,110,140,.12)', badge:'premium', stock:6, impact:'Transmet les savoir-faire pour cultiver sans intrants chimiques.' },
+  { id:105, cat:'formation', titre:'Formation low-tech & réparation', desc:'Journée d\'initiation à la réparation et à l\'autonomie technique (vélo, petit électroménager).', lieu:'Le Garage Moderne', ville:'Bordeaux', prix:45, unite:'la journée', emoji:'🔧', bg:'rgba(58,110,140,.12)', badge:null, stock:10, impact:'Allonge la durée de vie des objets et réduit les déchets.' },
+  { id:106, cat:'formation', titre:'Initiation au compostage', desc:'Atelier gratuit pour apprendre à composter en ville, en pied d\'immeuble ou en lombricomposteur.', lieu:'La Halle des Douves', ville:'Bordeaux', prix:0, unite:'accès libre', emoji:'♻️', bg:'rgba(58,110,140,.12)', badge:null, stock:30, impact:'Détourne les biodéchets de l\'incinération et nourrit les sols.' },
+  // ── Artisanat ──
+  { id:107, cat:'artisanat', titre:'Mobilier en bois de réemploi', desc:'Pièce de mobilier unique fabriquée à partir de bois récupéré et restauré à l\'atelier.', lieu:'Les Vivres de l\'Art', ville:'Bordeaux', prix:120, unite:'la pièce', emoji:'🪑', bg:'rgba(184,78,53,.12)', badge:'premium', stock:3, impact:'Économie circulaire : 0 arbre coupé, matière sauvée de la benne.' },
+  { id:108, cat:'artisanat', titre:'Vélo reconditionné', desc:'Vélo de ville entièrement révisé et garanti, remis en état par l\'atelier participatif.', lieu:'Le Garage Moderne', ville:'Bordeaux', prix:90, unite:'le vélo', emoji:'🚲', bg:'rgba(184,78,53,.12)', badge:'new', stock:4, impact:'Mobilité douce et réemploi : −1 vélo neuf produit.' },
+  { id:109, cat:'artisanat', titre:'Savons artisanaux surgras', desc:'Savon saponifié à froid, huiles bio et locales, sans emballage plastique.', lieu:'La Maison Écocitoyenne', ville:'Bordeaux', prix:8, unite:'le savon', emoji:'🧼', bg:'rgba(184,78,53,.12)', badge:null, stock:40, impact:'Zéro déchet et ingrédients respectueux de l\'eau.' },
+  // ── Services ──
+  { id:110, cat:'service', titre:'Atelier de réparation textile', desc:'Apporte un vêtement abîmé, repars avec réparé. Couturières bénévoles sur place.', lieu:'La Halle des Douves', ville:'Bordeaux', prix:15, unite:'la pièce', emoji:'🧵', bg:'rgba(122,110,168,.12)', badge:null, stock:15, impact:'Lutte contre la fast-fashion, prolonge la vie des vêtements.' },
+  { id:111, cat:'service', titre:'Coup de main jardinage', desc:'Échange de temps : une demi-journée d\'entraide au jardin partagé contre tes graines.', lieu:'Le Jardin de ta Sœur', ville:'Bordeaux', prix:0, unite:'accès libre', emoji:'🤝', bg:'rgba(122,110,168,.12)', badge:null, stock:20, impact:'Renforce le lien social et l\'entraide locale.' },
+  { id:112, cat:'service', titre:'Conseil en rénovation écologique', desc:'Consultation d\'1h avec un conseiller : isolation biosourcée, chauffage, aides financières.', lieu:'La Maison Écocitoyenne', ville:'Bordeaux', prix:50, unite:'la consultation · 1h', emoji:'🏠', bg:'rgba(122,110,168,.12)', badge:'premium', stock:8, impact:'Accompagne la baisse des consommations d\'énergie des logements.' },
+  // ── Événements ──
+  { id:113, cat:'evenement', titre:'Concert au coucher du soleil', desc:'Soirée musique live sur la rive droite, scène alimentée en énergie solaire.', lieu:'Darwin Écosystème', ville:'Bordeaux', prix:20, unite:'la place', emoji:'🎶', bg:'rgba(200,115,42,.12)', badge:'promo', stock:50, impact:'Culture accessible et événement à faible empreinte.' },
+  { id:114, cat:'evenement', titre:'Marché des producteurs', desc:'Marché hebdomadaire en circuit court : maraîchers, fromagers et artisans du territoire.', lieu:'Supercoop', ville:'Bordeaux', prix:0, unite:'accès libre', emoji:'🧺', bg:'rgba(200,115,42,.12)', badge:null, stock:100, impact:'Soutient les revenus des producteurs locaux.' },
+  { id:115, cat:'evenement', titre:'Repair Café mensuel', desc:'Viens réparer ensemble tes objets du quotidien autour d\'un café. Outils et bénévoles fournis.', lieu:'La Halle des Douves', ville:'Bordeaux', prix:0, unite:'accès libre', emoji:'🛠', bg:'rgba(200,115,42,.12)', badge:null, stock:40, impact:'200 objets réparés/an, −800 kg CO₂ évités.' },
+  // ── Hébergement ──
+  { id:116, cat:'hebergement', titre:'Nuit en éco-gîte', desc:'Nuitée dans un gîte rénové en matériaux biosourcés, autonomie en eau et énergie.', lieu:'La Maison Écocitoyenne', ville:'Bordeaux', prix:80, unite:'la nuit', emoji:'🛏', bg:'rgba(46,153,112,.12)', badge:'premium', stock:5, impact:'Tourisme bas-carbone et sensibilisation à l\'habitat durable.' },
+  { id:117, cat:'hebergement', titre:'Emplacement camping nature', desc:'Emplacement de bivouac au cœur du jardin, sanitaires secs et douche solaire.', lieu:'Le Jardin de ta Sœur', ville:'Bordeaux', prix:25, unite:'la nuit', emoji:'⛺', bg:'rgba(46,153,112,.12)', badge:'new', stock:12, impact:'Reconnexion à la nature, très faible empreinte.' },
+  { id:118, cat:'hebergement', titre:'Chambre solidaire', desc:'Chambre d\'hôtes au sein du tiers-lieu, petit-déjeuner local inclus.', lieu:'Darwin Écosystème', ville:'Bordeaux', prix:40, unite:'la nuit', emoji:'🏡', bg:'rgba(46,153,112,.12)', badge:null, stock:6, impact:'Accueil à prix juste et ancrage dans la vie du lieu.' }
+];
 
 let mktCurrentCat = 'tous';
 let mktCurrentSort = 'pertinence';
@@ -6956,11 +6981,22 @@ function smktFilter(cat, btn) {
   smktRender();
 }
 
-const SMKT_OFFRES = [];
+// Mêmes offres que le Marketplace, vues côté Semeur (« Utiliser mes graines ») :
+// id = index (la modale lit SMKT_OFFRES[id]), badge « financer » sur les lieux soutenus.
+const SMKT_OFFRES = ((typeof MKT_OFFRES !== 'undefined') ? MKT_OFFRES : []).map((o, i) => ({
+  ...o,
+  id: i,
+  badge: (o.lieu === 'Darwin Écosystème' || o.lieu === 'Le Jardin de ta Sœur') ? 'financer' : o.badge
+}));
 
 function smktRender() {
   const grid = document.getElementById('smkt-grid');
   if (!grid) return;
+  if (!smktBalance) smktBalance = 500;   // solde de graines CSRD de démo
+  const balMain = document.getElementById('semeur-graines-balance');
+  if (balMain) balMain.textContent = smktBalance.toLocaleString('fr-FR');
+  const balMkt = document.getElementById('smkt-balance-display');
+  if (balMkt) balMkt.textContent = smktBalance.toLocaleString('fr-FR');
   let offres = [...SMKT_OFFRES];
   if (smktCurrentCat !== 'tous') offres = offres.filter(o => o.cat === smktCurrentCat);
   grid.innerHTML = offres.map(o => {
