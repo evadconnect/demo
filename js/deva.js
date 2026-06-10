@@ -12,6 +12,42 @@ let devaTyping = false;
 // Laisser vide tant que le proxy n'est pas déployé (Deva affichera un message d'attente).
 const DEVA_API_URL = 'https://demo-chi-seven-49.vercel.app/api/deva';
 
+// ─── Compteur d'empreinte de la conversation ───
+// Coût estimé d'UNE question à l'IA (ordre de grandeur, modèle frugal + réponses
+// courtes). Affiché pour sensibiliser, repart de zéro à chaque chargement de page.
+const ECO_PER_MSG = { wh: 1.5, water: 18, co2: 0.9 }; // Wh, mL d'eau, g CO₂e
+let devaQueryCount = 0;
+
+const devaFmtWater = (ml) => ml >= 1000 ? (ml / 1000).toFixed(ml >= 10000 ? 1 : 2).replace('.', ',') + ' L' : Math.round(ml) + ' mL';
+const devaFmtCo2 = (g) => g >= 1000 ? (g / 1000).toFixed(2).replace('.', ',') + ' kg' : (g < 10 ? g.toFixed(1).replace('.', ',') : Math.round(g)) + ' g';
+const devaFmtWh = (wh) => wh >= 1000 ? (wh / 1000).toFixed(2).replace('.', ',') + ' kWh' : (wh < 10 ? wh.toFixed(1).replace('.', ',') : Math.round(wh)) + ' Wh';
+
+function devaUpdateEco() {
+  const n = devaQueryCount;
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('deva-eco-count', n + ' question' + (n > 1 ? 's' : ''));
+  set('deva-eco-summary', '≈ ' + devaFmtWh(n * ECO_PER_MSG.wh) + ' · ' + devaFmtWater(n * ECO_PER_MSG.water) + ' · ' + devaFmtCo2(n * ECO_PER_MSG.co2) + ' CO₂');
+  set('deva-eco-wh', devaFmtWh(n * ECO_PER_MSG.wh));
+  set('deva-eco-water', devaFmtWater(n * ECO_PER_MSG.water));
+  set('deva-eco-co2', devaFmtCo2(n * ECO_PER_MSG.co2));
+}
+
+function devaEcoToggle() {
+  const d = document.getElementById('deva-eco-detail');
+  const ch = document.getElementById('deva-eco-chevron');
+  const btn = document.getElementById('deva-eco-toggle');
+  if (!d) return;
+  const isOpen = d.style.display !== 'none';
+  d.style.display = isOpen ? 'none' : 'block';
+  if (ch) ch.style.transform = isOpen ? 'none' : 'rotate(180deg)';
+  if (btn) btn.setAttribute('aria-expanded', String(!isOpen));
+}
+
+function devaOffset() {
+  devaAddMessage('deva', '🌿 Pour équilibrer l\'empreinte de notre échange, tu peux soutenir un lieu pilote ou devenir membre d\'EVAD. Et côté sobriété, des questions précises suffisent souvent 🌱');
+  try { window.open('https://www.helloasso.com/associations/evad-connect/formulaires/1', '_blank', 'noopener'); } catch (e) {}
+}
+
 const DEVA_SYSTEM = `Tu es Deva, l'IA frugale et bienveillante de la plateforme EVAD (Écosystème Vivant d'Action et de Développement). Tu incarnes l'intelligence de l'écosystème régénératif.
 
 Principes de Deva :
@@ -100,6 +136,8 @@ async function devaSubmit() {
   input.style.height = 'auto';
   devaAddMessage('user', text);
   devaHistory.push({ role: 'user', content: text });
+  devaQueryCount++;
+  devaUpdateEco();
 
   devaTyping = true;
   const sendBtn = document.getElementById('deva-chat-send');

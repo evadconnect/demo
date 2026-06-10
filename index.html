@@ -2531,6 +2531,30 @@
     <button class="deva-chat-close" onclick="devaToggleChat()">✕</button>
   </div>
 
+  <!-- Compteur d'empreinte de la conversation -->
+  <div id="deva-eco" style="border-bottom:1px solid rgba(126,201,176,.2);background:linear-gradient(90deg,rgba(126,201,176,.16),rgba(126,201,176,.07));border-left:3px solid var(--sage)">
+    <button id="deva-eco-toggle" onclick="devaEcoToggle()" aria-expanded="false" aria-label="Détails de l'empreinte de la conversation" style="width:100%;text-align:left;display:flex;flex-direction:column;gap:5px;padding:9px 14px 10px;background:transparent;border:none;cursor:pointer;color:var(--cream);font-family:'Satoshi',sans-serif">
+      <span style="font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#a8e6cf;opacity:.85">Empreinte de cette conversation</span>
+      <span style="display:flex;align-items:center;gap:8px;width:100%">
+        <span aria-hidden="true" style="font-size:15px">🌍</span>
+        <span id="deva-eco-count" style="font-size:12.5px;font-weight:800;color:#a8e6cf;flex-shrink:0">0 question</span>
+        <span style="width:4px;height:4px;border-radius:50%;background:rgba(168,230,207,.6);flex-shrink:0"></span>
+        <span id="deva-eco-summary" style="font-size:12.5px;font-weight:600;color:var(--cream);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">≈ 0,0 Wh · 0 mL · 0,0 g CO₂</span>
+        <span id="deva-eco-chevron" aria-hidden="true" style="font-size:10px;color:#a8e6cf;flex-shrink:0;transition:transform .2s">▾</span>
+      </span>
+    </button>
+    <div id="deva-eco-detail" style="display:none;padding:0 14px 12px">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">
+        <div style="background:rgba(126,201,176,.07);border:1px solid rgba(126,201,176,.16);border-radius:12px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center"><span aria-hidden="true" style="font-size:15px">⚡</span><span id="deva-eco-wh" style="font-family:'Satoshi',sans-serif;font-weight:700;font-size:14px;color:var(--cream)">0,0 Wh</span><span style="font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sage);opacity:.8">Énergie</span></div>
+        <div style="background:rgba(126,201,176,.07);border:1px solid rgba(126,201,176,.16);border-radius:12px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center"><span aria-hidden="true" style="font-size:15px">💧</span><span id="deva-eco-water" style="font-family:'Satoshi',sans-serif;font-weight:700;font-size:14px;color:var(--cream)">0 mL</span><span style="font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sage);opacity:.8">Eau</span></div>
+        <div style="background:rgba(126,201,176,.07);border:1px solid rgba(126,201,176,.16);border-radius:12px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center"><span aria-hidden="true" style="font-size:15px">🌫️</span><span id="deva-eco-co2" style="font-family:'Satoshi',sans-serif;font-weight:700;font-size:14px;color:var(--cream)">0,0 g</span><span style="font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sage);opacity:.8">CO₂e</span></div>
+      </div>
+      <p style="font-size:11.5px;line-height:1.5;color:#cfeee7;opacity:.8;margin:0 0 10px">Chaque question à une IA a un coût réel en énergie, en eau et en carbone. Deva s'appuie sur un modèle frugal et des réponses courtes pour le limiter. Privilégie des questions précises 🌿</p>
+      <button onclick="devaOffset()" style="display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:100px;background:linear-gradient(135deg,#4aab8f,#018262);border:none;color:#0d2b22;cursor:pointer;font-family:'Satoshi',sans-serif;font-size:12px;font-weight:700;box-shadow:0 6px 18px rgba(1,130,98,.3)">🌱 Compenser mon empreinte</button>
+      <p style="font-size:10.5px;line-height:1.45;color:var(--sage);opacity:.75;margin:10px 0 0;font-style:italic">Estimation indicative à titre de sensibilisation : ~1,5 Wh, 18 mL d'eau et 0,9 g CO₂e par question (ordre de grandeur, modèle d'IA frugal). Ne reflète pas une mesure réelle.</p>
+    </div>
+  </div>
+
   <!-- Messages -->
   <div id="deva-chat-messages"></div>
 
