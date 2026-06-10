@@ -5475,7 +5475,8 @@ function batBuildQuetesFromProfile() {
   BAT_QUETES.length = 0;
   SOLS.filter(s => s.quete).forEach((sol, idx) => {
     const text = (sol.nom + ' ' + (sol.cat || '') + ' ' + sol.quete.titre).toLowerCase();
-    const matched = skills.some(sk => (BAT_SKILL_KW[sk] || []).some(k => text.includes(k)));
+    const matchedSkills = skills.filter(sk => (BAT_SKILL_KW[sk] || []).some(k => text.includes(k)));
+    const matched = matchedSkills.length > 0;
     // lieu hôte : un lieu dont le type accueille cette solution, sinon rotation
     let host = lieux.find(l => {
       const tid = (typeof TYPES_LIEU !== 'undefined') ? (TYPES_LIEU.find(t => t.l === l.type) || {}).id : null;
@@ -5504,7 +5505,7 @@ function batBuildQuetesFromProfile() {
       esrs: (sol.esrs || []).map(e => String(e).replace('ESRS ', '').trim()),
       financement: { objectif: 0, montant: 0, semeur: null },
       equipe: [{ i: 'L', c: '#4a8c5c' }, { i: 'H', c: '#c8732a' }],
-      dates: ['Samedi · 9h–17h', 'Dimanche · 9h–13h'], _matched: matched
+      dates: ['Samedi · 9h–17h', 'Dimanche · 9h–13h'], _matched: matched, matchedSkills: matchedSkills
     });
   });
   BAT_QUETES.sort((a, b) => b.match - a.match);
@@ -5568,6 +5569,55 @@ function showQueteDetail(id, from) {
   showScreen('quete-detail');
 }
 
+// Ouvre la fiche quête dans une modale (depuis la liste « Trouver des quêtes »),
+// pour pouvoir revenir à la liste sans quitter l'étape de création de fiche.
+function openQueteModalFromFiche(id) {
+  _qdQuestOverride = null;
+  _qdEdit = false;
+  _qdCurrentId = id;
+  _qdFrom = 'fiche-bat';
+  renderQueteDetail(); // remplit l'écran (caché) qd-main / qd-panel / qd-topbar-*
+  const modal = document.getElementById('bat-quete-modal');
+  const content = document.getElementById('bat-modal-content');
+  if (!modal || !content) { showScreen('quete-detail'); return; }
+  content.innerHTML = `
+    <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:1rem;padding-right:2rem">
+      <button onclick="closeFicheQueteModal()" class="btn btn-ghost" style="font-size:.72rem;padding:.32rem .8rem;flex-shrink:0">← Retour</button>
+      <div style="min-width:0">
+        <div id="qm-title" style="font-size:.9rem;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+        <div id="qm-sub" style="font-size:.64rem;color:var(--moss);opacity:.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+      </div>
+    </div>
+    <div id="qm-main" style="display:flex;flex-direction:column;gap:1.1rem;margin-bottom:1rem"></div>
+    <div id="qm-panel" style="display:flex;flex-direction:column;gap:.9rem"></div>
+  `;
+  // La modale est définie dans l'écran dashboard (caché pendant la création de
+  // fiche) : on la rattache au body pour qu'elle s'affiche au-dessus de l'étape.
+  if (modal.parentElement !== document.body) document.body.appendChild(modal);
+  modal.style.display = 'flex';
+  refreshFicheQueteModal();
+}
+
+// Recopie le contenu rendu de la fiche quête dans la modale (sync après une action).
+function refreshFicheQueteModal() {
+  const modal = document.getElementById('bat-quete-modal');
+  if (!modal || modal.style.display === 'none') return;
+  const map = { 'qm-main': 'qd-main', 'qm-panel': 'qd-panel' };
+  for (const [dst, src] of Object.entries(map)) {
+    const d = document.getElementById(dst), s = document.getElementById(src);
+    if (d && s) d.innerHTML = s.innerHTML;
+  }
+  const t = document.getElementById('qm-title'), st = document.getElementById('qd-topbar-title');
+  if (t && st) t.textContent = st.textContent;
+  const sb = document.getElementById('qm-sub'), ss = document.getElementById('qd-topbar-sub');
+  if (sb && ss) sb.textContent = ss.textContent;
+}
+
+function closeFicheQueteModal() {
+  const modal = document.getElementById('bat-quete-modal');
+  if (modal) modal.style.display = 'none';
+}
+
 // Ouvre la fiche quête (même présentation) pour n'importe quelle quête.
 function showQueteFiche(quest, from) {
   _qdQuestOverride = quest;
@@ -5601,7 +5651,7 @@ function qdActionButtons() {
 
 // ─── Actions fonctionnelles de la fiche quête (mutent la quête + re-render) ───
 function qdQuest() { return _qdQuestOverride || (typeof BAT_QUETES !== 'undefined' ? BAT_QUETES[_qdCurrentId] : null) || null; }
-function qdRerender() { try { renderQueteDetail(); } catch (e) {} }
+function qdRerender() { try { renderQueteDetail(); refreshFicheQueteModal(); } catch (e) {} }
 
 function qdContactPilote() {
   const q = qdQuest() || {};
@@ -7055,10 +7105,14 @@ const BAT_CHERCHE = [
 ];
 
 let batFicheStep = 0;
+// Filtre des quêtes proposées à l'étape matching : 'matched' (toutes les
+// compétences déclarées), 'all' (toutes les quêtes) ou un id de compétence.
+let batQueteFilter = 'matched';
 let batFicheData = { prenom:'', nom:'', ville:'', lat:null, lng:null, dispo:[], rayon:20, bio:'', avatar:'', cover:'', email:'', tel:'', web:'', skills:[], skillLevels:{}, axe:'', contrib:'', motivation:'', mode:'', engagement:'', wantLearn:[], valeurs:[], valeurAutre:'', moteur:'', apporte:[], cherche:[], lieuType:[] };
 
 function initFicheBat() {
   batFicheStep = 0;
+  batQueteFilter = 'matched';
   batFicheRenderStep();
   batTreeInit();
 }
@@ -7187,21 +7241,42 @@ function batFicheRenderStep() {
     batTreeFinal();
   } else {
     /* ── Étape 4 · Matching ── */
+    // Construit les quêtes à partir des lieux de la démo selon le profil saisi
+    if (typeof batBuildQuetesFromProfile === 'function') batBuildQuetesFromProfile();
     const scored = BAT_QUETES
       .map(q => ({ ...q, score: calcMatch(batFicheData, q) }))
       .sort((a, b) => b.score - a.score);
 
+    // ── Sélection par compétence du bâtisseur ──
+    const mySkills = (batFicheData.skills || []).map(id => BAT_SKILLS.find(s => s.id === id)).filter(Boolean);
+    if (!mySkills.length) batQueteFilter = 'all';
+    let list;
+    if (batQueteFilter === 'all') list = scored;
+    else if (batQueteFilter === 'matched') list = scored.filter(q => q._matched);
+    else list = scored.filter(q => (q.matchedSkills || []).includes(batQueteFilter));
+    if (!list.length) list = scored; // garde-fou : ne jamais afficher une liste vide
+
+    const chip = (id, ic, label, active) =>
+      `<button onclick="batSetQueteFilter('${id}')" style="display:inline-flex;align-items:center;gap:.28rem;padding:.32rem .6rem;border-radius:100px;border:1.5px solid ${active ? 'var(--fern)' : 'rgba(46,102,66,.2)'};background:${active ? 'rgba(74,140,92,.12)' : 'white'};color:${active ? 'var(--fern)' : 'var(--moss)'};font-size:.64rem;font-weight:${active ? 700 : 500};cursor:pointer;transition:all .18s;white-space:nowrap"><span style="font-size:.78rem">${ic}</span><span>${label}</span></button>`;
+    const chipsHtml = mySkills.length ? `
+      <div style="display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:.7rem">
+        ${chip('matched', '✨', 'Mes compétences', batQueteFilter === 'matched')}
+        ${mySkills.map(s => chip(s.id, s.ic, s.label, batQueteFilter === s.id)).join('')}
+        ${chip('all', '🗂', 'Toutes', batQueteFilter === 'all')}
+      </div>` : '';
+
     const colFor = s => s >= 65 ? 'var(--fern)' : s >= 45 ? 'var(--amber)' : 'var(--sky)';
 
     c.innerHTML = `
-      <div style="font-size:.62rem;color:var(--moss);opacity:.7;margin-bottom:.75rem;line-height:1.5">
-        Calculé sur tes compétences, disponibilité, rayon et mode, clique sur une quête pour postuler.
+      <div style="font-size:.62rem;color:var(--moss);opacity:.7;margin-bottom:.6rem;line-height:1.5">
+        ${list.length} quête${list.length > 1 ? 's' : ''} ${batQueteFilter === 'all' ? 'au total' : 'selon tes compétences'}, classée${list.length > 1 ? 's' : ''} par pertinence. Clique sur une quête pour postuler.
       </div>
+      ${chipsHtml}
       <div style="display:flex;flex-direction:column;gap:.5rem">
-        ${scored.map(q => {
+        ${list.map(q => {
           const col = colFor(q.score);
           const typeIc = q.type.split(' ')[0];
-          return `<div onclick="batSelectQuete(${q.id})" style="background:white;border:1px solid rgba(46,102,66,.12);border-radius:var(--r-lg);padding:.7rem .85rem;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:.7rem" onmouseover="this.style.borderColor='rgba(74,140,92,.35)';this.style.boxShadow='0 3px 12px rgba(74,140,92,.09)'" onmouseout="this.style.borderColor='rgba(46,102,66,.12)';this.style.boxShadow='none'">
+          return `<div onclick="openQueteModalFromFiche(${q.id})" style="background:white;border:1px solid rgba(46,102,66,.12);border-radius:var(--r-lg);padding:.7rem .85rem;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:.7rem" onmouseover="this.style.borderColor='rgba(74,140,92,.35)';this.style.boxShadow='0 3px 12px rgba(74,140,92,.09)'" onmouseout="this.style.borderColor='rgba(46,102,66,.12)';this.style.boxShadow='none'">
             <div style="width:36px;height:36px;border-radius:9px;background:rgba(74,140,92,.1);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0">${typeIc}</div>
             <div style="flex:1;min-width:0">
               <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.2rem">
@@ -7239,6 +7314,7 @@ function batSkillSetLevel(id, lvl) {
   batTreeGrowSkills();
 }
 
+function batSetQueteFilter(id) { batQueteFilter = id; batFicheRenderStep(); }
 function batFicheNext() { if (batFicheStep < 3) { batFicheStep++; if (window.batPanReset) window.batPanReset(); batFicheRenderStep(); } }
 function batFichePrev() { if (batFicheStep > 0) { batFicheStep--; if (window.batPanReset) window.batPanReset(); batFicheRenderStep(); } }
 

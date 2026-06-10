@@ -828,7 +828,7 @@
   </div>
 
   <!-- Modale quête détail -->
-  <div id="bat-quete-modal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(14,26,18,0.7);backdrop-filter:blur(6px);align-items:center;justify-content:center">
+  <div id="bat-quete-modal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(14,26,18,0.7);backdrop-filter:blur(6px);align-items:center;justify-content:center" onclick="if(event.target===this)closeFicheQueteModal()">
     <div style="background:var(--paper);border-radius:var(--r-xl);width:min(640px,94vw);max-height:85vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.3);position:relative">
       <button onclick="document.getElementById('bat-quete-modal').style.display='none'" style="position:absolute;top:1rem;right:1rem;background:rgba(46,102,66,.1);border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:.85rem;color:var(--moss)">✕</button>
       <div id="bat-modal-content" style="padding:1.5rem"></div>
