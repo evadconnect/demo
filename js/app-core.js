@@ -8119,6 +8119,8 @@ function initFicheSem() {
   semFicheStep = 0;
   semFicheData._projetsReady = false;
   semFicheData._finances = [];
+  semFicheData._financedQuetes = [];
+  semFicheData._openProjet = null;
   window._semProjetsGenerating = false;
   semFicheRenderStep();
   semStarInit();
@@ -8133,7 +8135,7 @@ function semFicheRenderStep() {
   if (prev) prev.style.display = semFicheStep > 0 ? 'block' : 'none';
   if (next) {
     next.style.display = semFicheStep < 2 ? 'block' : 'none';
-    next.textContent = 'Suivant →';
+    next.textContent = semFicheStep === 1 ? 'Trouver des projets ✦' : 'Suivant →';
     next.onclick = semFicheNext;
   }
   if (pub) pub.style.display = semFicheStep === 2 ? 'inline-flex' : 'none';
@@ -8227,8 +8229,9 @@ function semFicheRenderStep() {
     semStarLights();
   } else {
     /* ── Étape « Trouver des projets à financer » (remplace le reporting) ── */
-    // Pendant la recherche : écran d'attente Deva
-    if (window._semProjetsGenerating) {
+    // Temps d'attente : Deva « cherche » les projets à financer alignés
+    // avant de les révéler (déclenché par le bouton « Trouver des projets »).
+    if (!semFicheData._projetsReady) {
       renderDevaSearching(c, { title: 'Deva cherche tes projets', msgs: [
         'Analyse de tes axes d\'impact prioritaires…',
         'Exploration des lieux de la communauté…',
@@ -8236,19 +8239,15 @@ function semFicheRenderStep() {
         'Estimation des besoins de financement…'
       ] });
       if (pub) pub.style.display = 'none';
-      return;
-    }
-    // État initial : le bouton « Trouver des projets à financer »
-    if (!semFicheData._projetsReady) {
-      c.innerHTML =
-        '<div style="text-align:center;padding:1.5rem 1rem 1rem">'
-          +'<div style="font-size:2rem;margin-bottom:.6rem">🔭</div>'
-          +'<div style="font-size:.95rem;font-weight:800;color:var(--ink);font-family:\'Satoshi\',sans-serif;margin-bottom:.4rem">Trouve les projets à financer</div>'
-          +'<div style="font-size:.74rem;color:var(--moss);opacity:.8;line-height:1.6;max-width:300px;margin:0 auto 1.3rem">Deva parcourt les lieux de la communauté et te propose les projets régénératifs les plus alignés avec tes axes d\'impact'
-            +(semFicheData.axes.length ? '' : ' (ajoute des axes à l\'étape précédente pour affiner)')+'.</div>'
-          +'<button onclick="semTrouverProjets()" style="display:inline-flex;align-items:center;gap:.5rem;padding:.8rem 1.6rem;border-radius:100px;background:var(--sky);color:white;border:none;font-size:.85rem;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(58,110,140,.3);font-family:\'Satoshi\',sans-serif;transition:transform .18s" onmouseover="this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.transform=\'none\'">🔍 Trouver des projets à financer</button>'
-        +'</div>';
-      if (pub) pub.style.display = 'none';
+      if (!window._semProjetsGenerating) {
+        window._semProjetsGenerating = true;
+        setTimeout(() => {
+          window._semProjetsGenerating = false;
+          clearInterval(window._creerSolMsgTimer);
+          semFicheData._projetsReady = true;
+          if (semFicheStep === 2) semFicheRenderStep();   // révèle les projets
+        }, 2300);
+      }
       return;
     }
     // Projets révélés
@@ -8260,17 +8259,35 @@ function semFicheRenderStep() {
         +'<div style="font-size:.72rem;font-weight:700;color:var(--ink)">💰 Projets à financer</div>'
         +'<div style="margin-left:auto;font-size:.65rem;font-weight:700;background:rgba(58,110,140,.12);color:var(--sky);padding:.1rem .5rem;border-radius:100px">'+projets.length+' projet'+(projets.length>1?'s':'')+'</div>'
       +'</div>'
-      +'<div style="font-size:.64rem;color:var(--moss);opacity:.75;margin-bottom:.9rem;line-height:1.55">Sélectionnés par Deva selon tes axes d\'impact. Clique sur « Financer » pour t\'engager. <a onclick="semTrouverProjets()" style="color:var(--sky);cursor:pointer;text-decoration:underline">↻ Relancer</a></div>'
+      +'<div style="font-size:.64rem;color:var(--moss);opacity:.75;margin-bottom:.9rem;line-height:1.55">Sélectionnés par Deva selon tes axes d\'impact. Clique sur « Détail » pour voir les quêtes à financer. <a onclick="semTrouverProjets()" style="color:var(--sky);cursor:pointer;text-decoration:underline">↻ Relancer</a></div>'
       + projets.map(p => {
           const col = colFor(p.match);
           const pct = p.objectif > 0 ? Math.round((p.montant / p.objectif) * 100) : 100;
-          const financed = fin.includes(p.idx);
-          return '<div style="background:white;border:1px solid rgba(46,102,66,.12);border-radius:var(--r-lg);padding:.75rem .85rem;margin-bottom:.5rem">'
+          const isOpen = semFicheData._openProjet === p.idx;
+          const hasFin = fin.includes(p.idx);
+          const fq = semFicheData._financedQuetes || [];
+          let panel = '';
+          if (isOpen) {
+            const quetes = semProjetQuetes(p.idx);
+            panel = '<div style="margin-top:.6rem;border-top:1px solid rgba(46,102,66,.1);padding-top:.55rem">'
+              +'<div style="font-size:.58rem;font-weight:700;color:var(--sky);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.45rem">⚡ Quêtes à financer · '+quetes.length+'</div>'
+              + (quetes.length ? quetes.map(q => {
+                  return '<div style="display:flex;align-items:center;gap:.5rem;padding:.42rem .5rem;border-radius:8px;background:rgba(58,110,140,.04);margin-bottom:.32rem">'
+                    +'<span style="font-size:.9rem;flex-shrink:0">'+q.ic+'</span>'
+                    +'<div style="flex:1;min-width:0">'
+                      +'<div style="font-size:.68rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+q.titre+'</div>'
+                      +'<div style="font-size:.57rem;color:var(--moss);opacity:.75">'+(q.duree?q.duree+' · ':'')+'<strong style="color:var(--amber);font-weight:800">'+q.restant+'€</strong> restant'+(q.esrs.length?' · '+q.esrs.map(e=>'ESRS '+e).join(' · '):'')+'</div>'
+                    +'</div>'
+                  +'</div>';
+                }).join('') : '<div style="font-size:.62rem;color:var(--moss);opacity:.6;padding:.3rem 0">Aucune quête publiée pour ce lieu.</div>')
+            +'</div>';
+          }
+          return '<div style="background:white;border:1px solid '+(isOpen?'rgba(58,110,140,.3)':'rgba(46,102,66,.12)')+';border-radius:var(--r-lg);padding:.75rem .85rem;margin-bottom:.5rem;transition:border-color .18s">'
             +'<div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.5rem">'
               +'<div style="width:36px;height:36px;border-radius:9px;background:rgba(58,110,140,.1);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">'+(p.icon || '🏡')+'</div>'
               +'<div style="flex:1;min-width:0">'
                 +'<div style="display:flex;align-items:center;gap:.4rem">'
-                  +'<div style="font-size:.78rem;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1">'+p.nom+'</div>'
+                  +'<div style="font-size:.78rem;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1">'+p.nom+(hasFin?' <span style="color:var(--fern);font-size:.62rem">✓</span>':'')+'</div>'
                   +'<span style="font-size:.6rem;font-weight:800;color:'+col+';background:'+col+'1a;padding:.1rem .4rem;border-radius:100px;flex-shrink:0">'+p.match+'% aligné</span>'
                 +'</div>'
                 +'<div style="font-size:.62rem;color:var(--moss);opacity:.7">'+p.type+' · '+p.ville+'</div>'
@@ -8279,13 +8296,13 @@ function semFicheRenderStep() {
             +'<div style="height:5px;background:rgba(46,102,66,.08);border-radius:100px;overflow:hidden;margin-bottom:.3rem"><div style="height:100%;width:'+Math.min(pct,100)+'%;background:var(--amber);border-radius:100px"></div></div>'
             +'<div style="display:flex;align-items:center;justify-content:space-between;gap:.6rem">'
               +'<div style="font-size:.62rem;color:var(--moss);opacity:.75"><strong style="color:var(--amber);font-weight:800">'+p.restant+'€</strong> restant à financer</div>'
-              + (financed
-                  ? '<span style="font-size:.65rem;font-weight:700;color:var(--fern);background:rgba(74,140,92,.1);padding:.25rem .6rem;border-radius:100px;border:1px solid rgba(74,140,92,.2)">✅ Engagé</span>'
-                  : '<button onclick="semFinancerProjet('+p.idx+')" style="font-size:.66rem;font-weight:700;padding:.35rem .8rem;border-radius:100px;background:var(--sky);color:white;border:none;cursor:pointer">💰 Financer →</button>')
+              +'<button onclick="semToggleProjet('+p.idx+')" style="font-size:.66rem;font-weight:700;padding:.35rem .8rem;border-radius:100px;background:'+(isOpen?'rgba(58,110,140,.12)':'var(--sky)')+';color:'+(isOpen?'var(--sky)':'white')+';border:'+(isOpen?'1px solid rgba(58,110,140,.3)':'none')+';cursor:pointer">'+(isOpen?'Masquer ▲':'Détail →')+'</button>'
             +'</div>'
+            + panel
           +'</div>';
         }).join('');
     semStarFinal();
+    semStarProjets(projets);   // affiche aussi les projets dans la constellation
   }
 }
 
@@ -8310,26 +8327,53 @@ function semProjetsAFinancer() {
   }).sort((a, b) => b.match - a.match);
 }
 
-// Lance la recherche : écran d'attente Deva puis révélation des projets.
+// Relance la recherche depuis la liste révélée (lien « ↻ Relancer ») :
+// réinitialise l'état → le rendu de l'étape rejoue l'attente Deva.
 function semTrouverProjets() {
-  window._semProjetsGenerating = true;
   semFicheData._projetsReady = false;
+  semFicheData._openProjet = null;
+  window._semProjetsGenerating = false;
   semFicheRenderStep();
-  setTimeout(() => {
-    window._semProjetsGenerating = false;
-    clearInterval(window._creerSolMsgTimer);
-    semFicheData._projetsReady = true;
-    if (semFicheStep === 2) semFicheRenderStep();
-  }, 2300);
 }
 
-// Engage un financement sur un projet (lieu) depuis la fiche semeur.
-function semFinancerProjet(idx) {
-  const l = (typeof MAP_PLACES !== 'undefined') ? MAP_PLACES[idx] : null;
+// Quêtes à financer d'un projet (lieu) : dérivées de ses solutions, avec
+// un besoin de financement déterministe par quête.
+function semProjetQuetes(lieuIdx) {
+  const l = (typeof MAP_PLACES !== 'undefined') ? MAP_PLACES[lieuIdx] : null;
+  const sols = (l && l.fiche && l.fiche.solutions) || [];
+  return sols.map((nom, j) => {
+    const sol = (typeof SOLS !== 'undefined') ? SOLS.find(s => s.nom === nom) : null;
+    if (!sol || !sol.quete) return null;
+    const tok = sol.tok || 50;
+    const objectif = 500 + tok * 8;                          // déterministe
+    const montant  = Math.round(objectif * (0.1 + ((j * 17) % 35) / 100));
+    const restant  = Math.max(0, objectif - montant);
+    return {
+      id: lieuIdx + '-' + j,
+      titre: sol.quete.titre,
+      ic: sol.img || '⚡',
+      duree: sol.quete.duree || '',
+      esrs: (sol.esrs || []).map(e => String(e).replace('ESRS ', '').trim()),
+      objectif, montant, restant
+    };
+  }).filter(Boolean);
+}
+
+// Déplie / replie les quêtes à financer d'un projet.
+function semToggleProjet(idx) {
+  semFicheData._openProjet = (semFicheData._openProjet === idx) ? null : idx;
+  semFicheRenderStep();
+}
+
+// Engage un financement sur une quête d'un projet depuis la fiche semeur.
+function semFinancerQuete(qid, lieuIdx) {
+  semFicheData._financedQuetes = semFicheData._financedQuetes || [];
+  if (!semFicheData._financedQuetes.includes(qid)) semFicheData._financedQuetes.push(qid);
   semFicheData._finances = semFicheData._finances || [];
-  if (!semFicheData._finances.includes(idx)) semFicheData._finances.push(idx);
+  if (!semFicheData._finances.includes(lieuIdx)) semFicheData._finances.push(lieuIdx);
+  const l = (typeof MAP_PLACES !== 'undefined') ? MAP_PLACES[lieuIdx] : null;
   if (typeof mmBubble === 'function') {
-    mmBubble('💰 ' + (semFicheData.nom || 'Ton organisation') + ' s\'engage à financer « ' + (l ? l.nom : 'ce projet') + ' » · preuve d\'impact ESRS générée 🌱');
+    mmBubble('💰 ' + (semFicheData.nom || 'Ton organisation') + ' s\'engage à financer une quête de « ' + (l ? l.nom : 'ce projet') + ' » · preuve d\'impact ESRS générée 🌱');
   }
   semFicheRenderStep();
 }
@@ -8377,7 +8421,7 @@ function semKpiToggle(label) {
   semStarFinal();
 }
 
-function semFicheNext() { if (semFicheStep < 2) { semFicheStep++; semFicheRenderStep(); } }
+function semFicheNext() { if (semFicheStep < 2) { if (semFicheStep === 1) semFicheData._projetsReady = false; /* « Trouver des projets » → rejoue l'attente Deva */ semFicheStep++; semFicheRenderStep(); } }
 function semFichePrev() { if (semFicheStep > 0) { semFicheStep--; semFicheRenderStep(); } }
 
 /* ── Constellation d'impact (mind-map financeur) ── */
@@ -8617,6 +8661,38 @@ function semStarFinal() {
     const total=axes.reduce((acc,id)=>{const a=SEM_AXES.find(x=>x.id===id);return acc+(a?a.lieux.length:0);},0);
     semStarBubble(`✦ Constellation complète · ${axes.length} axes · ${total} lieux · Badge ${semFicheData.reporting} · Profil prêt à publier`);
   }, 400);
+}
+
+// Affiche les projets à financer comme nœuds de la constellation (anneau
+// externe), reliés au centre, colorés selon l'alignement.
+function semStarProjets(projets) {
+  const nodes = document.getElementById('sem-star-nodes');
+  const svg   = document.getElementById('sem-star-svg');
+  if (!nodes || !svg) return;
+  document.querySelectorAll('[id^="sn-proj-"]').forEach(e => e.remove());
+  const list = (projets || []).slice(0, 6);
+  if (!list.length) return;
+  const W = semSW(), H = semSH(), cx = W / 2, cy = H / 2;
+  const R = Math.min(W, H) * 0.4;
+  const fin = semFicheData._finances || [];
+  const colFor = m => m >= 70 ? '#4a8c5c' : m >= 50 ? '#c8732a' : '#3a6e8c';
+  list.forEach((p, i) => {
+    const angle = (2 * Math.PI / list.length) * i - Math.PI / 2 + 0.32;
+    const x = cx + R * Math.cos(angle), y = cy + R * Math.sin(angle);
+    const financed = fin.includes(p.idx);
+    const col = financed ? '#4a8c5c' : colFor(p.match);
+    const delay = 500 + i * 120;
+    semLineAdd(cx, cy, x, y, col + '55', true, delay);
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.id = 'sn-proj-' + p.idx;
+      el.title = p.nom + ' · ' + p.match + '% aligné' + (financed ? ' · engagé' : '');
+      el.style.cssText = `position:absolute;left:${x}px;top:${y}px;transform:translate(-50%,-50%) scale(0);display:flex;align-items:center;gap:.28rem;padding:.24rem .5rem;border-radius:100px;border:1.5px solid ${col};background:rgba(255,255,255,.92);color:#1a3a5a;font-size:.56rem;font-weight:700;white-space:nowrap;opacity:0;box-shadow:0 0 14px ${col}44;transition:opacity .4s,transform .4s cubic-bezier(.17,.67,.42,1.3);z-index:5`;
+      el.innerHTML = `<span style="font-size:.8rem">${p.icon || '🏡'}</span><span>${p.nom}</span><span style="color:${col};font-weight:800">${financed ? '✓' : p.match + '%'}</span>`;
+      nodes.appendChild(el);
+      requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translate(-50%,-50%) scale(1)'; });
+    }, delay + 200);
+  });
 }
 
 /* ─── ESPACES & CAPACITÉS ─── */
