@@ -3615,6 +3615,7 @@ body {
   0%,60%,100% { transform:translateY(0); opacity:.4; }
   30%          { transform:translateY(-5px); opacity:1; }
 }
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .deva-chat-footer {
   padding: .65rem .85rem;

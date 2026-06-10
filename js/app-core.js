@@ -3719,6 +3719,42 @@ function addBesoinCustom() {
 
 function creerReset(){initCreer();}
 
+// Écran d'attente « Deva cherche les bonnes solutions dans la bibliothèque »
+// affiché à la génération des solutions (étape 3), avant de les révéler.
+function renderDevaSearching(c){
+  const msgs = [
+    'Analyse des espaces de ton lieu…',
+    'Exploration de la bibliothèque de solutions…',
+    'Sélection des solutions les plus adaptées…',
+    'Détection des synergies circulaires…'
+  ];
+  c.innerHTML =
+    '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2.5rem 1rem;min-height:320px;animation:obFadeIn .35s ease">'
+      +'<div style="position:relative;width:84px;height:84px;margin-bottom:1.3rem">'
+        +'<div style="position:absolute;inset:0;border-radius:50%;background:rgba(74,200,110,.12);animation:pulse 1.8s ease-in-out infinite"></div>'
+        +'<div style="position:absolute;inset:5px;border-radius:50%;border:2.5px solid rgba(74,200,110,.2);border-top-color:#4ac86e;animation:spin .9s linear infinite"></div>'
+        +'<img src="Deva.png" alt="Deva" style="position:absolute;inset:15px;width:54px;height:54px;object-fit:contain;object-position:bottom;transform:scaleX(-1) rotate(12deg);filter:drop-shadow(0 0 8px rgba(74,200,110,.5))">'
+      +'</div>'
+      +'<div style="font-size:.95rem;font-weight:800;color:var(--ink);margin-bottom:.45rem;font-family:\'Satoshi\',sans-serif">Deva explore la bibliothèque</div>'
+      +'<div id="creer-sol-loading-msg" style="font-size:.72rem;color:var(--moss);opacity:.8;min-height:1.1em;transition:opacity .25s">'+msgs[0]+'</div>'
+      +'<div style="display:flex;gap:.32rem;margin-top:1.05rem">'
+        +'<span style="width:7px;height:7px;border-radius:50%;background:#4ac86e;animation:typingBounce 1.1s ease-in-out infinite"></span>'
+        +'<span style="width:7px;height:7px;border-radius:50%;background:#4ac86e;animation:typingBounce 1.1s ease-in-out .18s infinite"></span>'
+        +'<span style="width:7px;height:7px;border-radius:50%;background:#4ac86e;animation:typingBounce 1.1s ease-in-out .36s infinite"></span>'
+      +'</div>'
+    +'</div>';
+  // Fait défiler les messages pendant la recherche
+  let mi = 0;
+  clearInterval(window._creerSolMsgTimer);
+  window._creerSolMsgTimer = setInterval(()=>{
+    const el = document.getElementById('creer-sol-loading-msg');
+    if(!el){ clearInterval(window._creerSolMsgTimer); return; }
+    mi = (mi + 1) % msgs.length;
+    el.style.opacity = '0';
+    setTimeout(()=>{ if(el){ el.textContent = msgs[mi]; el.style.opacity = '.8'; } }, 200);
+  }, 720);
+}
+
 function renderStep(){
   navWizardSet(STEPS.map(s=>s.t), cStep, (i)=>{ cStep=i; renderStep(); });
   document.getElementById('creer-prev').style.display=cStep>0?'block':'none';
@@ -3813,6 +3849,22 @@ function renderStep(){
     creerRenderEspaces();
     mmBubble('Étape 3 · Décris tes espaces pour organiser les activités et solutions');
   } else if(cStep===3){
+    // Temps d'attente : Deva « cherche » les solutions dans la bibliothèque
+    // avant de les révéler (rejoué à chaque clic sur « Générer les solutions »).
+    if(!cData._solsReady){
+      renderDevaSearching(c);
+      if(sv) sv.style.display='none';   // pas d'enregistrement pendant la génération
+      if(!window._creerSolGenerating){
+        window._creerSolGenerating = true;
+        setTimeout(()=>{
+          window._creerSolGenerating = false;
+          clearInterval(window._creerSolMsgTimer);
+          cData._solsReady = true;
+          if(cStep===3) renderStep();   // révèle les solutions (si toujours à l'étape)
+        }, 2300);
+      }
+      return;
+    }
     const FN_TO_ESPS={cuisine:'cuisine',cafe:'cafe',cantine:'cafe',coworking:'bureau',reunion:'bureau',atelier:'atelier',fablab:'fablab',scene:'salle',expo:'salle',boutique:'boutique',biblio:'salle',formation:'salle',jardin:'jardin',serre:'serre',compost:'jardin',hebergement:'dortoir',sport:'salle',meditation:'salle',stockage:'bureau',autre:'cafe',elec_gestion:'dortoir',renouv_prod:'dortoir',therm_gestion:'dortoir',eau_gestion:'serre',ecoconstruct:'atelier',dechets_gestion:'jardin',mobilite:'bureau',gouvernance:'bureau',numerique:'bureau'};
     const espItems=cData.espacesData.length>0
       ? cData.espacesData.map((esp,i)=>{
@@ -4137,7 +4189,7 @@ function mmDrawCircularLinks(espItems, links) {
   }, 320);
 }
 
-function creerNext(){if(cStep<3){cStep++;renderStep();}}
+function creerNext(){if(cStep<3){if(cStep===2)cData._solsReady=false;/* (re)générer → rejoue l'attente Deva */cStep++;renderStep();}}
 function creerPrev(){if(cStep>0){cStep--;renderStep();}}
 
 function showSolDetail(nom){
