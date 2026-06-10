@@ -6789,9 +6789,75 @@ function semQFilter(f, btn) {
   semRenderQuetes();
 }
 
+// Construit les quêtes à financer du tableau de bord semeur à partir des
+// quêtes des lieux de la démo (les mêmes que celles des projets à financer),
+// classées par alignement avec les axes d'impact du profil.
+function semBuildQuetesAFinancer() {
+  if (typeof SEM_QUETES === 'undefined' || typeof MAP_PLACES === 'undefined' || typeof SOLS === 'undefined') return;
+  SEM_QUETES.length = 0;
+  const axes = (typeof semFicheData !== 'undefined' && semFicheData.axes) || [];
+  const AXE_KW = {
+    climat:['solaire','énergie','chauffe','isolation','carbone'],
+    biodiversite:['haie','mare','biodiv','jardin','permacult','arbre','verger'],
+    social:['repair','atelier','amap','partagé','collectif','social'],
+    alimentation:['jardin','potager','maraîch','amap','compost','aliment'],
+    economie:['réemploi','repair','recycl','matériaux','circul'],
+    habitat:['isolation','paille','toiture','construction','bois']
+  };
+  MAP_PLACES.forEach((l, li) => {
+    const sols = (l.fiche && l.fiche.solutions) || [];
+    sols.forEach((nom, j) => {
+      const sol = SOLS.find(s => s.nom === nom);
+      if (!sol || !sol.quete) return;
+      const text = (nom + ' ' + (sol.cat || '') + ' ' + sol.quete.titre).toLowerCase();
+      const aligned = axes.some(a => (AXE_KW[a] || []).some(k => text.includes(k)));
+      const tok = sol.tok || 50;
+      const objectif = 1500 + tok * 18;
+      const montant  = Math.round(objectif * (0.08 + ((li * 5 + j * 11) % 42) / 100));
+      const esrs = (sol.esrs || []).map(e => String(e).replace('ESRS ', '').trim());
+      const _ind = (typeof SOLS_INDICATORS !== 'undefined') ? SOLS_INDICATORS[nom] : null;
+      const plan = (_ind && _ind.plan) || [];
+      SEM_QUETES.push({
+        type: sol.img || '⚡', titre: sol.quete.titre,
+        lieu: l.nom, pilote: l.nom, ville: l.ville || 'Bordeaux',
+        desc: sol.desc || sol.quete.titre,
+        impact: sol.quete.impact_quete || sol.impact || '',
+        esrs, graines: tok, objectif, montant,
+        urgence: (montant / objectif < 0.22) ? 'urgent' : 'normal',
+        aligned,
+        plan, materiel: (_ind && _ind.materiel) || [],
+        preuve: 'Photos de l\'action réalisée + indicateurs mesurés (CO₂, énergie, déchets…).',
+        apprendre: 'Mise en œuvre de « ' + nom + ' » et documentation de l\'impact.',
+        duree: sol.quete.duree || '1 journée',
+        places: '2/' + (parseInt(sol.quete.nb, 10) || 6),
+        etape_actuelle: 1, etapes: plan.length || 4,
+        etapeLabels: plan.length ? plan.map(p => p.titre) : ['Lancement', 'Préparation', 'Réalisation', 'Certification'],
+        tokens: tok, co2: sol.co2 || 0,
+        financement: { objectif, montant, semeur: null },
+        equipe: [{ i:'L', c:'#4a8c5c' }, { i:'H', c:'#c8732a' }],
+        dates: ['Samedi · 9h–17h', 'Dimanche · 9h–13h']
+      });
+    });
+  });
+  SEM_QUETES.sort((a, b) =>
+    (b.aligned - a.aligned)
+    || ((b.urgence === 'urgent') - (a.urgence === 'urgent'))
+    || ((b.objectif - b.montant) - (a.objectif - a.montant)));
+  SEM_QUETES.forEach((q, i) => { q.id = i; });
+}
+
+// Ouvre la fiche d'une quête à financer (depuis le dashboard semeur).
+function semOpenQuete(id) {
+  const q = (typeof SEM_QUETES !== 'undefined') ? SEM_QUETES.find(x => x.id === id) : null;
+  if (!q) return;
+  currentRole = 'semeur';
+  showQueteFiche(q, 'semeur');
+}
+
 function semRenderQuetes() {
   const list = document.getElementById('sem-quetes-list');
   if (!list) return;
+  semBuildQuetesAFinancer();
   let quetes = [...SEM_QUETES];
   if (semQCurrentFilter === 'urgent') quetes = quetes.filter(q => q.urgence === 'urgent');
   if (['e','s','g'].includes(semQCurrentFilter)) {
@@ -6806,7 +6872,7 @@ function semRenderQuetes() {
     const funded = pct >= 100;
     const esrsBadges = q.esrs.map(e => `<span style="font-size:.6rem;padding:.14rem .45rem;border-radius:var(--r);background:${esrsColors[e]||'#546e7a'}22;color:${esrsColors[e]||'#546e7a'};border:1px solid ${esrsColors[e]||'#546e7a'}44;font-weight:600">ESRS ${e}</span>`).join('');
 
-    return `<div onclick="currentRole='semeur';showQueteDetail(${q.id},'semeur')"
+    return `<div onclick="semOpenQuete(${q.id})"
       style="background:white;border:1px solid ${q.urgence==='urgent'?'rgba(184,78,53,.25)':'rgba(46,102,66,.1)'};border-left:3px solid ${q.urgence==='urgent'?'var(--terracotta)':'var(--fern)'};border-radius:var(--r-lg);padding:1rem 1.2rem;cursor:pointer;transition:all .18s"
       onmouseover="this.style.boxShadow='0 4px 14px rgba(46,102,66,.1)';this.style.borderColor='rgba(74,140,92,.3)'"
       onmouseout="this.style.boxShadow='none';this.style.borderColor='${q.urgence==='urgent'?'rgba(184,78,53,.25)':'rgba(46,102,66,.1)'}'">
@@ -6856,7 +6922,7 @@ function semRenderQuetes() {
           </div>
         </div>
         <button class="btn btn-primary" style="font-size:.65rem;padding:.32rem .8rem;flex-shrink:0"
-          onclick="event.stopPropagation();currentRole='semeur';showQueteDetail(${q.id},'semeur')">
+          onclick="event.stopPropagation();semOpenQuete(${q.id})">
           ${funded ? 'Voir la quête →' : `Financer (${restant}€) →`}
         </button>
       </div>
