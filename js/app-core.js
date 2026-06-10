@@ -4477,7 +4477,7 @@ function togSol(nom){
   const counter=document.getElementById('sol-counter');
   if(counter)counter.textContent=cData.solutions.length+' solution'+(cData.solutions.length!==1?'s':'')+' sélectionnée'+(cData.solutions.length!==1?'s':'');
   const devaTxt=document.querySelector('.deva-txt');
-  if(devaTxt)devaTxt.textContent='"Avec '+cData.solutions.length+' solution'+(cData.solutions.length!==1?'s':'')+', '+(cData.nom||'ton lieu')+' peut atteindre un score REGEN de '+(40+cData.solutions.length*5)+'/100 dès la première année."';
+  if(devaTxt)devaTxt.textContent='"Avec '+cData.solutions.length+' solution'+(cData.solutions.length!==1?'s':'')+', '+(cData.nom||'ton lieu')+' peut atteindre un score REGEN de '+(10+cData.solutions.length*5)+'/100 dès la première année."';
 }
 
 function genMM(espItems){
@@ -4891,21 +4891,21 @@ async function createLieuOnMap(){
     nom,
     type: typeLabel,
     ville: adresse,
-    score: 40,
+    score: 10,
     quetes: 0,
     icon: cData.icon || ic,
     lat, lng,
     desc: cData.desc || `${typeLabel} en phase ${cData.phase || 'de démarrage'}, situé à ${adresse}.`,
     batisseurs: 0, semeurs: 0, score_trim: '+0',
     dims: [
-      {l:'Environnement',v:40,c:'var(--fern)'},
-      {l:'Social',v:40,c:'var(--sky)'},
-      {l:'Éco. locale',v:40,c:'var(--amber)'},
-      {l:'Gouvernance',v:40,c:'var(--lavender)'}
+      {l:'Environnement',v:10,c:'var(--fern)'},
+      {l:'Social',v:10,c:'var(--sky)'},
+      {l:'Éco. locale',v:10,c:'var(--amber)'},
+      {l:'Gouvernance',v:10,c:'var(--lavender)'}
     ],
     quetes_list: [],
     besoins: cData.besoins?.length ? cData.besoins : ['Premiers bâtisseurs','Financement de départ'],
-    deva: `"${nom}" vient de rejoindre la carte EVAD. Score de départ : 40/100. Publie 2 quêtes pour atteindre 55 en 30 jours et attirer tes premiers bâtisseurs.`
+    deva: `"${nom}" vient de rejoindre la carte EVAD. Score de départ : 10/100. Publie 2 quêtes pour atteindre 25 en 30 jours et attirer tes premiers bâtisseurs.`
   };
 
   setTimeout(() => {
@@ -4942,7 +4942,7 @@ async function createLieuOnMap(){
     sectionLieux.querySelectorAll(':scope > div:not(:first-child)').forEach(el => {
       if(el.textContent.includes('Aucun lieu')) el.remove();
     });
-    const _sd0 = (typeof evadLieuScoreData === 'function') ? evadLieuScoreData() : {score:40, nbValidees:0};
+    const _sd0 = (typeof evadLieuScoreData === 'function') ? evadLieuScoreData() : {score:10, nbValidees:0};
     const card = document.createElement('div');
     card.className = 'place-card-mini';
     card.id = 'evad-mylieu-card';
@@ -5149,7 +5149,7 @@ function mapShowNewLieu() {
   const PHASE_LABELS = { ideation:'Idéation', conception:'Conception', construction:'Construction', actif:'Actif', expansion:'Expansion' };
   const phaseLabel = PHASE_LABELS[phase] || phase;
 
-  const _sd = (typeof evadLieuScoreData === 'function') ? evadLieuScoreData() : { score: 40, nbValidees: 0 };
+  const _sd = (typeof evadLieuScoreData === 'function') ? evadLieuScoreData() : { score: 10, nbValidees: 0 };
   const scoreVal = _sd.score;
   const scoreBarW = _sd.score + '%';
 
@@ -6534,7 +6534,7 @@ function evadLieuScoreData() {
       }
     });
   }
-  return { score: Math.min(100, 40 + bonus), bonus: bonus, graines: graines, nbValidees: nbVal };
+  return { score: Math.min(100, 10 + bonus), bonus: bonus, graines: graines, nbValidees: nbVal };
 }
 
 // Marqueur Leaflet du lieu créé par l'utilisateur (pour MAJ live du popup)
