@@ -8542,7 +8542,7 @@ function semFinancementBadge() {
   if (!semFicheData.typeFinancement) return;
   const W=semSW(), H=semSH(), cx=W/2, cy=H/2;
   const ic = FINANCEMENT_ICONS[semFicheData.typeFinancement] || '💼';
-  const angle = Math.PI * 0.75; /* bas-gauche */
+  const angle = Math.PI * 0.5; /* bas */
   const dist = 95;
   const bx = cx + dist*Math.cos(angle);
   const by = cy + dist*Math.sin(angle);
@@ -8589,7 +8589,7 @@ function semStarLights() {
   const nodes=document.getElementById('sem-star-nodes');
   if(!svg||!nodes) return;
   svg.innerHTML='';
-  document.querySelectorAll('[id^="sn-ax-"],[id^="sn-lieu-"],[id="sn-financement"],[id="sem-zone-label"]').forEach(e=>e.remove());
+  document.querySelectorAll('[id^="sn-ax-"],[id^="sn-lieu-"],[id^="sn-odd-"],[id="sn-financement"],[id="sem-zone-label"]').forEach(e=>e.remove());
   /* Update center + re-draw bg stars for zone */
   semStarUpdateCenter();
   const starCount = ZONE_STAR_COUNTS[semFicheData.zone] || 15;
@@ -8598,18 +8598,18 @@ function semStarLights() {
   semFinancementBadge();
 
   const W=semSW(),H=semSH(),cx=W/2,cy=H/2;
+  /* ── Secteur HAUT : Axes d'impact ── */
   const axes = semFicheData.axes;
+  const axAngles = [];
+  const axSpan = axes.length>1 ? 0.62 : 0;
   axes.forEach((aid,i) => {
     const a = SEM_AXES.find(x=>x.id===aid); if(!a) return;
-    const angle = (2*Math.PI/Math.max(axes.length,1))*i - Math.PI/2;
+    const angle = -Math.PI/2 + (i-(axes.length-1)/2)*axSpan;
+    axAngles.push(angle);
     const r = Math.min(W,H)*.28;
     const ax=cx+r*Math.cos(angle), ay=cy+r*Math.sin(angle);
-    const delay = i*130;
-
-    /* Ligne principale avec draw-on */
+    const delay = i*120;
     semLineAdd(cx,cy,ax,ay,a.col+'cc',false,delay);
-
-    /* Nœud axe */
     setTimeout(()=>{
       const n=semNodeAdd('ax-'+aid,
         `<div style="display:flex;flex-direction:column;align-items:center;gap:1px">
@@ -8618,49 +8618,16 @@ function semStarLights() {
         </div>`,
         ax,ay,a.col+'88',56,0);
       if(n){ n.style.boxShadow=`0 0 18px ${a.col}66,0 0 36px ${a.col}22`; n.style.setProperty('--orb-col',a.col); n.style.animation='orbitPulse 2.5s ease-in-out infinite'; }
-
-      /* Satellites lieux en pointillé */
-      a.lieux.forEach((lieu,j) => {
-        const la = angle + (j===0 ? -.38 : .38);
-        const lr = r + 92;
-        const lx=cx+lr*Math.cos(la), ly=cy+lr*Math.sin(la);
-        setTimeout(() => {
-          semLineAdd(ax,ay,lx,ly,a.col+'44',true);
-          const ln=document.createElement('div');
-          ln.id='sn-lieu-'+aid+'-'+j;
-          ln.style.cssText=`position:absolute;left:${lx}px;top:${ly}px;transform:translate(-50%,-50%) scale(0);padding:.28rem .6rem;border-radius:100px;border:1.5px dashed ${a.col}88;background:${a.col}12;color:${a.col};font-size:.58rem;font-weight:600;white-space:nowrap;opacity:0;transition:opacity .4s,transform .4s cubic-bezier(.17,.67,.42,1.3);backdrop-filter:blur(4px);`;
-          ln.textContent='🏡 '+lieu;
-          nodes.appendChild(ln);
-          requestAnimationFrame(()=>{ ln.style.opacity='1'; ln.style.transform='translate(-50%,-50%) scale(1)'; });
-        }, 300+j*200);
-      });
     }, delay+60);
   });
+  semSectorArc(axAngles, Math.min(W,H)*.28+18, 'AXES D\'IMPACT', Math.min(W,H)*.28+34, '#3a6e8c');
 
-  if(axes.length>0) {
-    const totalLieux = axes.reduce((acc,id)=>{const a=SEM_AXES.find(x=>x.id===id);return acc+(a?a.lieux.length:0);},0);
-    setTimeout(()=>semStarBubble(`${axes.length} axe${axes.length>1?'s':''} → ${totalLieux} lieux éligibles dans votre constellation`), axes.length*130+300);
-  }
+  /* ── Secteur GAUCHE : ODD sélectionnés ── */
+  semStarODD();
 }
 
 function semStarFinal() {
-  semStarLights();
-  const W=semSW(),H=semSH(),cx=W/2,cy=H/2;
-  document.querySelectorAll('[id^="sn-rep-"]').forEach(e=>e.remove());
-  /* Badge reporting en haut avec animation */
-  setTimeout(()=>{
-    const topY = cy-Math.min(W,H)*.44;
-    semLineAdd(cx,cy,cx,topY+18,'rgba(58,110,140,.4)',true);
-    const repEl = document.createElement('div');
-    repEl.id='sn-rep-badge';
-    repEl.style.cssText=`position:absolute;left:${cx}px;top:${topY}px;transform:translate(-50%,-50%) scale(0);padding:.4rem 1rem;border-radius:100px;background:rgba(255,255,255,.92);border:1.5px solid rgba(58,110,140,.5);color:#1a3a5a;font-size:.66rem;font-weight:700;white-space:nowrap;box-shadow:0 4px 16px rgba(58,110,140,.2);opacity:0;transition:opacity .5s,transform .5s cubic-bezier(.17,.67,.42,1.3);z-index:6`;
-    repEl.textContent = `📋 ${semFicheData.reporting} · ${semFicheData.freq}`;
-    document.getElementById('sem-star-nodes').appendChild(repEl);
-    requestAnimationFrame(()=>{ repEl.style.opacity='1'; repEl.style.transform='translate(-50%,-50%) scale(1)'; });
-    const axes=semFicheData.axes;
-    const total=axes.reduce((acc,id)=>{const a=SEM_AXES.find(x=>x.id===id);return acc+(a?a.lieux.length:0);},0);
-    semStarBubble(`✦ Constellation complète · ${axes.length} axes · ${total} lieux · Badge ${semFicheData.reporting} · Profil prêt à publier`);
-  }, 400);
+  semStarLights();   // axes (haut) + ODD (gauche) + financement (bas) ; projets ajoutés par semStarProjets
 }
 
 // Affiche les projets à financer comme nœuds de la constellation (anneau
@@ -8676,8 +8643,12 @@ function semStarProjets(projets) {
   const R = Math.min(W, H) * 0.4;
   const fin = semFicheData._finances || [];
   const colFor = m => m >= 70 ? '#4a8c5c' : m >= 50 ? '#c8732a' : '#3a6e8c';
+  /* Secteur DROITE : projets fanés autour de l'horizontale */
+  const projAngles = [];
+  const pSpan = list.length > 1 ? Math.min(0.4, 2.0 / list.length) : 0;
   list.forEach((p, i) => {
-    const angle = (2 * Math.PI / list.length) * i - Math.PI / 2 + 0.32;
+    const angle = (i - (list.length - 1) / 2) * pSpan;
+    projAngles.push(angle);
     const x = cx + R * Math.cos(angle), y = cy + R * Math.sin(angle);
     const financed = fin.includes(p.idx);
     const col = financed ? '#4a8c5c' : colFor(p.match);
@@ -8693,6 +8664,63 @@ function semStarProjets(projets) {
       requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translate(-50%,-50%) scale(1)'; });
     }, delay + 200);
   });
+  semSectorArc(projAngles, R + 22, 'PROJETS À FINANCER', R + 40, '#3a6e8c');
+}
+
+// Arc + libellé d'un groupe de la constellation (classement type bâtisseur).
+function semSectorArc(angles, r, text, labelR, col) {
+  const svg = document.getElementById('sem-star-svg');
+  if (!svg || !angles.length) return;
+  const W = semSW(), H = semSH(), cx = W / 2, cy = H / 2;
+  if (angles.length > 1) {
+    const a0 = Math.min(...angles), a1 = Math.max(...angles);
+    const x1 = cx + r * Math.cos(a0), y1 = cy + r * Math.sin(a0);
+    const x2 = cx + r * Math.cos(a1), y2 = cy + r * Math.sin(a1);
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('d', `M ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2}`);
+    p.setAttribute('fill', 'none'); p.setAttribute('stroke', col + '33'); p.setAttribute('stroke-width', '1.5');
+    svg.appendChild(p);
+  }
+  const mid = angles.reduce((s, a) => s + a, 0) / angles.length;
+  const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  t.setAttribute('x', cx + labelR * Math.cos(mid)); t.setAttribute('y', cy + labelR * Math.sin(mid));
+  t.setAttribute('text-anchor', 'middle'); t.setAttribute('dominant-baseline', 'middle');
+  t.setAttribute('fill', col + '99'); t.setAttribute('font-size', '8'); t.setAttribute('font-weight', '700');
+  t.setAttribute('font-family', 'Satoshi,sans-serif'); t.setAttribute('letter-spacing', '1.5');
+  t.textContent = text; svg.appendChild(t);
+}
+
+// Affiche les ODD sélectionnés comme nœuds numérotés (secteur GAUCHE).
+function semStarODD() {
+  const nodes = document.getElementById('sem-star-nodes');
+  const svg = document.getElementById('sem-star-svg');
+  if (!nodes || !svg) return;
+  document.querySelectorAll('[id^="sn-odd-"]').forEach(e => e.remove());
+  const odd = semFicheData.selectedODD || [];
+  if (!odd.length) return;
+  const W = semSW(), H = semSH(), cx = W / 2, cy = H / 2;
+  const R = Math.min(W, H) * 0.42;
+  const base = Math.PI;                                  // secteur GAUCHE
+  const span = odd.length > 1 ? Math.min(0.34, 2.0 / odd.length) : 0;
+  const angles = [];
+  odd.forEach((n, i) => {
+    const angle = base + (i - (odd.length - 1) / 2) * span;
+    angles.push(angle);
+    const x = cx + R * Math.cos(angle), y = cy + R * Math.sin(angle);
+    const m = (typeof ODD_META !== 'undefined' && ODD_META[n]) ? ODD_META[n] : { c: '#888', l: 'ODD ' + n };
+    const delay = 550 + i * 90;
+    semLineAdd(cx, cy, x, y, m.c + '55', true, delay);
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.id = 'sn-odd-' + n;
+      el.title = 'ODD ' + n + ' · ' + m.l;
+      el.style.cssText = `position:absolute;left:${x}px;top:${y}px;transform:translate(-50%,-50%) scale(0);width:30px;height:30px;border-radius:7px;background:${m.c};color:#fff;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:900;opacity:0;box-shadow:0 0 12px ${m.c}66;transition:opacity .4s,transform .4s cubic-bezier(.17,.67,.42,1.3);z-index:5`;
+      el.textContent = n;
+      nodes.appendChild(el);
+      requestAnimationFrame(() => { el.style.opacity = '1'; el.style.transform = 'translate(-50%,-50%) scale(1)'; });
+    }, delay + 130);
+  });
+  semSectorArc(angles, R + 22, 'ODD', R + 40, '#3f7e44');
 }
 
 /* ─── ESPACES & CAPACITÉS ─── */
