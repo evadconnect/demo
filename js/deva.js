@@ -10,7 +10,7 @@ let devaTyping = false;
 //   Vercel  : 'https://evad-deva.vercel.app/api/deva'
 //   Netlify : 'https://evad-deva.netlify.app/.netlify/functions/deva'
 // Laisser vide tant que le proxy n'est pas déployé (Deva affichera un message d'attente).
-const DEVA_API_URL = '';
+const DEVA_API_URL = 'https://demo-chi-seven-49.vercel.app/api/deva';
 
 const DEVA_SYSTEM = `Tu es Deva, l'IA frugale et bienveillante de la plateforme EVAD (Écosystème Vivant d'Action et de Développement). Tu incarnes l'intelligence de l'écosystème régénératif.
 
