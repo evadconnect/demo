@@ -1961,6 +1961,7 @@ function navWizardSet(steps, currentIdx, onJump) {
         </div>
       `;
     }).join('')}
+    <button class="nav-stepper-skip" onclick="showScreen('carte')" title="Aller directement à la carte">Passer, voir la carte →</button>
   `;
   if (typeof onJump === 'function') {
     container.querySelectorAll('.nav-step').forEach(el => {
