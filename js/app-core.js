@@ -8046,7 +8046,7 @@ function batDrawRayonRing() {
 const SEM_FICHE_STEPS = [
   { h: 'Organisation' },
   { h: 'Impacts' },
-  { h: 'Reporting' }
+  { h: 'Projets' }
 ];
 
 const SEM_AXES = [
@@ -8117,6 +8117,9 @@ let semFicheData = { nom:'', localisation:'', type:'Fondation', secteur:'ESS', z
 
 function initFicheSem() {
   semFicheStep = 0;
+  semFicheData._projetsReady = false;
+  semFicheData._finances = [];
+  window._semProjetsGenerating = false;
   semFicheRenderStep();
   semStarInit();
 }
@@ -8223,26 +8226,112 @@ function semFicheRenderStep() {
     semStarBubble('Choisissez vos cadres d\'impact et les ODD qui guident vos investissements…');
     semStarLights();
   } else {
-    c.innerHTML = `
-      <label class="creer-lbl">Cadre de reporting</label>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-bottom:.8rem">
-        ${[['CSRD','📋'],['GRI','📊'],['B-Corp','🏅'],['Informel','📝']].map(([r,ic])=>`<button class="type-btn${semFicheData.reporting===r?' sel':''}" onclick="semFicheData.reporting='${r}';this.closest('div').querySelectorAll('.type-btn').forEach(b=>b.classList.remove('sel'));this.classList.add('sel');semStarFinal()"><div style="font-size:1rem;margin-bottom:.15rem">${ic}</div><div style="font-size:.68rem">${r}</div></button>`).join('')}
-      </div>
-      <label class="creer-lbl">Fréquence de rapport</label>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.4rem;margin-bottom:.8rem">
-        ${[['Mensuel','📅'],['Trimestriel','🗓'],['Annuel','📆']].map(([f,ic])=>`<button class="type-btn${semFicheData.freq===f?' sel':''}" onclick="semFicheData.freq='${f}';this.closest('div').querySelectorAll('.type-btn').forEach(b=>b.classList.remove('sel'));this.classList.add('sel')"><div style="font-size:1rem;margin-bottom:.15rem">${ic}</div><div style="font-size:.65rem">${f}</div></button>`).join('')}
-      </div>
-      <label class="creer-lbl">Indicateurs attendus</label>
-      <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.6rem">
-        ${[['🌫️','CO₂ évité'],['👷','Emplois créés'],['📚','Personnes formées'],['🌿','m² restaurés'],['♻️','Déchets valorisés'],['⚡','kWh renouvelables'],['🏡','Lieux financés'],['🌱','Score REGEN'],['🤝','Bâtisseurs mobilisés'],['🥦','Alimentation locale']].map(([ic,l])=>{
-          const on=semFicheData.selectedKpis.includes(l);
-          return `<button onclick="semKpiToggle('${l}',this)" style="display:flex;align-items:center;gap:.3rem;padding:.3rem .55rem;border-radius:100px;border:1.5px solid ${on?'#3a6e8c':'rgba(58,110,140,.2)'};background:${on?'rgba(58,110,140,.15)':'rgba(58,110,140,.04)'};color:${on?'#1a3a5a':'#3a6e8c'};font-size:.65rem;font-weight:${on?700:400};cursor:pointer;transition:all .2s"><span>${ic}</span><span>${l}</span>${on?'<span style="color:#3a6e8c;font-size:.6rem">✓</span>':''}</button>`;
-        }).join('')}
-      </div>
-      <label class="creer-lbl" style="opacity:.6;font-size:.6rem">Préciser / ajouter</label>
-      <textarea class="creer-inp" style="height:50px;resize:none" placeholder="Ex : taux de retour à l'emploi, nb d'ateliers…" oninput="semFicheData.kpis=this.value">${semFicheData.kpis}</textarea>`;
+    /* ── Étape « Trouver des projets à financer » (remplace le reporting) ── */
+    // Pendant la recherche : écran d'attente Deva
+    if (window._semProjetsGenerating) {
+      renderDevaSearching(c, { title: 'Deva cherche tes projets', msgs: [
+        'Analyse de tes axes d\'impact prioritaires…',
+        'Exploration des lieux de la communauté…',
+        'Sélection des projets à financer alignés…',
+        'Estimation des besoins de financement…'
+      ] });
+      if (pub) pub.style.display = 'none';
+      return;
+    }
+    // État initial : le bouton « Trouver des projets à financer »
+    if (!semFicheData._projetsReady) {
+      c.innerHTML =
+        '<div style="text-align:center;padding:1.5rem 1rem 1rem">'
+          +'<div style="font-size:2rem;margin-bottom:.6rem">🔭</div>'
+          +'<div style="font-size:.95rem;font-weight:800;color:var(--ink);font-family:\'Satoshi\',sans-serif;margin-bottom:.4rem">Trouve les projets à financer</div>'
+          +'<div style="font-size:.74rem;color:var(--moss);opacity:.8;line-height:1.6;max-width:300px;margin:0 auto 1.3rem">Deva parcourt les lieux de la communauté et te propose les projets régénératifs les plus alignés avec tes axes d\'impact'
+            +(semFicheData.axes.length ? '' : ' (ajoute des axes à l\'étape précédente pour affiner)')+'.</div>'
+          +'<button onclick="semTrouverProjets()" style="display:inline-flex;align-items:center;gap:.5rem;padding:.8rem 1.6rem;border-radius:100px;background:var(--sky);color:white;border:none;font-size:.85rem;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(58,110,140,.3);font-family:\'Satoshi\',sans-serif;transition:transform .18s" onmouseover="this.style.transform=\'translateY(-1px)\'" onmouseout="this.style.transform=\'none\'">🔍 Trouver des projets à financer</button>'
+        +'</div>';
+      if (pub) pub.style.display = 'none';
+      return;
+    }
+    // Projets révélés
+    const projets = semProjetsAFinancer();
+    const fin = semFicheData._finances || [];
+    const colFor = m => m >= 70 ? 'var(--fern)' : m >= 50 ? 'var(--amber)' : 'var(--sky)';
+    c.innerHTML =
+      '<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem">'
+        +'<div style="font-size:.72rem;font-weight:700;color:var(--ink)">💰 Projets à financer</div>'
+        +'<div style="margin-left:auto;font-size:.65rem;font-weight:700;background:rgba(58,110,140,.12);color:var(--sky);padding:.1rem .5rem;border-radius:100px">'+projets.length+' projet'+(projets.length>1?'s':'')+'</div>'
+      +'</div>'
+      +'<div style="font-size:.64rem;color:var(--moss);opacity:.75;margin-bottom:.9rem;line-height:1.55">Sélectionnés par Deva selon tes axes d\'impact. Clique sur « Financer » pour t\'engager. <a onclick="semTrouverProjets()" style="color:var(--sky);cursor:pointer;text-decoration:underline">↻ Relancer</a></div>'
+      + projets.map(p => {
+          const col = colFor(p.match);
+          const pct = p.objectif > 0 ? Math.round((p.montant / p.objectif) * 100) : 100;
+          const financed = fin.includes(p.idx);
+          return '<div style="background:white;border:1px solid rgba(46,102,66,.12);border-radius:var(--r-lg);padding:.75rem .85rem;margin-bottom:.5rem">'
+            +'<div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.5rem">'
+              +'<div style="width:36px;height:36px;border-radius:9px;background:rgba(58,110,140,.1);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">'+(p.icon || '🏡')+'</div>'
+              +'<div style="flex:1;min-width:0">'
+                +'<div style="display:flex;align-items:center;gap:.4rem">'
+                  +'<div style="font-size:.78rem;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1">'+p.nom+'</div>'
+                  +'<span style="font-size:.6rem;font-weight:800;color:'+col+';background:'+col+'1a;padding:.1rem .4rem;border-radius:100px;flex-shrink:0">'+p.match+'% aligné</span>'
+                +'</div>'
+                +'<div style="font-size:.62rem;color:var(--moss);opacity:.7">'+p.type+' · '+p.ville+'</div>'
+              +'</div>'
+            +'</div>'
+            +'<div style="height:5px;background:rgba(46,102,66,.08);border-radius:100px;overflow:hidden;margin-bottom:.3rem"><div style="height:100%;width:'+Math.min(pct,100)+'%;background:var(--amber);border-radius:100px"></div></div>'
+            +'<div style="display:flex;align-items:center;justify-content:space-between;gap:.6rem">'
+              +'<div style="font-size:.62rem;color:var(--moss);opacity:.75"><strong style="color:var(--amber);font-weight:800">'+p.restant+'€</strong> restant à financer</div>'
+              + (financed
+                  ? '<span style="font-size:.65rem;font-weight:700;color:var(--fern);background:rgba(74,140,92,.1);padding:.25rem .6rem;border-radius:100px;border:1px solid rgba(74,140,92,.2)">✅ Engagé</span>'
+                  : '<button onclick="semFinancerProjet('+p.idx+')" style="font-size:.66rem;font-weight:700;padding:.35rem .8rem;border-radius:100px;background:var(--sky);color:white;border:none;cursor:pointer">💰 Financer →</button>')
+            +'</div>'
+          +'</div>';
+        }).join('');
     semStarFinal();
   }
+}
+
+// Construit la liste des projets (lieux de la démo) à financer, classés par
+// alignement avec les axes d'impact choisis par le semeur.
+function semProjetsAFinancer() {
+  const lieux = (typeof MAP_PLACES !== 'undefined') ? MAP_PLACES : [];
+  const axes = semFicheData.axes || [];
+  const AXE_TO_DIM = { climat:'Environnement', biodiversite:'Environnement', social:'Social', alimentation:'Éco. locale', economie:'Éco. locale', habitat:'Environnement' };
+  const targetDims = new Set(axes.map(a => AXE_TO_DIM[a]).filter(Boolean));
+  return lieux.map((l, idx) => {
+    const dims = l.dims || [];
+    let match;
+    if (targetDims.size) {
+      const hits = dims.filter(d => targetDims.has(d.l));
+      match = hits.length ? Math.round(hits.reduce((s, d) => s + d.v, 0) / hits.length) : Math.max(40, (l.score || 60) - 25);
+    } else { match = l.score || 60; }
+    const objectif = 3000 + (idx % 5) * 1500;                       // déterministe : 3000–9000€
+    const montant  = Math.round(objectif * (0.15 + ((l.score || 60) % 40) / 100));
+    const restant  = Math.max(0, objectif - montant);
+    return { idx, nom:l.nom, type:l.type, ville:l.ville, icon:l.icon, score:l.score, match, objectif, montant, restant };
+  }).sort((a, b) => b.match - a.match);
+}
+
+// Lance la recherche : écran d'attente Deva puis révélation des projets.
+function semTrouverProjets() {
+  window._semProjetsGenerating = true;
+  semFicheData._projetsReady = false;
+  semFicheRenderStep();
+  setTimeout(() => {
+    window._semProjetsGenerating = false;
+    clearInterval(window._creerSolMsgTimer);
+    semFicheData._projetsReady = true;
+    if (semFicheStep === 2) semFicheRenderStep();
+  }, 2300);
+}
+
+// Engage un financement sur un projet (lieu) depuis la fiche semeur.
+function semFinancerProjet(idx) {
+  const l = (typeof MAP_PLACES !== 'undefined') ? MAP_PLACES[idx] : null;
+  semFicheData._finances = semFicheData._finances || [];
+  if (!semFicheData._finances.includes(idx)) semFicheData._finances.push(idx);
+  if (typeof mmBubble === 'function') {
+    mmBubble('💰 ' + (semFicheData.nom || 'Ton organisation') + ' s\'engage à financer « ' + (l ? l.nom : 'ce projet') + ' » · preuve d\'impact ESRS générée 🌱');
+  }
+  semFicheRenderStep();
 }
 
 function semAxeToggle(id, btn) {
