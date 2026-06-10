@@ -665,32 +665,14 @@
         </div>
       </div>
 
-      <!-- Quêtes pour toi + Contributions récentes -->
-      <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:1rem;margin-bottom:1.2rem">
-
-        <div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-xl);overflow:hidden">
-          <div style="padding:.75rem 1rem;border-bottom:1px solid rgba(46,102,66,.08);display:flex;align-items:center;justify-content:space-between">
-            <div style="font-size:.76rem;font-weight:600;color:var(--ink)">⚡ Quêtes pour toi</div>
-            <div style="display:flex;gap:.3rem">
-              <button class="bad-cat-btn active" onclick="batFilterQuetes('toutes',this)">Toutes</button>
-              <button class="bad-cat-btn" onclick="batFilterQuetes('proches',this)">📍 Proches</button>
-              <button class="bad-cat-btn" onclick="batFilterQuetes('competences',this)">🎯 Match</button>
-            </div>
-          </div>
-          <div style="padding:.6rem .9rem">
-            <div id="bat-quetes-list" style="display:flex;flex-direction:column;gap:.55rem"></div>
-          </div>
+      <!-- Contributions récentes -->
+      <div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-xl);overflow:hidden;margin-bottom:1.2rem">
+        <div style="padding:.75rem 1rem;border-bottom:1px solid rgba(46,102,66,.08)">
+          <div style="font-size:.76rem;font-weight:600;color:var(--ink)">📖 Contributions récentes</div>
         </div>
-
-        <div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-xl);overflow:hidden">
-          <div style="padding:.75rem 1rem;border-bottom:1px solid rgba(46,102,66,.08)">
-            <div style="font-size:.76rem;font-weight:600;color:var(--ink)">📖 Contributions récentes</div>
-          </div>
-          <div style="padding:.6rem .9rem;display:flex;flex-direction:column;gap:.42rem">
-            <div style="padding:1rem;text-align:center;font-size:.72rem;color:var(--moss);opacity:.5">Tes contributions apparaîtront ici</div>
-          </div>
+        <div style="padding:.6rem .9rem;display:flex;flex-direction:column;gap:.42rem">
+          <div style="padding:1rem;text-align:center;font-size:.72rem;color:var(--moss);opacity:.5">Tes contributions apparaîtront ici</div>
         </div>
-
       </div>
 
       <!-- Parcours REGEN -->
@@ -708,17 +690,20 @@
         <div class="bat-kpi" style="border-top:3px solid var(--sky)"><div class="bat-kpi-val" style="color:var(--sky)">0</div><div class="bat-kpi-lbl">graines gagnés</div><div class="bat-kpi-trend" style="color:var(--fern)">—</div></div>
         <div class="bat-kpi" style="border-top:3px solid var(--lavender)"><div class="bat-kpi-val" style="color:var(--lavender)">0</div><div class="bat-kpi-lbl">CO₂ évité</div><div class="bat-kpi-trend" style="color:var(--fern)">—</div></div>
       </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem">
-        <div style="display:flex;gap:.4rem">
-          <button class="pmkt-filter-btn active" onclick="batQFilter('toutes',this)">Toutes</button>
-          <button class="pmkt-filter-btn" onclick="batQFilter('en_cours',this)">En cours</button>
-          <button class="pmkt-filter-btn" onclick="batQFilter('validation',this)">En validation</button>
-          <button class="pmkt-filter-btn" onclick="batQFilter('terminees',this)">Terminées</button>
+      <!-- Quêtes pour toi (déplacé depuis l'Aperçu) -->
+      <div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-xl);overflow:hidden">
+        <div style="padding:.75rem 1rem;border-bottom:1px solid rgba(46,102,66,.08);display:flex;align-items:center;justify-content:space-between">
+          <div style="font-size:.76rem;font-weight:600;color:var(--ink)">⚡ Quêtes pour toi</div>
+          <div style="display:flex;gap:.3rem">
+            <button class="bad-cat-btn active" onclick="batFilterQuetes('toutes',this)">Toutes</button>
+            <button class="bad-cat-btn" onclick="batFilterQuetes('proches',this)">📍 Proches</button>
+            <button class="bad-cat-btn" onclick="batFilterQuetes('competences',this)">🎯 Match</button>
+          </div>
         </div>
-        <button class="btn btn-ghost" style="font-size:.7rem" onclick="batTab('apercu',document.getElementById('btab-apercu'))">← Quêtes disponibles</button>
+        <div style="padding:.6rem .9rem">
+          <div id="bat-quetes-list" style="display:flex;flex-direction:column;gap:.55rem"></div>
+        </div>
       </div>
-
-      <div style="padding:1.5rem;text-align:center;font-size:.78rem;color:var(--moss);opacity:.5">Aucune quête en cours, rejoins une quête pour commencer</div>
 
     </div>
   </div>
