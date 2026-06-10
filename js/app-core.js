@@ -3719,10 +3719,12 @@ function addBesoinCustom() {
 
 function creerReset(){initCreer();}
 
-// Écran d'attente « Deva cherche les bonnes solutions dans la bibliothèque »
-// affiché à la génération des solutions (étape 3), avant de les révéler.
-function renderDevaSearching(c){
-  const msgs = [
+// Écran d'attente « Deva cherche… » affiché avant de révéler un résultat
+// généré (solutions d'un lieu, quêtes d'un bâtisseur). opts = {title, msgs}.
+function renderDevaSearching(c, opts){
+  opts = opts || {};
+  const title = opts.title || 'Deva explore la bibliothèque';
+  const msgs = opts.msgs || [
     'Analyse des espaces de ton lieu…',
     'Exploration de la bibliothèque de solutions…',
     'Sélection des solutions les plus adaptées…',
@@ -3735,7 +3737,7 @@ function renderDevaSearching(c){
         +'<div style="position:absolute;inset:5px;border-radius:50%;border:2.5px solid rgba(74,200,110,.2);border-top-color:#4ac86e;animation:spin .9s linear infinite"></div>'
         +'<img src="Deva.png" alt="Deva" style="position:absolute;inset:15px;width:54px;height:54px;object-fit:contain;object-position:bottom;transform:scaleX(-1) rotate(12deg);filter:drop-shadow(0 0 8px rgba(74,200,110,.5))">'
       +'</div>'
-      +'<div style="font-size:.95rem;font-weight:800;color:var(--ink);margin-bottom:.45rem;font-family:\'Satoshi\',sans-serif">Deva explore la bibliothèque</div>'
+      +'<div style="font-size:.95rem;font-weight:800;color:var(--ink);margin-bottom:.45rem;font-family:\'Satoshi\',sans-serif">'+title+'</div>'
       +'<div id="creer-sol-loading-msg" style="font-size:.72rem;color:var(--moss);opacity:.8;min-height:1.1em;transition:opacity .25s">'+msgs[0]+'</div>'
       +'<div style="display:flex;gap:.32rem;margin-top:1.05rem">'
         +'<span style="width:7px;height:7px;border-radius:50%;background:#4ac86e;animation:typingBounce 1.1s ease-in-out infinite"></span>'
@@ -7165,6 +7167,7 @@ let batFicheData = { prenom:'', nom:'', ville:'', lat:null, lng:null, dispo:[], 
 function initFicheBat() {
   batFicheStep = 0;
   batQueteFilter = 'matched';
+  batFicheData._quetesReady = false;
   batFicheRenderStep();
   batTreeInit();
 }
@@ -7293,6 +7296,30 @@ function batFicheRenderStep() {
     batTreeFinal();
   } else {
     /* ── Étape 4 · Matching ── */
+    // Temps d'attente : Deva « cherche » les quêtes adaptées au profil
+    // avant de les révéler (rejoué à chaque clic sur « Trouver des quêtes »).
+    if (!batFicheData._quetesReady) {
+      renderDevaSearching(c, {
+        title: 'Deva cherche tes quêtes',
+        msgs: [
+          'Analyse de ton profil et de tes compétences…',
+          'Exploration des quêtes des lieux de la communauté…',
+          'Sélection des quêtes adaptées à tes compétences…',
+          'Calcul de tes scores de compatibilité…'
+        ]
+      });
+      if (pub) pub.style.display = 'none';   // pas de publication pendant la recherche
+      if (!window._batQuetesGenerating) {
+        window._batQuetesGenerating = true;
+        setTimeout(() => {
+          window._batQuetesGenerating = false;
+          clearInterval(window._creerSolMsgTimer);
+          batFicheData._quetesReady = true;
+          if (batFicheStep === 3) batFicheRenderStep();   // révèle les quêtes
+        }, 2300);
+      }
+      return;
+    }
     // Construit les quêtes à partir des lieux de la démo selon le profil saisi
     if (typeof batBuildQuetesFromProfile === 'function') batBuildQuetesFromProfile();
     const scored = BAT_QUETES
@@ -7367,7 +7394,7 @@ function batSkillSetLevel(id, lvl) {
 }
 
 function batSetQueteFilter(id) { batQueteFilter = id; batFicheRenderStep(); }
-function batFicheNext() { if (batFicheStep < 3) { batFicheStep++; if (window.batPanReset) window.batPanReset(); batFicheRenderStep(); } }
+function batFicheNext() { if (batFicheStep < 3) { if (batFicheStep === 2) batFicheData._quetesReady = false; /* (re)chercher → rejoue l'attente Deva */ batFicheStep++; if (window.batPanReset) window.batPanReset(); batFicheRenderStep(); } }
 function batFichePrev() { if (batFicheStep > 0) { batFicheStep--; if (window.batPanReset) window.batPanReset(); batFicheRenderStep(); } }
 
 /* ── Algorithme de matching bâtisseur ↔ quête ── */
