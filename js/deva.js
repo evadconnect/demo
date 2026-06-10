@@ -4,6 +4,14 @@ let devaChatOpen = false;
 let devaHistory = []; // {role, content}
 let devaTyping = false;
 
+// URL de ton proxy Deva (fonction Vercel/Netlify qui détient la clé Mistral).
+// Le navigateur n'appelle jamais Mistral directement (la clé doit rester secrète).
+// Exemples :
+//   Vercel  : 'https://evad-deva.vercel.app/api/deva'
+//   Netlify : 'https://evad-deva.netlify.app/.netlify/functions/deva'
+// Laisser vide tant que le proxy n'est pas déployé (Deva affichera un message d'attente).
+const DEVA_API_URL = '';
+
 const DEVA_SYSTEM = `Tu es Deva, l'IA frugale et bienveillante de la plateforme EVAD (Écosystème Vivant d'Action et de Développement). Tu incarnes l'intelligence de l'écosystème régénératif.
 
 Principes de Deva :
@@ -98,22 +106,27 @@ async function devaSubmit() {
   sendBtn.disabled = true;
   devaShowTyping();
 
+  // Proxy pas encore branché : message d'attente clair plutôt qu'une erreur réseau.
+  if (!DEVA_API_URL) {
+    devaHideTyping();
+    devaAddMessage('deva', 'Je ne suis pas encore reliée à mon moteur 🌱 Renseigne l\'URL du proxy Mistral (DEVA_API_URL dans js/deva.js) pour m\'activer.');
+    devaTyping = false; sendBtn.disabled = false; input.focus();
+    return;
+  }
+
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    // Appel du proxy (Vercel/Netlify) qui ajoute la clé + le system prompt et
+    // interroge Mistral. On n'envoie que l'historique de conversation.
+    const response = await fetch(DEVA_API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 300,
-        system: DEVA_SYSTEM,
-        messages: devaHistory
-      })
+      body: JSON.stringify({ messages: devaHistory })
     });
 
     const data = await response.json();
     devaHideTyping();
 
-    const reply = data?.content?.[0]?.text || 'Je n\'ai pas pu répondre. Réessaie dans un instant.';
+    const reply = data?.reply || 'Je n\'ai pas pu répondre. Réessaie dans un instant.';
     devaHistory.push({ role: 'assistant', content: reply });
     devaAddMessage('deva', reply);
 
