@@ -117,20 +117,10 @@ function devaHideTyping() {
   if (el) el.remove();
 }
 
-function devaSuggest(btn) {
-  const text = btn.textContent;
-  document.getElementById('deva-chat-input').value = text;
-  document.getElementById('deva-suggestions').style.display = 'none';
-  devaSubmit();
-}
-
 async function devaSubmit() {
   const input = document.getElementById('deva-chat-input');
   const text = input.value.trim();
   if (!text || devaTyping) return;
-
-  // Hide suggestions after first message
-  document.getElementById('deva-suggestions').style.display = 'none';
 
   input.value = '';
   input.style.height = 'auto';
