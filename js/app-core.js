@@ -6713,7 +6713,7 @@ function regenRenderDetail() {
     <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.1rem">${outils}</div>
 
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem">
-      <span style="font-size:.58rem;font-weight:700;color:var(--moss);opacity:.6;text-transform:uppercase;letter-spacing:.12em">Ce que fait l'utilisateur</span>
+      <span style="font-size:.58rem;font-weight:700;color:var(--moss);opacity:.6;text-transform:uppercase;letter-spacing:.12em">À faire</span>
       <span style="font-size:.62rem;font-weight:700;color:${s.color}">${nDone}/${s.taches.length} fait${nDone > 1 ? 's' : ''}</span>
     </div>
     <div>${taches}</div>
@@ -6721,22 +6721,17 @@ function regenRenderDetail() {
 }
 
 function regenUpdateCenter() {
-  // total de tâches cochées sur l'ensemble du parcours
+  // Score REGEN : 10 au départ, +90 répartis sur les tâches cochées du parcours.
   const total = regenTasksDone.reduce((a, arr) => a + arr.length, 0);
   const done = regenTasksDone.reduce((a, arr) => a + arr.filter(Boolean).length, 0);
-  const icon = document.getElementById('regen-center-icon');
+  const score = total ? 10 + Math.round((done / total) * 90) : 10;
+  const scoreEl = document.getElementById('regen-center-score');
   const sub = document.getElementById('regen-center-sub');
+  if (scoreEl) scoreEl.innerHTML = score + '<span style="font-size:.62rem;font-weight:700;opacity:.45">/100</span>';
   if (!sub) return;
-  if (done === 0) {
-    if (icon) icon.textContent = '🌱';
-    sub.textContent = 'à venir';
-  } else if (done >= total) {
-    if (icon) icon.textContent = '🌳';
-    sub.textContent = 'boucle complète';
-  } else {
-    if (icon) icon.textContent = '🌿';
-    sub.textContent = done + '/' + total + ' tâches';
-  }
+  if (done === 0) sub.textContent = '🌱 à venir';
+  else if (done >= total) sub.textContent = '🌳 boucle complète';
+  else sub.textContent = '🌿 ' + done + '/' + total + ' tâches';
 }
 
 function regenInit() {

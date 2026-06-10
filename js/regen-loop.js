@@ -63,8 +63,8 @@ function regenLoopBuild(prefix, profileKey){
           </svg>
           <div style="position:absolute;left:150px;top:150px;transform:translate(-50%,-50%);width:152px;height:152px;border-radius:50%;background:white;border:1px solid rgba(46,102,66,.1);box-shadow:0 2px 14px rgba(46,102,66,.07);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
             <div style="font-size:.5rem;color:var(--sage);text-transform:uppercase;letter-spacing:.16em;font-weight:700">Score REGEN</div>
-            <div id="${prefix}-center-icon" style="font-size:1.5rem;margin:.25rem 0 .15rem">🌱</div>
-            <div id="${prefix}-center-sub" style="font-size:.62rem;color:var(--moss);opacity:.6">à venir</div>
+            <div id="${prefix}-center-score" style="font-family:'Satoshi', sans-serif;font-size:1.5rem;font-weight:900;color:#018262;line-height:1;margin:.2rem 0 .05rem">10<span style="font-size:.62rem;font-weight:700;opacity:.45">/100</span></div>
+            <div id="${prefix}-center-sub" style="font-size:.6rem;color:var(--moss);opacity:.65">🌱 à venir</div>
           </div>
           ${nodes}
         </div>
@@ -113,7 +113,7 @@ function regenLoopRenderDetail(prefix){
     <div style="font-size:.58rem;font-weight:700;color:var(--moss);opacity:.6;text-transform:uppercase;letter-spacing:.12em;margin-bottom:.45rem">Outils mobilisés</div>
     <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.1rem">${outils}</div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem">
-      <span style="font-size:.58rem;font-weight:700;color:var(--moss);opacity:.6;text-transform:uppercase;letter-spacing:.12em">Ce que tu fais</span>
+      <span style="font-size:.58rem;font-weight:700;color:var(--moss);opacity:.6;text-transform:uppercase;letter-spacing:.12em">À faire</span>
       <span style="font-size:.62rem;font-weight:700;color:${node.color}">${nDone}/${s.taches.length} fait${nDone>1?'s':''}</span>
     </div>
     <div>${taches}</div>`;
@@ -122,9 +122,12 @@ function regenLoopUpdateCenter(prefix){
   const st = regenLoopState[prefix]; if(!st) return;
   const total = st.done.reduce((a,arr)=>a+arr.length,0);
   const done = st.done.reduce((a,arr)=>a+arr.filter(Boolean).length,0);
-  const icon = document.getElementById(`${prefix}-center-icon`), sub = document.getElementById(`${prefix}-center-sub`);
+  const score = total ? 10 + Math.round((done/total)*90) : 10;
+  const scoreEl = document.getElementById(`${prefix}-center-score`);
+  const sub = document.getElementById(`${prefix}-center-sub`);
+  if(scoreEl) scoreEl.innerHTML = score + '<span style="font-size:.62rem;font-weight:700;opacity:.45">/100</span>';
   if(!sub) return;
-  if(done===0){ if(icon)icon.textContent='🌱'; sub.textContent='à venir'; }
-  else if(done>=total){ if(icon)icon.textContent='🌳'; sub.textContent='boucle complète'; }
-  else { if(icon)icon.textContent='🌿'; sub.textContent=done+'/'+total+' tâches'; }
+  if(done===0){ sub.textContent='🌱 à venir'; }
+  else if(done>=total){ sub.textContent='🌳 boucle complète'; }
+  else { sub.textContent='🌿 '+done+'/'+total+' tâches'; }
 }
