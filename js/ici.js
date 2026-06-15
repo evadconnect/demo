@@ -235,3 +235,78 @@ function iciRenderMesureImpact() {
       </div>
     </div>`;
 }
+
+/* ════════════════════ SAISIE PILOTE (une saisie → des preuves) ════════════════════ */
+
+// Solutions déclarées par le Pilote pour son lieu (ou null si aucune).
+function iciSolutionsDuLieu() {
+  if (typeof myLieuData !== 'undefined' && myLieuData && Array.isArray(myLieuData.solutions) && myLieuData.solutions.length) return myLieuData.solutions;
+  if (typeof cData !== 'undefined' && cData && Array.isArray(cData.solutions) && cData.solutions.length) return cData.solutions;
+  return null;
+}
+
+// ICI portés par les solutions déclarées (sinon tout le référentiel, pour la démo).
+function iciIcisDuLieu() {
+  const sols = iciSolutionsDuLieu();
+  if (!sols) return ICI_CATALOG.slice();
+  const set = new Set(sols);
+  const matched = ICI_CATALOG.filter((i) => (i.solutionIds || []).some((s) => set.has(s)));
+  return matched.length ? matched : ICI_CATALOG.slice();
+}
+
+function iciGetMesure(iciId, create) {
+  let m = iciMesuresStore.find((x) => x.iciId === iciId);
+  if (!m && create) { m = { iciId, valeurProjetee: null, valeurProuvee: null, niveauPreuve: null }; iciMesuresStore.push(m); }
+  return m;
+}
+
+// Frontière étanche : projeté et prouvé sont deux champs distincts, jamais confondus.
+function iciSetValeur(iciId, champ, valeur) {
+  const m = iciGetMesure(iciId, true);
+  if (champ === 'niveauPreuve') {
+    m.niveauPreuve = valeur || null;
+  } else {
+    const v = String(valeur).trim().replace(',', '.');
+    m[champ] = (v === '' || isNaN(parseFloat(v))) ? null : parseFloat(v);
+  }
+  iciRenderMesureImpact();
+  iciRenderSaisie();
+}
+
+function iciRenderSaisie() {
+  const box = document.getElementById('ici-saisie');
+  if (!box) return;
+  const icis = iciIcisDuLieu();
+  const sols = iciSolutionsDuLieu();
+
+  const rows = icis.map((ici) => {
+    const meta = ICI_LIVRE_META[ici.livre];
+    const m = iciGetMesure(ici.id, false) || {};
+    const ssVad = iciSousScore(m.valeurProjetee, ici.point0, ici.point100);
+    const ssPrv = iciSousScore(m.valeurProuvee, ici.point0, ici.point100);
+    const coef = ICI_COEF_PREUVE[m.niveauPreuve] != null ? ICI_COEF_PREUVE[m.niveauPreuve] : 0;
+    const ssVit = ssPrv == null ? null : ssPrv * coef;
+    const inp = (champ, val, ph) => `<input type="number" inputmode="decimal" value="${val == null ? '' : val}" placeholder="${ph}" oninput="iciSetValeur('${ici.id}','${champ}',this.value)" style="width:74px;box-sizing:border-box;padding:.35rem .5rem;border:1.5px solid rgba(46,102,66,.2);border-radius:8px;font-size:.72rem;outline:none;font-family:inherit;background:#f6faf7">`;
+    const sel = `<select onchange="iciSetValeur('${ici.id}','niveauPreuve',this.value)" style="padding:.35rem .4rem;border:1.5px solid rgba(46,102,66,.2);border-radius:8px;font-size:.68rem;background:#f6faf7;font-family:inherit;max-width:120px">
+        <option value="">— preuve —</option>
+        ${ICI_PREUVE_ORDRE.map((p) => `<option value="${p}" ${m.niveauPreuve === p ? 'selected' : ''}>${ICI_PREUVE_META[p].ic} ${ICI_PREUVE_META[p].label}</option>`).join('')}
+      </select>`;
+    return `<div style="display:grid;grid-template-columns:minmax(0,1.5fr) auto auto auto;gap:.55rem;align-items:center;padding:.6rem .3rem;border-bottom:1px solid rgba(46,102,66,.07)">
+      <div style="min-width:0">
+        <div style="font-size:.74rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${meta.ic} ${ici.nom}</div>
+        <div style="font-size:.6rem;color:var(--moss);opacity:.65">${meta.label} · ${ici.unite} · sous-score ${ssVad == null ? '—' : Math.round(ssVad)} → preuve ${ssVit == null ? '—' : Math.round(ssVit)}</div>
+      </div>
+      <div style="text-align:center"><div style="font-size:.52rem;color:var(--forest);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.18rem">Projetée</div>${inp('valeurProjetee', m.valeurProjetee, '—')}</div>
+      <div style="text-align:center"><div style="font-size:.52rem;color:var(--sky);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.18rem">Prouvée</div>${inp('valeurProuvee', m.valeurProuvee, '—')}</div>
+      <div style="text-align:center"><div style="font-size:.52rem;color:var(--moss);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.18rem">Niveau</div>${sel}</div>
+    </div>`;
+  }).join('');
+
+  box.innerHTML = `<div class="dash-card" style="margin-bottom:1rem">
+    <div style="margin-bottom:.5rem">
+      <div style="font-size:.82rem;font-weight:700;color:var(--ink)">📝 Mes ICI · saisie</div>
+      <div style="font-size:.64rem;color:var(--moss);opacity:.7;margin-top:.1rem">${sols ? icis.length + ' ICI portés par tes solutions déclarées' : 'Aucune solution déclarée — voici les ICI du référentiel (démo)'}. Saisis une fois : valeur <strong style="color:var(--forest)">projetée</strong> (→ Vadance), puis <strong style="color:var(--sky)">prouvée</strong> + niveau de preuve (→ Vadité).</div>
+    </div>
+    ${rows}
+  </div>`;
+}
