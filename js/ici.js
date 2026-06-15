@@ -178,3 +178,60 @@ function iciSelfTest() {
 }
 
 try { if (typeof window !== 'undefined') iciSelfTest(); } catch (e) { /* silencieux */ }
+
+/* ════════════════════ UI · MODULE « MESURE D'IMPACT » ════════════════════ */
+
+// Mesures actives = celles saisies par le Pilote (copie éditable du seed démo).
+let iciMesuresStore = ICI_MESURES_DEMO.map((m) => ({ ...m }));
+function iciMesuresActives() { return iciMesuresStore; }
+function iciSetMode(mode) { window._iciMode = mode; iciRenderMesureImpact(); }
+
+const iciFmtScore = (v) => (v == null ? '—' : Math.round(v));
+
+// Triptyque + global + Vadance/Vadité distinctes + taux de tenue + alerte plancher.
+function iciRenderMesureImpact() {
+  const box = document.getElementById('ici-mesure-impact');
+  if (!box) return;
+  const mesures = iciMesuresActives();
+  const b = iciBilan(mesures);
+  const mode = window._iciMode === 'vadite' ? 'vadite' : 'vadance';
+  const cap = mode === 'vadite' ? b.vaditeCap : b.vadanceCap;
+
+  const tab = (m, lbl) => `<button onclick="iciSetMode('${m}')" style="padding:.32rem .85rem;border-radius:100px;border:1px solid ${mode === m ? 'var(--forest)' : 'rgba(46,102,66,.2)'};background:${mode === m ? 'rgba(1,130,98,.1)' : 'white'};color:${mode === m ? 'var(--forest)' : 'var(--moss)'};font-size:.68rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s">${lbl}</button>`;
+
+  const triptyque = ICI_LIVRES.map((l) => {
+    const meta = ICI_LIVRE_META[l];
+    const sc = cap[l];
+    const low = sc != null && sc < ICI_PLANCHER;
+    return `<div style="background:white;border:1px solid ${low ? 'rgba(184,78,53,.35)' : 'rgba(46,102,66,.12)'};border-top:3px solid ${meta.col};border-radius:var(--r-lg);padding:.85rem 1rem">
+      <div style="display:flex;align-items:center;gap:.4rem;font-size:.66rem;font-weight:700;color:${meta.col};margin-bottom:.35rem">${meta.ic} ${meta.label}</div>
+      <div style="font-family:'Satoshi', sans-serif;font-size:1.5rem;font-weight:900;color:var(--ink);line-height:1">${iciFmtScore(sc)}<span style="font-size:.7rem;font-weight:700;opacity:.4">/100</span></div>
+      <div style="height:5px;background:rgba(46,102,66,.08);border-radius:100px;overflow:hidden;margin-top:.45rem"><div style="height:100%;width:${sc == null ? 0 : Math.round(sc)}%;background:${meta.col};border-radius:100px;transition:width .5s ease"></div></div>
+      ${low ? '<div style="font-size:.58rem;color:var(--terracotta);font-weight:600;margin-top:.35rem">⚠ sous le plancher</div>' : ''}
+    </div>`;
+  }).join('');
+
+  const globalBox = (col, eyebrow, val, sub) => `<div style="background:${col}0d;border:1px solid ${col}26;border-radius:var(--r-lg);padding:.7rem .85rem">
+    <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:${col}">${eyebrow}</div>
+    <div style="font-family:'Satoshi', sans-serif;font-size:1.35rem;font-weight:900;color:${col};line-height:1.1">${val}</div>
+    <div style="font-size:.56rem;color:var(--moss);opacity:.6">${sub}</div>
+  </div>`;
+
+  box.innerHTML = `
+    <div class="dash-card" style="margin-bottom:1rem">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:.7rem">
+        <div>
+          <div style="font-size:.84rem;font-weight:700;color:var(--ink)">🌍 Mesure d'impact · triple capital</div>
+          <div style="font-size:.66rem;color:var(--moss);opacity:.7;margin-top:.15rem">Promesse (Vadance) vs preuve (Vadité). On n'agrège que des sous-scores 0–100, jamais d'unités brutes, jamais de monétisation.</div>
+        </div>
+        <div style="display:flex;gap:.35rem;flex-shrink:0">${tab('vadance', 'Vadance')}${tab('vadite', 'Vadité')}</div>
+      </div>
+      ${b.alertePlancher ? `<div style="display:flex;align-items:center;gap:.5rem;background:rgba(184,78,53,.08);border:1px solid rgba(184,78,53,.25);border-radius:var(--r);padding:.6rem .85rem;margin-bottom:.8rem;font-size:.7rem;color:var(--terracotta);font-weight:600">⚠ Un capital est sous le plancher (${iciFmtScore(b.minCapital)}/${b.plancher}) — score global à interpréter avec prudence. Pas de compensation entre capitaux.</div>` : ''}
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin-bottom:.9rem">${triptyque}</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem">
+        ${globalBox('#018262', 'Vadance · promesse', iciFmtScore(b.vadanceGlobal) + '<span style="font-size:.65rem;opacity:.4">/100</span>', 'score global projeté')}
+        ${globalBox('#3a6e8c', 'Vadité · preuve', iciFmtScore(b.vaditeGlobal) + '<span style="font-size:.65rem;opacity:.4">/100</span>', 'global prouvé · décoté preuve')}
+        ${globalBox('#c8732a', 'Taux de tenue', (b.tauxDeTenue == null ? '—' : Math.round(b.tauxDeTenue) + '%'), 'Vadité / Vadance')}
+      </div>
+    </div>`;
+}
