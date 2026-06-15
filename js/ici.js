@@ -302,13 +302,41 @@ function iciRenderSaisie() {
     </div>`;
   }).join('');
 
+  const manq = iciPreuvesManquantes();
+  const devaNote = manq.length ? `<div style="display:flex;align-items:center;gap:.6rem;background:rgba(74,200,110,.08);border:1px solid rgba(74,200,110,.28);border-radius:var(--r);padding:.55rem .8rem;margin-bottom:.7rem">
+      <span aria-hidden="true" style="font-size:1rem">✦</span>
+      <div style="flex:1;min-width:0;font-size:.68rem;color:var(--forest);font-weight:600">Deva : ${manq.length} indicateur${manq.length > 1 ? 's ont' : ' a'} une valeur projetée mais pas encore de preuve. Documente-les pour faire monter ta Vadité.</div>
+      <button onclick="iciDevaPreuves()" style="flex-shrink:0;font-size:.64rem;font-weight:700;padding:.32rem .75rem;border-radius:100px;background:var(--forest);color:white;border:none;cursor:pointer">Voir avec Deva →</button>
+    </div>` : '';
+
   box.innerHTML = `<div class="dash-card" style="margin-bottom:1rem">
     <div style="margin-bottom:.5rem">
       <div style="font-size:.82rem;font-weight:700;color:var(--ink)">📝 Mes ICI · saisie</div>
       <div style="font-size:.64rem;color:var(--moss);opacity:.7;margin-top:.1rem">${sols ? icis.length + ' ICI portés par tes solutions déclarées' : 'Aucune solution déclarée — voici les ICI du référentiel (démo)'}. Saisis une fois : valeur <strong style="color:var(--forest)">projetée</strong> (→ Vadance), puis <strong style="color:var(--sky)">prouvée</strong> + niveau de preuve (→ Vadité).</div>
     </div>
+    ${devaNote}
     ${rows}
   </div>`;
+}
+
+/* ── Deva · preuves manquantes (ICI projeté mais sans preuve) ── */
+function iciPreuvesManquantes() {
+  return iciMesuresActives()
+    .filter((m) => m.valeurProjetee != null && (m.valeurProuvee == null || m.niveauPreuve == null))
+    .map((m) => iciGetICI(m.iciId))
+    .filter(Boolean);
+}
+
+function iciDevaPreuves() {
+  const manq = iciPreuvesManquantes();
+  if (typeof devaToggleChat === 'function' && typeof devaChatOpen !== 'undefined' && !devaChatOpen) devaToggleChat();
+  if (typeof devaAddMessage !== 'function') return;
+  if (!manq.length) {
+    devaAddMessage('deva', 'Bonne nouvelle 🌿 chaque valeur projetée a une preuve associée : ta Vadité reflète bien ce qui est documenté.');
+    return;
+  }
+  const liste = manq.map((i) => '• ' + i.nom).join('\n');
+  devaAddMessage('deva', '🔎 ' + manq.length + (manq.length > 1 ? ' indicateurs ont' : ' indicateur a') + ' une valeur projetée mais pas encore de preuve :\n' + liste + '\n\nRenseigne leur valeur prouvée + le niveau de preuve pour faire monter ta Vadité 🌱');
 }
 
 /* ════════════════════ EXPORTS · vues dérivées (ODD / ESRS / VSME) ════════════════════ */
