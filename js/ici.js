@@ -310,3 +310,48 @@ function iciRenderSaisie() {
     ${rows}
   </div>`;
 }
+
+/* ════════════════════ EXPORTS · vues dérivées (ODD / ESRS / VSME) ════════════════════ */
+
+// Correspondances illustratives (PAS des conversions ; lacunes assumées).
+// L'ICI reste la donnée canonique ; ODD/ESRS/VSME en sont des lectures.
+const ICI_EXPORTS = {
+  eco_co2:       { odd: [7, 13],  esrs: ['E1'],       vsme: ['B3 · Énergie & GES'] },
+  eco_renat:     { odd: [15],     esrs: ['E4'],       vsme: ['B5 · Biodiversité'] },
+  soc_insertion: { odd: [8, 10],  esrs: ['S1', 'S3'], vsme: ['B8 · Main-d\'œuvre'] },
+  soc_formation: { odd: [4],      esrs: ['S1'],       vsme: ['B9 · Formation & développement'] },
+  eco_emplois:   { odd: [8],      esrs: ['S1', 'S3'], vsme: ['B8 · Main-d\'œuvre'] },
+  eco_approv:    { odd: [12],     esrs: ['S2'],       vsme: ['C2 · Chaîne de valeur'] },
+};
+
+function iciRenderExports() {
+  const box = document.getElementById('ici-exports');
+  if (!box) return;
+  const oddMeta = (typeof ODD_META !== 'undefined') ? ODD_META : {};
+  const esrsLbl = (typeof ESRS_LABELS !== 'undefined') ? ESRS_LABELS : {};
+  const chip = (txt, col) => `<span style="display:inline-block;font-size:.58rem;font-weight:700;padding:.12rem .42rem;border-radius:100px;background:${col}1a;color:${col};border:1px solid ${col}33;margin:.08rem">${txt}</span>`;
+  const th = (t) => `<th style="padding:.4rem;font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--moss);text-align:left">${t}</th>`;
+
+  const rows = ICI_CATALOG.map((ici) => {
+    const meta = ICI_LIVRE_META[ici.livre];
+    const ex = ICI_EXPORTS[ici.id] || { odd: [], esrs: [], vsme: [] };
+    const odd = ex.odd.map((n) => { const m = oddMeta[n] || { c: '#3f7e44' }; return chip('ODD ' + n, m.c); }).join('') || '—';
+    const esrs = ex.esrs.map((e) => chip('ESRS ' + e + (esrsLbl[e] ? ' · ' + esrsLbl[e] : ''), '#3a6e8c')).join('') || '—';
+    const vsme = ex.vsme.map((v) => chip(v, '#c8732a')).join('') || '—';
+    return `<tr style="border-bottom:1px solid rgba(46,102,66,.07)">
+      <td style="padding:.5rem .4rem;font-size:.72rem;font-weight:600;color:var(--ink);white-space:nowrap">${meta.ic} ${ici.nom}</td>
+      <td style="padding:.45rem .4rem">${odd}</td>
+      <td style="padding:.45rem .4rem">${esrs}</td>
+      <td style="padding:.45rem .4rem">${vsme}</td>
+    </tr>`;
+  }).join('');
+
+  box.innerHTML = `<div class="dash-card" style="margin-bottom:1rem">
+    <div style="font-size:.82rem;font-weight:700;color:var(--ink)">🔗 Exports · correspondances ODD / ESRS / VSME</div>
+    <div style="font-size:.64rem;color:var(--moss);opacity:.7;margin:.1rem 0 .7rem">Lecture seule, dérivée des ICI. Ce sont des <strong>correspondances</strong>, pas des conversions : les lacunes sont assumées. Une saisie → des preuves → plusieurs exports.</div>
+    <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:540px">
+      <thead><tr style="border-bottom:1.5px solid rgba(46,102,66,.15)">${th('Indicateur (ICI)')}${th('ODD')}${th('ESRS · CSRD')}${th('VSME')}</tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>
+  </div>`;
+}

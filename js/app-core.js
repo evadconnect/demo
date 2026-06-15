@@ -6502,7 +6502,7 @@ function piloteTab(tab, btn) {
   const panel = document.getElementById('pilote-panel-' + tab);
   if (panel) panel.classList.add('active');
   if (tab === 'marketplace') setTimeout(pmktRenderOffers, 50);
-  if (tab === 'dossiers')   { setTimeout(initDossiers, 50); if (typeof iciRenderMesureImpact === 'function') setTimeout(() => { iciRenderMesureImpact(); iciRenderSaisie(); }, 50); }
+  if (tab === 'dossiers')   { setTimeout(initDossiers, 50); if (typeof iciRenderMesureImpact === 'function') setTimeout(() => { iciRenderMesureImpact(); iciRenderSaisie(); iciRenderExports(); }, 50); }
   if (tab === 'quetes')     { if (typeof syncPiloteQuetesFromLieu === 'function') syncPiloteQuetesFromLieu(); setTimeout(renderPiloteQuetes, 50); }
   if (tab === 'fiche')      {
     // Reflète le lieu créé : identité + espaces + carte mentale
