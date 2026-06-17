@@ -4590,6 +4590,7 @@ function togSol(nom){
       el.style.borderColor=nowSel?e.c+'55':'rgba(130,130,130,.2)';
       el.style.background=nowSel?e.bg:'rgba(130,130,130,.05)';
       el.style.fontWeight=nowSel?'600':'400';
+      mmIciNodes(nom, parseFloat(el.style.left), parseFloat(el.style.top));
     }
   });
   // Update panel row in-place
@@ -4663,6 +4664,7 @@ function genMM(espItems){
           nd.style.cursor='pointer';
           nd.title=sol.impact;
           nd.onclick=()=>togSol(sol.nom);
+          mmIciNodes(sol.nom, sx, sy);
         },j*140);
       });
     },i*220);
@@ -4670,10 +4672,40 @@ function genMM(espItems){
   setTimeout(()=>mmBubble(picked.length+' solution'+(picked.length>1?'s':'')+' proposée'+(picked.length>1?'s':'')+' · Clique pour sélectionner'),items.length*220+500);
 }
 
+/* Sous-nœuds ICI sous une solution sélectionnée (mind map de création).
+   Montre l'impact projeté que porte la solution (couleur = capital). */
+function mmIciNodes(solNom, sx, sy){
+  const safe = String(solNom).replace(/[^a-zA-Z0-9]/g, '_');
+  document.querySelectorAll('[id^="mn-ici-' + safe + '-"]').forEach(e => e.remove());
+  document.querySelectorAll('line[data-ici="' + safe + '"]').forEach(e => e.remove());
+  if (!(cData.solutions || []).includes(solNom)) return;
+  const icis = (typeof iciPourSolution === 'function') ? iciPourSolution(solNom) : [];
+  if (!icis.length) return;
+  const st = window._mmStep4State || { cx: mmW() / 2, cy: mmH() / 2 };
+  const cx = st.cx, cy = st.cy;
+  const baseA = Math.atan2(sy - cy, sx - cx);
+  const rIci = Math.hypot(sx - cx, sy - cy) + 58;
+  const svg = document.getElementById('mm-svg');
+  icis.forEach((ici, k) => {
+    const meta = (typeof ICI_LIVRE_META !== 'undefined' ? ICI_LIVRE_META[ici.livre] : null) || { ic: '◆', col: '#4a8c5c' };
+    const ia = baseA + (k - (icis.length - 1) / 2) * 0.34;
+    const ix = cx + rIci * Math.cos(ia), iy = cy + rIci * Math.sin(ia);
+    const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    l.setAttribute('x1', sx); l.setAttribute('y1', sy); l.setAttribute('x2', ix); l.setAttribute('y2', iy);
+    l.setAttribute('stroke', meta.col + '66'); l.setAttribute('stroke-width', '1.2');
+    l.setAttribute('stroke-dasharray', '3,4'); l.setAttribute('stroke-linecap', 'round'); l.setAttribute('opacity', '0.85');
+    l.setAttribute('data-ici', safe);
+    if (svg) svg.appendChild(l);
+    const nd = mmAdd('ici-' + safe + '-' + k, meta.ic + ' ' + ici.nom, ix, iy, 'ici', meta.col, meta.col + '22');
+    nd.style.fontSize = '.6rem'; nd.style.padding = '.2rem .45rem'; nd.style.fontWeight = '700'; nd.style.borderColor = meta.col + '66';
+    nd.title = (ici.unite || '') + ' · cible ' + ici.point100;
+  });
+}
+
 function mmRefreshSolsStep4() {
   if (!window._mmStep4EspPos || !window._mmStep4State) return;
-  // Remove all solution nodes
-  document.querySelectorAll('[id^="mn-sol-"]').forEach(e => e.remove());
+  // Remove all solution + ICI nodes
+  document.querySelectorAll('[id^="mn-sol-"],[id^="mn-ici-"]').forEach(e => e.remove());
   // Rebuild SVG (espace lines + solution branches)
   const svg = document.getElementById('mm-svg');
   svg.innerHTML = '';
@@ -4696,6 +4728,7 @@ function mmRefreshSolsStep4() {
       nd.style.cursor = 'pointer';
       nd.title = sol.impact || '';
       nd.onclick = () => togSol(sol.nom);
+      mmIciNodes(sol.nom, sx, sy);
     });
   });
   const total = Object.values(cData.solsByEspace).flat().length;
