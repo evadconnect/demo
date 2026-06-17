@@ -12,7 +12,7 @@
         crossorigin=""
     />
         
-<link rel="stylesheet" href="css/styles.css?v=10">
+<link rel="stylesheet" href="css/styles.css?v=11">
 </head>
 <body>
 
@@ -111,7 +111,7 @@
 </div>
 
 
-<script src="js/splash-onboarding.js?v=10"></script>
+<script src="js/splash-onboarding.js?v=11"></script>
 
 <div class="app">
 
@@ -1576,7 +1576,7 @@
   </div>
 </div>
 
-<script src="js/data-nextcloud.js?v=10"></script>
+<script src="js/data-nextcloud.js?v=11"></script>
 
 <!-- ═══ ÉCRAN : RÉSEAU (réseau social solarpunk) ═══ -->
 <div class="screen" id="screen-reseau">
@@ -1757,9 +1757,9 @@
   </div>
 </div>
 
-<script src="js/data-reseau.js?v=10"></script>
+<script src="js/data-reseau.js?v=11"></script>
 
-<script src="js/regen-loop.js?v=10"></script>
+<script src="js/regen-loop.js?v=11"></script>
 
 <!-- Modale ajout/édition offre Pilote -->
 <div id="pmkt-modal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(14,26,18,0.75);backdrop-filter:blur(6px);align-items:center;justify-content:center">
@@ -2328,7 +2328,6 @@
   <div class="topbar">
     <div><div class="topbar-title">✦ Créer un lieu</div><div class="topbar-sub">Mind map et plan d'action générés par Deva</div></div>
     <div class="topbar-actions">
-      <button class="btn btn-ghost" onclick="devaAideCreer()" title="Deva t'aide pour cette étape" style="background:rgba(1,130,98,.08);color:var(--forest);border:1px solid rgba(1,130,98,.22)">✦ Demander à Deva</button>
       <button class="btn btn-ghost" onclick="creerReset()">↺ Recommencer</button>
       <button class="btn btn-primary" id="creer-save-btn" style="display:none" onclick="createLieuOnMap()">Créer le lieu →</button>
     </div>
@@ -2342,6 +2341,16 @@
       </div>
     </div>
     <div class="mm-stage">
+        <!-- Bulle d'aide Deva (clique → ouvre le chatbot avec l'aide contextuelle) -->
+        <div id="creer-deva-bubble" style="position:absolute;left:20px;bottom:18px;z-index:30;max-width:300px;font-family:'Satoshi',sans-serif">
+          <div id="creer-deva-tip" onclick="devaAideCreer()" style="position:relative;cursor:pointer;background:linear-gradient(160deg,#1f4a37,#143126);border:1px solid rgba(126,201,176,.3);border-radius:20px;padding:.85rem 1rem .9rem;box-shadow:0 14px 36px -10px rgba(0,30,20,.55);color:#fff;transition:transform .15s" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+            <button onclick="event.stopPropagation();document.getElementById('creer-deva-tip').style.display='none'" title="Masquer" style="position:absolute;top:.5rem;right:.5rem;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.14);border:none;color:#fff;cursor:pointer;font-size:.78rem;line-height:1;display:flex;align-items:center;justify-content:center">✕</button>
+            <div style="font-size:.92rem;font-weight:800;color:var(--sage);margin-bottom:.3rem">Deva</div>
+            <div style="font-size:.86rem;line-height:1.45;padding-right:1.2rem">Bonjour ! Une question sur EVAD ? Clique ici, je te réponds.</div>
+            <div style="position:absolute;left:30px;bottom:-7px;width:15px;height:15px;background:#143126;border-right:1px solid rgba(126,201,176,.3);border-bottom:1px solid rgba(126,201,176,.3);transform:rotate(45deg)"></div>
+          </div>
+          <img src="Deva.png" alt="Deva" onclick="devaAideCreer()" title="Demander à Deva" style="width:82px;height:82px;object-fit:contain;object-position:bottom;display:block;margin-top:.45rem;margin-left:2px;cursor:pointer;transform:scaleX(-1) rotate(8deg);filter:drop-shadow(0 0 8px rgba(74,200,100,.4))">
+        </div>
         <div class="mm-stage-grid"></div>
         <div class="mm-stage-glow mm-stage-glow-1"></div>
         <div class="mm-stage-glow mm-stage-glow-2"></div>
@@ -2499,7 +2508,7 @@
 
 
 
-<script src="js/app-core.js?v=10"></script>
+<script src="js/app-core.js?v=11"></script>
 
 <script
   src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -2558,9 +2567,9 @@
   </div>
 </div>
 
-<script src="js/deva.js?v=10"></script>
+<script src="js/deva.js?v=11"></script>
 
-<script src="js/nav-mobile.js?v=10"></script>
+<script src="js/nav-mobile.js?v=11"></script>
 
 <!-- ── Modal : Choisir ton profil ── -->
 <div id="auth-profil-modal" style="display:none;position:fixed;inset:0;z-index:10001;background:rgba(14,26,18,.6);backdrop-filter:blur(6px);align-items:center;justify-content:center">
@@ -2603,7 +2612,7 @@
 </div>
 
 
-<script src="js/auth.js?v=10"></script>
+<script src="js/auth.js?v=11"></script>
 
 <!-- Espace modal, placé au niveau body pour rester accessible depuis tous les contextes -->
 <div id="espace-modal">
@@ -2701,14 +2710,14 @@
     </div>
   </div>
 </div>
-<script src="js/espace-modal.js?v=10"></script>
+<script src="js/espace-modal.js?v=11"></script>
 
 <!-- ═══════════════════════════════════════════════════════
      COUCHE DE CONVERGENCE, PERMA-COMPTABILITÉ EVAD
      Saisie unique → traduction multi-cadres institutionnels
      ═══════════════════════════════════════════════════════ -->
-<script src="js/quetes.js?v=10"></script>
-<script src="js/ici.js?v=10"></script>
+<script src="js/quetes.js?v=11"></script>
+<script src="js/ici.js?v=11"></script>
 
 <!-- ─── MODAL CONTRIBUER ─── -->
 <div id="contrib-modal" style="display:none;position:fixed;inset:0;z-index:10002;background:rgba(14,26,18,.65);backdrop-filter:blur(7px);align-items:flex-end;justify-content:center;overflow:hidden">
@@ -2872,7 +2881,7 @@
   </div>
 </div>
 
-<script src="js/contribution.js?v=10"></script>
+<script src="js/contribution.js?v=11"></script>
 
 <!-- Modal détail solution (créer lieu step 4) -->
 <div id="creer-sol-detail-modal" style="display:none;position:fixed;inset:0;z-index:10010;background:rgba(13,43,34,.6);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)creerCloseSolDetail()">
@@ -2885,7 +2894,7 @@
   </div>
 </div>
 
-<script src="js/fil-rouge-feedback.js?v=10"></script>
+<script src="js/fil-rouge-feedback.js?v=11"></script>
 
 </body>
 </html>
