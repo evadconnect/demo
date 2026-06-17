@@ -72,9 +72,6 @@ Gouvernance : le Conseil Régénératif définit les orientations, vote les budg
 Quatre fondations : l'économie régénérative, le mouvement solarpunk (à la croisée de la culture, de la science et d'un futur désirable), l'écocratie (gouvernance au service du vivant), et la gamification (des mécaniques de jeu au service de l'engagement).
 Mécénat : chaque euro finance des impacts vérifiés par le Conseil Régénératif, sans greenwashing. Don défiscalisé (par exemple 100 € ne coûtent que 34 €), avec des partenariats de mécénat sur mesure alignés sur les engagements RSE. Les données des inscrits ne sont jamais revendues.
 
-## Note sur les noms du parcours (REGEN et VADE)
-Le site public evad.org présente le parcours comme la « boucle REGEN » en cinq étapes : Rêver, Explorer, Générer, Entreprendre, Nourrir. Dans la plateforme et la charte des ICI, ce même parcours est formalisé comme la Boucle VADE en quatre étapes : Valoriser, Activer, Développer, Élever. C'est le même cheminement, à deux niveaux de lecture. Le score d'un lieu s'appelle aujourd'hui la Vadance (et non plus le « score REGEN »).
-
 ## FAQ
 - EVAD, c'est quoi en une phrase ? L'écosystème régénératif qui relie lieux, citoyens et financeurs autour d'une économie régénérative, avec des quêtes concrètes et des preuves d'impact mesurables.
 - C'est payant ? La bêta est gratuite : on s'inscrit pour tester le prototype en avant-première.
