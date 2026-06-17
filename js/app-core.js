@@ -3754,25 +3754,32 @@ function creerReset(){initCreer();}
    Les points viennent du potentiel d'impact de ce que le Pilote déclare
    (solutions = ICI, espaces, ambition), pas juste du remplissage. ── */
 const VADANCE_PALIERS = [
-  { min: 90, label: '🚀 Lieu ambitieux' },
-  { min: 70, label: '✨ Prêt à publier' },
-  { min: 40, label: '🌳 Lieu décrit' },
+  { min: 88, label: '🚀 Lieu à fort impact' },
+  { min: 65, label: '✨ Prêt à publier' },
+  { min: 38, label: '🌱 Impact déclaré' },
   { min: 10, label: '🌿 Lieu esquissé' },
 ];
 let creerLastVadance = 0;
 
 function creerVadance(){
   let v = 0;
-  if (cData.nom) v += 5;
-  if (cData.localisation) v += 5;
-  if (cData.type) v += 5;
-  if (cData.desc && cData.desc.trim().length > 15) v += 8;
-  if (cData.phase) v += 5;
-  if (cData.annee) v += 2;
-  if (cData.surface) v += 2;
-  if (cData.statut) v += 2;
-  v += Math.min(3, (cData.espacesData || []).length) * 8;
-  v += Math.min(6, (cData.solutions || []).length) * 11;
+  // Fondations (mise en place) : peu de points, ce n'est PAS de l'impact.
+  if (cData.nom) v += 3;
+  if (cData.type) v += 3;
+  if (cData.localisation) v += 2;
+  if (cData.desc && cData.desc.trim().length > 15) v += 3;
+  if (cData.phase) v += 2;
+  // (année / surface / statut : 0 point, pur remplissage administratif)
+
+  // Impact projeté : les espaces structurent, les solutions PORTENT l'impact (ICI).
+  v += Math.min(3, (cData.espacesData || []).length) * 5;
+  let solPts = 0;
+  (cData.solutions || []).forEach(nom => {
+    const nbIci = (typeof iciPourSolution === 'function') ? iciPourSolution(nom).length : 0;
+    solPts += 10 + nbIci * 6;   // base impact + bonus par ICI réel porté (CO₂ évité, m² renaturés…)
+  });
+  v += Math.min(72, solPts);    // l'impact déclaré domine le score
+
   return Math.min(100, v);
 }
 const creerVadancePalier = (s) => VADANCE_PALIERS.find(p => s >= p.min) || null;
