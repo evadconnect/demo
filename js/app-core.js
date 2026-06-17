@@ -3554,6 +3554,15 @@ function initCreer(){
   if(!cOk){cOk=true;}
   cStep=0; cData=_CDATA_EMPTY();
   renderStep(); initMM();
+  // Gamification : brancher la jauge de Vadance projetée (une seule fois)
+  const cc = document.getElementById('creer-step-content');
+  if (cc && !cc._vadanceHooked) {
+    cc._vadanceHooked = true;
+    cc.addEventListener('input', () => setTimeout(creerUpdateVadance, 0));
+    cc.addEventListener('click', () => setTimeout(creerUpdateVadance, 40));
+  }
+  creerLastVadance = 0;
+  if (typeof creerUpdateVadance === 'function') creerUpdateVadance(true);
 }
 
 let _geoTimer=null;
@@ -3741,6 +3750,79 @@ function addBesoinCustom() {
 
 function creerReset(){initCreer();}
 
+/* ─── Gamification : Vadance projetée vivante pendant la création ───
+   Les points viennent du potentiel d'impact de ce que le Pilote déclare
+   (solutions = ICI, espaces, ambition), pas juste du remplissage. ── */
+const VADANCE_PALIERS = [
+  { min: 90, label: '🚀 Lieu ambitieux' },
+  { min: 70, label: '✨ Prêt à publier' },
+  { min: 40, label: '🌳 Lieu décrit' },
+  { min: 10, label: '🌿 Lieu esquissé' },
+];
+let creerLastVadance = 0;
+
+function creerVadance(){
+  let v = 0;
+  if (cData.nom) v += 5;
+  if (cData.localisation) v += 5;
+  if (cData.type) v += 5;
+  if (cData.desc && cData.desc.trim().length > 15) v += 8;
+  if (cData.phase) v += 5;
+  if (cData.annee) v += 2;
+  if (cData.surface) v += 2;
+  if (cData.statut) v += 2;
+  v += Math.min(3, (cData.espacesData || []).length) * 8;
+  v += Math.min(6, (cData.solutions || []).length) * 11;
+  return Math.min(100, v);
+}
+const creerVadancePalier = (s) => VADANCE_PALIERS.find(p => s >= p.min) || null;
+
+function creerUpdateVadance(silent){
+  const v = creerVadance();
+  const bar = document.getElementById('creer-vadance-bar');
+  if (!bar) { creerLastVadance = v; return; }
+  bar.style.width = v + '%';
+  const valEl = document.getElementById('creer-vadance-val'); if (valEl) valEl.textContent = v;
+  const p = creerVadancePalier(v);
+  const palEl = document.getElementById('creer-vadance-palier'); if (palEl) palEl.textContent = p ? p.label : '';
+  if (!silent) {
+    const delta = v - creerLastVadance;
+    if (delta > 0) creerVadanceFloat('+' + delta);
+    const prevP = creerVadancePalier(creerLastVadance);
+    if (p && (!prevP || p.min > prevP.min)) creerVadanceCelebrate(p.label);
+  }
+  creerLastVadance = v;
+}
+
+function creerVadanceFloat(txt){
+  const g = document.getElementById('creer-vadance'); if (!g) return;
+  const f = document.createElement('div');
+  f.textContent = txt + ' 🌱';
+  f.style.cssText = 'position:absolute;top:44px;left:50%;transform:translateX(-50%);z-index:26;font-family:Satoshi,sans-serif;font-weight:900;font-size:.92rem;color:#018262;pointer-events:none;text-shadow:0 2px 6px rgba(255,255,255,.8);animation:vadFloat 1s ease-out forwards';
+  g.parentElement.appendChild(f);
+  setTimeout(() => f.remove(), 1000);
+  g.style.animation = 'none'; void g.offsetWidth; g.style.animation = 'vadPop .42s ease';
+}
+
+function creerVadanceCelebrate(label){
+  const g = document.getElementById('creer-vadance'); if (!g) return;
+  const host = g.parentElement;
+  ['✨','🌱','💚','✨','🌿'].forEach((e, i) => {
+    const ang = (i / 5) * Math.PI * 2;
+    const s = document.createElement('div');
+    s.textContent = e;
+    s.style.cssText = 'position:absolute;top:26px;left:50%;z-index:27;font-size:1.15rem;pointer-events:none;transform:translate(-50%,0);transition:transform .85s cubic-bezier(.2,.8,.2,1),opacity .85s ease-out';
+    host.appendChild(s);
+    requestAnimationFrame(() => { s.style.transform = 'translate(calc(-50% + ' + Math.round(Math.cos(ang) * 72) + 'px), ' + Math.round(-32 - Math.abs(Math.sin(ang)) * 46) + 'px)'; s.style.opacity = '0'; });
+    setTimeout(() => s.remove(), 880);
+  });
+  const t = document.createElement('div');
+  t.textContent = 'Palier atteint · ' + label;
+  t.style.cssText = 'position:absolute;top:52px;left:50%;transform:translateX(-50%);z-index:28;background:#018262;color:#fff;font-family:Satoshi,sans-serif;font-weight:800;font-size:.7rem;padding:.4rem .85rem;border-radius:100px;box-shadow:0 10px 24px -6px rgba(1,130,98,.6);white-space:nowrap;pointer-events:none;animation:vadFloat 1.7s ease-out forwards';
+  host.appendChild(t);
+  setTimeout(() => t.remove(), 1700);
+}
+
 // Écran d'attente « Deva cherche… » affiché avant de révéler un résultat
 // généré (solutions d'un lieu, quêtes d'un bâtisseur). opts = {title, msgs}.
 function renderDevaSearching(c, opts){
@@ -3808,6 +3890,7 @@ function devaPillClick(){
 
 function renderStep(){
   navWizardSet(STEPS.map(s=>s.t), cStep, (i)=>{ cStep=i; renderStep(); });
+  if (typeof creerUpdateVadance === 'function') creerUpdateVadance();
   document.getElementById('creer-prev').style.display=cStep>0?'block':'none';
   const nx=document.getElementById('creer-next');
   const sv=document.getElementById('creer-save-btn');

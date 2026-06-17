@@ -3727,3 +3727,7 @@ body {
 .role-switch3 .rsw-btn .rsw-ic { font-size: 1rem; line-height: 1; }
 .role-switch3 .rsw-btn:hover { background: rgba(207,238,231,0.12); color: var(--cream); }
 .role-switch3 .rsw-btn.active { background: var(--cream); color: var(--forest); border-color: var(--cream); }
+
+/* Gamification Vadance (création de lieu) */
+@keyframes vadFloat { 0%{opacity:0;transform:translateX(-50%) translateY(6px) scale(.9)} 18%{opacity:1} 100%{opacity:0;transform:translateX(-50%) translateY(-28px) scale(1)} }
+@keyframes vadPop { 0%{transform:translateX(-50%) scale(1)} 40%{transform:translateX(-50%) scale(1.07)} 100%{transform:translateX(-50%) scale(1)} }

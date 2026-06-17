@@ -12,7 +12,7 @@
         crossorigin=""
     />
         
-<link rel="stylesheet" href="css/styles.css?v=12">
+<link rel="stylesheet" href="css/styles.css?v=13">
 </head>
 <body>
 
@@ -111,7 +111,7 @@
 </div>
 
 
-<script src="js/splash-onboarding.js?v=12"></script>
+<script src="js/splash-onboarding.js?v=13"></script>
 
 <div class="app">
 
@@ -1584,7 +1584,7 @@
   </div>
 </div>
 
-<script src="js/data-nextcloud.js?v=12"></script>
+<script src="js/data-nextcloud.js?v=13"></script>
 
 <!-- ═══ ÉCRAN : RÉSEAU (réseau social solarpunk) ═══ -->
 <div class="screen" id="screen-reseau">
@@ -1765,9 +1765,9 @@
   </div>
 </div>
 
-<script src="js/data-reseau.js?v=12"></script>
+<script src="js/data-reseau.js?v=13"></script>
 
-<script src="js/regen-loop.js?v=12"></script>
+<script src="js/regen-loop.js?v=13"></script>
 
 <!-- Modale ajout/édition offre Pilote -->
 <div id="pmkt-modal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(14,26,18,0.75);backdrop-filter:blur(6px);align-items:center;justify-content:center">
@@ -2349,6 +2349,13 @@
       </div>
     </div>
     <div class="mm-stage">
+        <!-- Jauge de Vadance projetée (gamification de la création) -->
+        <div id="creer-vadance" style="position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:25;background:rgba(255,255,255,.96);border:1px solid rgba(46,102,66,.14);border-radius:100px;padding:.5rem .55rem .5rem .95rem;box-shadow:0 10px 28px -10px rgba(0,40,30,.3);display:flex;align-items:center;gap:.7rem;font-family:'Satoshi',sans-serif">
+          <div style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--moss);line-height:1.1">🌱 Vadance<br>projetée</div>
+          <div style="width:120px;height:9px;background:rgba(46,102,66,.1);border-radius:100px;overflow:hidden"><div id="creer-vadance-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#5aaa78,#018262);border-radius:100px;transition:width .55s cubic-bezier(.2,.8,.2,1)"></div></div>
+          <div style="display:flex;align-items:baseline;gap:.05rem;min-width:46px"><span id="creer-vadance-val" style="font-size:1.25rem;font-weight:900;color:#018262;line-height:1">0</span><span style="font-size:.6rem;font-weight:700;color:#018262;opacity:.4">/100</span></div>
+          <div id="creer-vadance-palier" style="font-size:.62rem;font-weight:800;color:var(--fern);white-space:nowrap;padding-right:.4rem"></div>
+        </div>
         <div class="mm-stage-grid"></div>
         <div class="mm-stage-glow mm-stage-glow-1"></div>
         <div class="mm-stage-glow mm-stage-glow-2"></div>
@@ -2506,7 +2513,7 @@
 
 
 
-<script src="js/app-core.js?v=12"></script>
+<script src="js/app-core.js?v=13"></script>
 
 <script
   src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -2565,9 +2572,9 @@
   </div>
 </div>
 
-<script src="js/deva.js?v=12"></script>
+<script src="js/deva.js?v=13"></script>
 
-<script src="js/nav-mobile.js?v=12"></script>
+<script src="js/nav-mobile.js?v=13"></script>
 
 <!-- ── Modal : Choisir ton profil ── -->
 <div id="auth-profil-modal" style="display:none;position:fixed;inset:0;z-index:10001;background:rgba(14,26,18,.6);backdrop-filter:blur(6px);align-items:center;justify-content:center">
@@ -2610,7 +2617,7 @@
 </div>
 
 
-<script src="js/auth.js?v=12"></script>
+<script src="js/auth.js?v=13"></script>
 
 <!-- Espace modal, placé au niveau body pour rester accessible depuis tous les contextes -->
 <div id="espace-modal">
@@ -2708,14 +2715,14 @@
     </div>
   </div>
 </div>
-<script src="js/espace-modal.js?v=12"></script>
+<script src="js/espace-modal.js?v=13"></script>
 
 <!-- ═══════════════════════════════════════════════════════
      COUCHE DE CONVERGENCE, PERMA-COMPTABILITÉ EVAD
      Saisie unique → traduction multi-cadres institutionnels
      ═══════════════════════════════════════════════════════ -->
-<script src="js/quetes.js?v=12"></script>
-<script src="js/ici.js?v=12"></script>
+<script src="js/quetes.js?v=13"></script>
+<script src="js/ici.js?v=13"></script>
 
 <!-- ─── MODAL CONTRIBUER ─── -->
 <div id="contrib-modal" style="display:none;position:fixed;inset:0;z-index:10002;background:rgba(14,26,18,.65);backdrop-filter:blur(7px);align-items:flex-end;justify-content:center;overflow:hidden">
@@ -2879,7 +2886,7 @@
   </div>
 </div>
 
-<script src="js/contribution.js?v=12"></script>
+<script src="js/contribution.js?v=13"></script>
 
 <!-- Modal détail solution (créer lieu step 4) -->
 <div id="creer-sol-detail-modal" style="display:none;position:fixed;inset:0;z-index:10010;background:rgba(13,43,34,.6);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)creerCloseSolDetail()">
@@ -2892,7 +2899,7 @@
   </div>
 </div>
 
-<script src="js/fil-rouge-feedback.js?v=12"></script>
+<script src="js/fil-rouge-feedback.js?v=13"></script>
 
 </body>
 </html>
