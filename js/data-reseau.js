@@ -3,51 +3,50 @@ const RESEAU_PROFILS = {
   batisseur: {label:'Bâtisseur', color:'#a06c00', bg:'rgba(240,176,50,.18)', ic:'🌿'},
   semeur:    {label:'Semeur',    color:'#2563a8', bg:'rgba(59,130,180,.14)', ic:'🌱'},
 };
-const REGEN_PHASES = {
-  rever:        {label:'Rêver',        letter:'R', color:'#018262'},
-  explorer:     {label:'Explorer',     letter:'E', color:'#2d6a9f'},
-  generer:      {label:'Générer',      letter:'G', color:'#c8732a'},
-  entreprendre: {label:'Entreprendre', letter:'E', color:'#0a7d3f'},
-  nourrir:      {label:'Nourrir',      letter:'N', color:'#6b5b95'},
+const VADE_PHASES = {
+  valoriser:  {label:'Valoriser',  letter:'V', color:'#018262'},
+  activer:    {label:'Activer',    letter:'A', color:'#2d6a9f'},
+  developper: {label:'Développer', letter:'D', color:'#c8732a'},
+  elever:     {label:'Élever',     letter:'E', color:'#6b5b95'},
 };
 const RESEAU_POSTS = [
-  {profile:'pilote', author:'Darwin Écosystème', lieu:'Bordeaux', time:'il y a 1 h', type:'quete', regen:'entreprendre',
+  {profile:'pilote', author:'Darwin Écosystème', lieu:'Bordeaux', time:'il y a 1 h', type:'quete', regen:'developper',
    text:"On agrandit la ferme urbaine 🌱 4 Bâtisseurs ce samedi pour planter et installer le compost des événements. Tous niveaux !",
    quest:{titre:'Agrandir la ferme urbaine', meta:'1 journée · 4 pers. · +8 pts biodiversité'},
    cta:'Rejoindre la quête'},
-  {profile:'batisseur', author:'Hugo D.', lieu:'Bègles', time:'il y a 3 h', type:'rencontre', regen:'explorer',
+  {profile:'batisseur', author:'Hugo D.', lieu:'Bègles', time:'il y a 3 h', type:'rencontre', regen:'valoriser',
    text:"Charpentier dispo ce week-end pour un chantier bois & paille 🔨 Un lieu près de Bordeaux a besoin d'un coup de main ?",
    cta:'Proposer un créneau'},
-  {profile:'semeur', author:'Région Nouvelle-Aquitaine', lieu:'Bordeaux', time:'il y a 5 h', type:'quete', regen:'generer',
+  {profile:'semeur', author:'Région Nouvelle-Aquitaine', lieu:'Bordeaux', time:'il y a 5 h', type:'quete', regen:'activer',
    text:"On finance 5 quêtes énergie & alimentation ce trimestre via Néo Terra 🌍 Lieux à impact, candidatez avant fin mars !",
    cta:'Voir les critères'},
-  {profile:'pilote', author:'Le Garage Moderne', lieu:'Bordeaux', time:'hier', type:'quete', regen:'nourrir',
+  {profile:'pilote', author:'Le Garage Moderne', lieu:'Bordeaux', time:'hier', type:'quete', regen:'elever',
    text:"Atelier vélo participatif samedi 🚲 On répare ensemble, on apprend, on partage. Apportez votre vélo en panne !",
    quest:{titre:'Atelier vélo participatif', meta:'3 h · 6 pers. · mobilité douce'},
    cta:'Rejoindre la quête'},
-  {profile:'batisseur', author:'Karim T.', lieu:'Bordeaux', time:'hier', type:'rencontre', regen:'explorer',
+  {profile:'batisseur', author:'Karim T.', lieu:'Bordeaux', time:'hier', type:'rencontre', regen:'valoriser',
    text:"Électricien solaire, je peux dimensionner une installation PV pour un lieu en transition ☀️ Qui démarre un projet ?",
    cta:'Proposer un créneau'},
-  {profile:'pilote', author:'Supercoop', lieu:'Bordeaux', time:'hier', type:'rencontre', regen:'nourrir',
+  {profile:'pilote', author:'Supercoop', lieu:'Bordeaux', time:'hier', type:'rencontre', regen:'elever',
    text:"Belle assemblée hier : 18 nouveaux coopérateurs 🤝 Merci aux Bâtisseurs qui ont tenu les permanences du magasin !",
    img:'🛒', cta:'Voir le lieu'},
-  {profile:'semeur', author:'ADEME Nouvelle-Aquitaine', lieu:'Cenon', time:'il y a 2 j', type:'quete', regen:'generer',
+  {profile:'semeur', author:'ADEME Nouvelle-Aquitaine', lieu:'Cenon', time:'il y a 2 j', type:'quete', regen:'activer',
    text:"Appel à projets économie circulaire ouvert ♻️ Diagnostic déchets financé pour les lieux engagés dans la réduction.",
    cta:'Voir les critères'},
-  {profile:'batisseur', author:'Manon L.', lieu:'Bordeaux', time:'il y a 2 j', type:'quete', regen:'nourrir',
+  {profile:'batisseur', author:'Manon L.', lieu:'Bordeaux', time:'il y a 2 j', type:'quete', regen:'elever',
    text:"Atelier compostage de quartier terminé ✅ 12 foyers équipés. On remet ça le mois prochain, qui s'inscrit ?",
    cta:'Rejoindre la quête'},
-  {profile:'pilote', author:'Le Jardin de ta Sœur', lieu:'Bordeaux', time:'il y a 3 j', type:'quete', regen:'entreprendre',
+  {profile:'pilote', author:'Le Jardin de ta Sœur', lieu:'Bordeaux', time:'il y a 3 j', type:'quete', regen:'developper',
    text:"Quête verger 🌳 Tailler et pailler les 22 arbres fruitiers avant l'hiver. 5 mains motivées recherchées !",
    quest:{titre:'Entretien du verger', meta:'1 après-midi · 5 pers. · +6 pts biodiversité'},
    cta:'Rejoindre la quête'},
-  {profile:'semeur', author:'MAIF', lieu:'Niort', time:'il y a 3 j', type:'rencontre', regen:'rever',
+  {profile:'semeur', author:'MAIF', lieu:'Niort', time:'il y a 3 j', type:'rencontre', regen:'valoriser',
    text:"Notre fonds d'impact cherche des lieux à utilité sociale et écologique 💚 Présentez-nous vos projets régénératifs !",
    cta:'Échanger'},
-  {profile:'batisseur', author:'Théo R.', lieu:'Bordeaux', time:'il y a 4 j', type:'rencontre', regen:'explorer',
+  {profile:'batisseur', author:'Théo R.', lieu:'Bordeaux', time:'il y a 4 j', type:'rencontre', regen:'valoriser',
    text:"Je remets sur roues les vélos abandonnés et j'initie les habitants à l'autoréparation 🚲 Un lieu pour une permanence ?",
    cta:'Proposer un créneau'},
-  {profile:'pilote', author:'La Halle des Douves', lieu:'Bordeaux', time:'il y a 4 j', type:'quete', regen:'generer',
+  {profile:'pilote', author:'La Halle des Douves', lieu:'Bordeaux', time:'il y a 4 j', type:'quete', regen:'activer',
    text:"On rénove la cuisine partagée 🔧 Besoin de bricoleurs et de dons de matériel. On compte sur le réseau bordelais !",
    quest:{titre:'Rénover la cuisine partagée', meta:'2 week-ends · 6 pers.'},
    cta:'Rejoindre la quête'},
@@ -140,9 +139,9 @@ function reseauRenderRegenFilters(){
     const c = color || 'var(--forest)';
     return `<button onclick="reseauSetRegenFilter('${key}')" style="border:1px solid ${on?c:'rgba(46,102,66,.2)'};background:${on?c:'white'};color:${on?'white':(color||'var(--moss)')};border-radius:100px;padding:.3rem .7rem;font-size:.66rem;font-weight:700;cursor:pointer">${label}</button>`;
   };
-  box.innerHTML = `<span style="font-size:.6rem;font-weight:700;color:var(--moss);opacity:.5;text-transform:uppercase;letter-spacing:.08em;margin-right:.1rem">Phase REGEN</span>`
+  box.innerHTML = `<span style="font-size:.6rem;font-weight:700;color:var(--moss);opacity:.5;text-transform:uppercase;letter-spacing:.08em;margin-right:.1rem">Phase VADE</span>`
     + mk('tout', 'Toutes', null)
-    + Object.entries(REGEN_PHASES).map(([k,v]) => mk(k, v.label, v.color)).join('');
+    + Object.entries(VADE_PHASES).map(([k,v]) => mk(k, v.label, v.color)).join('');
 }
 function reseauSetRegenFilter(r){
   reseauRegenFilter = r;
@@ -158,7 +157,7 @@ function reseauToggleProx(btn){
 /* ─── Composer : formulaires quête / rencontre ─── */
 const RF_INP = "width:100%;border:1px solid rgba(46,102,66,.18);background:rgba(46,102,66,.04);border-radius:8px;padding:.55rem .7rem;font-size:.76rem;color:var(--ink);outline:none;font-family:inherit;margin-bottom:.5rem;box-sizing:border-box;";
 let reseauFormType = 'quete';
-let reseauFormRegen = 'entreprendre';
+let reseauFormRegen = 'activer';
 let reseauFormImg = '';
 function reseauFormPhoto(input){
   const file = input.files[0];
@@ -180,7 +179,7 @@ function reseauRemovePhoto(){
   if(prev) prev.innerHTML = '';
 }
 function reseauRegenChips(){
-  return Object.entries(REGEN_PHASES).map(([k,v])=>{
+  return Object.entries(VADE_PHASES).map(([k,v])=>{
     const on = k===reseauFormRegen;
     return `<button type="button" onclick="reseauFormRegen='${k}';reseauRefreshChips()" style="border:1px solid ${on?v.color:'rgba(46,102,66,.2)'};background:${on?v.color:'white'};color:${on?'white':v.color};border-radius:100px;padding:.25rem .6rem;font-size:.66rem;font-weight:700;cursor:pointer">${v.label}</button>`;
   }).join('');
@@ -191,7 +190,7 @@ function reseauRefreshChips(){
 }
 function reseauOpenForm(type){
   reseauFormType = type;
-  reseauFormRegen = type==='quete' ? 'entreprendre' : 'nourrir';
+  reseauFormRegen = type==='quete' ? 'activer' : 'elever';
   reseauFormImg = '';
   const isQuete = type==='quete';
   const box = document.getElementById('reseau-form');
@@ -213,7 +212,7 @@ function reseauOpenForm(type){
       </label>
       <div id="rf-photo-preview"></div>
     </div>
-    <div style="font-size:.6rem;font-weight:700;color:var(--moss);opacity:.6;text-transform:uppercase;letter-spacing:.1em;margin:.1rem 0 .4rem">Phase REGEN</div>
+    <div style="font-size:.6rem;font-weight:700;color:var(--moss);opacity:.6;text-transform:uppercase;letter-spacing:.1em;margin:.1rem 0 .4rem">Phase VADE</div>
     <div id="rf-regen" style="display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.8rem">${reseauRegenChips()}</div>
     <div style="display:flex;gap:.6rem;justify-content:flex-end">
       <button type="button" onclick="reseauCloseForm()" style="background:none;border:1px solid rgba(46,102,66,.2);color:var(--moss);border-radius:100px;padding:.5rem 1rem;font-size:.74rem;font-weight:700;cursor:pointer">Annuler</button>
@@ -290,7 +289,7 @@ function renderReseau(){
           </div>
         </div>
       </div>` : '';
-    const rg = REGEN_PHASES[p.regen];
+    const rg = VADE_PHASES[p.regen];
     const regenPastille = rg ? `
       <span style="display:inline-flex;align-items:center;gap:.35rem;font-size:.6rem;font-weight:700;color:${rg.color};background:${rg.color}14;border:1px solid ${rg.color}33;border-radius:100px;padding:.2rem .55rem .2rem .25rem">
         <span style="width:15px;height:15px;border-radius:50%;background:${rg.color};color:white;display:inline-flex;align-items:center;justify-content:center;font-size:.52rem;font-weight:900">${rg.letter}</span>${rg.label}
