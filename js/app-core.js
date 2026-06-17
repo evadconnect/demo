@@ -267,16 +267,48 @@ function obRenderSVG() {
   const cl = d.colorLight;
   const ca = d.accent;
 
-  if (obRole === 'pilote') {
-    if (obStep === 0) svgPiloteCycle(svg, c, ca);
-    else svgPiloteCarte(svg, c, ca);
-  } else if (obRole === 'batisseur') {
-    if (obStep === 0) svgBatCycle(svg, c, ca);
-    else svgBatLieux(svg, c, ca);
+  if (obStep === 0) {
+    if (obRole === 'pilote') svgPiloteCycle(svg, c, ca);
+    else if (obRole === 'batisseur') svgBatCycle(svg, c, ca);
+    else svgSemeurCycle(svg, c, ca);
   } else {
-    if (obStep === 0) svgSemeurCycle(svg, c, ca);
-    else svgSemeurLieux(svg, c, ca);
+    // Étape 2 (tous profils) : illustration Vadance (promesse) vs Vadité (preuve)
+    svgVadanceVadite(svg, c, ca);
   }
+}
+
+/* Étape 2 d'onboarding : Vadance (promesse, barre translucide) vs Vadité
+   (preuve, barre pleine décotée), avec le taux de tenue. Commun aux 3 profils. */
+function svgVadanceVadite(svg, c, ca) {
+  const base = 296, top = 92, sc = (base - top) / 100;
+  const vadance = 85, vadite = 55, taux = Math.round(vadite / vadance * 100);
+  const yV = base - vadance * sc, yT = base - vadite * sc;
+  const x1 = 138, x2 = 282, bw = 64;
+  const cream = '#f2ecdb', sub = 'rgba(196,219,201,.6)';
+  const grow = (y, h) =>
+    `<animate attributeName="y" values="${base};${y}" dur="0.9s" begin="0.15s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.16 1 0.3 1"/>` +
+    `<animate attributeName="height" values="0;${h}" dur="0.9s" begin="0.15s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.16 1 0.3 1"/>`;
+  svg.setAttribute('viewBox', '0 0 420 360');
+  svg.innerHTML = `
+    <defs><marker id="vd-ar" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="rgba(255,255,255,.55)"/></marker></defs>
+    <g transform="translate(210,52)">
+      <rect x="-88" y="-17" width="176" height="32" rx="16" fill="rgba(255,255,255,.07)" stroke="${ca}" stroke-opacity=".45"/>
+      <text x="0" y="5" text-anchor="middle" font-size="12" font-weight="800" fill="${cream}" font-family="Satoshi,sans-serif">⚖️ Taux de tenue · ${taux}%</text>
+    </g>
+    <line x1="74" y1="${base}" x2="346" y2="${base}" stroke="rgba(255,255,255,.18)"/>
+    ${[0,50,100].map(v=>{const y=base-v*sc;return `<text x="64" y="${y+3}" text-anchor="end" font-size="9" fill="rgba(196,219,201,.45)" font-family="Satoshi,sans-serif">${v}</text>`;}).join('')}
+    <rect x="${x1-bw/2}" y="${yV}" width="${bw}" height="${vadance*sc}" rx="9" fill="${ca}" fill-opacity=".16" stroke="${ca}" stroke-opacity=".55" stroke-dasharray="5 4">${grow(yV,vadance*sc)}</rect>
+    <text x="${x1}" y="${yV-9}" text-anchor="middle" font-size="23" font-weight="900" fill="${ca}" font-family="Satoshi,sans-serif">${vadance}</text>
+    <text x="${x1}" y="${base+20}" text-anchor="middle" font-size="11" font-weight="700" fill="${cream}" font-family="Satoshi,sans-serif">Vadance</text>
+    <text x="${x1}" y="${base+33}" text-anchor="middle" font-size="9" fill="${sub}" font-family="Satoshi,sans-serif">la promesse</text>
+    <rect x="${x2-bw/2}" y="${yT}" width="${bw}" height="${vadite*sc}" rx="9" fill="${ca}" fill-opacity=".92">${grow(yT,vadite*sc)}</rect>
+    <text x="${x2}" y="${yT-9}" text-anchor="middle" font-size="23" font-weight="900" fill="${cream}" font-family="Satoshi,sans-serif">${vadite}</text>
+    <text x="${x2}" y="${base+20}" text-anchor="middle" font-size="11" font-weight="700" fill="${cream}" font-family="Satoshi,sans-serif">Vadité</text>
+    <text x="${x2}" y="${base+33}" text-anchor="middle" font-size="9" fill="${sub}" font-family="Satoshi,sans-serif">la preuve</text>
+    <line x1="${x1+bw/2+4}" y1="${yV}" x2="${x2+bw/2+18}" y2="${yV}" stroke="${ca}" stroke-opacity=".35" stroke-dasharray="3 3"/>
+    <line x1="${x2+bw/2+14}" y1="${yV}" x2="${x2+bw/2+14}" y2="${yT}" stroke="rgba(255,255,255,.45)" stroke-width="1.4" marker-end="url(#vd-ar)"/>
+    <text x="${x2+bw/2+20}" y="${(yV+yT)/2-2}" font-size="9" fill="rgba(196,219,201,.7)" font-family="Satoshi,sans-serif">décote<tspan x="${x2+bw/2+20}" dy="10">preuve</tspan></text>
+  `;
 }
 
 /* ── SVG helpers ── */
