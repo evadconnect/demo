@@ -3895,9 +3895,23 @@ function devaPillClick(){
   else if (typeof devaToggleChat === 'function') devaToggleChat();
 }
 
+// Bulle Deva contextuelle pendant la création : explique les solutions/ICI à l'étape 4.
+function creerUpdateHint(){
+  const txt = document.getElementById('deva-fiche-hint-txt');
+  const tip = document.getElementById('deva-fiche-hint');
+  if (!txt) return;
+  if (cStep === 3 && cData._solsReady) {
+    txt.innerHTML = "Voici les solutions repérées, et sous chacune ses <b>ICI</b> 🌱 : l'impact que ton lieu va mesurer. Garde celles qui comptent, ta Vadance monte avec.";
+    if (tip) tip.style.display = 'block';
+  } else {
+    txt.textContent = "Besoin d'aide pour remplir la fiche, je suis là 🌱";
+  }
+}
+
 function renderStep(){
   navWizardSet(STEPS.map(s=>s.t), cStep, (i)=>{ cStep=i; renderStep(); });
   if (typeof creerUpdateVadance === 'function') creerUpdateVadance();
+  if (typeof creerUpdateHint === 'function') creerUpdateHint();
   document.getElementById('creer-prev').style.display=cStep>0?'block':'none';
   const nx=document.getElementById('creer-next');
   const sv=document.getElementById('creer-save-btn');

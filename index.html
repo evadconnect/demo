@@ -12,7 +12,7 @@
         crossorigin=""
     />
         
-<link rel="stylesheet" href="css/styles.css?v=16">
+<link rel="stylesheet" href="css/styles.css?v=17">
 </head>
 <body>
 
@@ -111,7 +111,7 @@
 </div>
 
 
-<script src="js/splash-onboarding.js?v=16"></script>
+<script src="js/splash-onboarding.js?v=17"></script>
 
 <div class="app">
 
@@ -203,7 +203,7 @@
     <!-- Bulle d'astuce Deva (affichée pendant la création de fiche lieu) -->
     <div id="deva-fiche-hint" onclick="devaPillClick()" style="display:none;position:absolute;bottom:calc(100% + 10px);left:4px;right:4px;z-index:40;background:#f3f0e6;border-radius:14px;padding:.62rem .8rem .66rem;box-shadow:0 12px 28px -8px rgba(0,20,12,.55);font-family:'Satoshi',sans-serif;cursor:pointer">
       <button onclick="event.stopPropagation();document.getElementById('deva-fiche-hint').style.display='none'" title="Masquer" style="position:absolute;top:.3rem;right:.35rem;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.07);border:none;color:#2e6b47;cursor:pointer;font-size:.68rem;line-height:1">✕</button>
-      <div style="font-size:.78rem;line-height:1.4;color:#1c3d28;font-weight:600;padding-right:.7rem">Besoin d'aide pour remplir la fiche, je suis là 🌱</div>
+      <div id="deva-fiche-hint-txt" style="font-size:.78rem;line-height:1.4;color:#1c3d28;font-weight:600;padding-right:.7rem">Besoin d'aide pour remplir la fiche, je suis là 🌱</div>
       <div style="position:absolute;left:26px;bottom:-6px;width:13px;height:13px;background:#f3f0e6;transform:rotate(45deg)"></div>
     </div>
     <div class="deva-pill" onclick="devaPillClick()" id="deva-pill-btn" title="Parler à Deva">
@@ -1584,7 +1584,7 @@
   </div>
 </div>
 
-<script src="js/data-nextcloud.js?v=16"></script>
+<script src="js/data-nextcloud.js?v=17"></script>
 
 <!-- ═══ ÉCRAN : RÉSEAU (réseau social solarpunk) ═══ -->
 <div class="screen" id="screen-reseau">
@@ -1765,9 +1765,9 @@
   </div>
 </div>
 
-<script src="js/data-reseau.js?v=16"></script>
+<script src="js/data-reseau.js?v=17"></script>
 
-<script src="js/regen-loop.js?v=16"></script>
+<script src="js/regen-loop.js?v=17"></script>
 
 <!-- Modale ajout/édition offre Pilote -->
 <div id="pmkt-modal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(14,26,18,0.75);backdrop-filter:blur(6px);align-items:center;justify-content:center">
@@ -2513,7 +2513,7 @@
 
 
 
-<script src="js/app-core.js?v=16"></script>
+<script src="js/app-core.js?v=17"></script>
 
 <script
   src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -2572,9 +2572,9 @@
   </div>
 </div>
 
-<script src="js/deva.js?v=16"></script>
+<script src="js/deva.js?v=17"></script>
 
-<script src="js/nav-mobile.js?v=16"></script>
+<script src="js/nav-mobile.js?v=17"></script>
 
 <!-- ── Modal : Choisir ton profil ── -->
 <div id="auth-profil-modal" style="display:none;position:fixed;inset:0;z-index:10001;background:rgba(14,26,18,.6);backdrop-filter:blur(6px);align-items:center;justify-content:center">
@@ -2617,7 +2617,7 @@
 </div>
 
 
-<script src="js/auth.js?v=16"></script>
+<script src="js/auth.js?v=17"></script>
 
 <!-- Espace modal, placé au niveau body pour rester accessible depuis tous les contextes -->
 <div id="espace-modal">
@@ -2715,14 +2715,14 @@
     </div>
   </div>
 </div>
-<script src="js/espace-modal.js?v=16"></script>
+<script src="js/espace-modal.js?v=17"></script>
 
 <!-- ═══════════════════════════════════════════════════════
      COUCHE DE CONVERGENCE, PERMA-COMPTABILITÉ EVAD
      Saisie unique → traduction multi-cadres institutionnels
      ═══════════════════════════════════════════════════════ -->
-<script src="js/quetes.js?v=16"></script>
-<script src="js/ici.js?v=16"></script>
+<script src="js/quetes.js?v=17"></script>
+<script src="js/ici.js?v=17"></script>
 
 <!-- ─── MODAL CONTRIBUER ─── -->
 <div id="contrib-modal" style="display:none;position:fixed;inset:0;z-index:10002;background:rgba(14,26,18,.65);backdrop-filter:blur(7px);align-items:flex-end;justify-content:center;overflow:hidden">
@@ -2886,7 +2886,7 @@
   </div>
 </div>
 
-<script src="js/contribution.js?v=16"></script>
+<script src="js/contribution.js?v=17"></script>
 
 <!-- Modal détail solution (créer lieu step 4) -->
 <div id="creer-sol-detail-modal" style="display:none;position:fixed;inset:0;z-index:10010;background:rgba(13,43,34,.6);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)creerCloseSolDetail()">
@@ -2899,7 +2899,7 @@
   </div>
 </div>
 
-<script src="js/fil-rouge-feedback.js?v=16"></script>
+<script src="js/fil-rouge-feedback.js?v=17"></script>
 
 </body>
 </html>
