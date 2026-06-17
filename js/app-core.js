@@ -3334,42 +3334,11 @@ function bddDetail(s){
       </div>
     </div>
 
-    <!-- ⑥ Cadres de référence -->
-    ${(()=>{
-      const ind = SOLS_INDICATORS[s.nom]||{};
-      // ESRS/CSRD
-      const esrsBlock=`<div style="background:rgba(58,110,140,.04);border:1.5px solid rgba(58,110,140,.2);border-radius:.85rem;padding:.85rem 1rem">
-        <div style="font-size:.6rem;font-weight:700;color:#1a5a90;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem">📋 CSRD · ESRS</div>
-        <div style="display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.45rem">${esrsPills}</div>
-        <div style="font-size:.7rem;color:var(--ink);line-height:1.55;opacity:.82">${s.esrs_detail}</div>
-      </div>`;
-      // ODD
-      const oddPills=(ind.odd||[]).map(n=>{const m=ODD_META[n]||{c:'#666',l:'ODD '+n};return`<div style="display:flex;align-items:center;gap:.3rem;padding:.3rem .6rem;border-radius:.5rem;background:${m.c}18;border:1px solid ${m.c}44"><span style="width:18px;height:18px;border-radius:4px;background:${m.c};color:white;font-size:.58rem;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0">${n}</span><span style="font-size:.65rem;font-weight:600;color:${m.c}">${m.l}</span></div>`;}).join('');
-      const oddBlock=ind.odd?`<div style="background:rgba(253,157,36,.04);border:1.5px solid rgba(253,157,36,.2);border-radius:.85rem;padding:.85rem 1rem">
-        <div style="font-size:.6rem;font-weight:700;color:#b86000;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem">🌍 ODD · Agenda 2030</div>
-        <div style="display:flex;flex-wrap:wrap;gap:.35rem">${oddPills}</div>
-      </div>`:'';
-      // Perma-compta
-      const perma=ind.perma;
-      const permaBlock=perma?`<div style="background:rgba(74,140,92,.04);border:1.5px solid rgba(74,140,92,.18);border-radius:.85rem;padding:.85rem 1rem">
-        <div style="font-size:.6rem;font-weight:700;color:var(--forest);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem">🌿 Perma-compta</div>
-        <div style="display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.45rem">${(perma.ethiques||[]).map(e=>`<span style="font-size:.65rem;padding:.2rem .55rem;border-radius:100px;background:rgba(74,140,92,.1);color:var(--forest);font-weight:600;border:1px solid rgba(74,140,92,.2)">${e}</span>`).join('')}</div>
-        <div style="font-size:.7rem;color:var(--moss);line-height:1.55;font-style:italic;opacity:.85">${perma.principe}</div>
-      </div>`:'';
-      // GRI
-      const griBlock=ind.gri?`<div style="background:rgba(100,80,140,.04);border:1.5px solid rgba(100,80,140,.18);border-radius:.85rem;padding:.85rem 1rem">
-        <div style="font-size:.6rem;font-weight:700;color:#5a3080;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.45rem">📊 GRI Standards</div>
-        <div style="display:flex;flex-direction:column;gap:.3rem">${(ind.gri||[]).map(g=>`<div style="font-size:.68rem;color:#4a2a70;font-family:monospace;padding:.25rem .5rem;background:rgba(100,80,140,.07);border-radius:.4rem">${g}</div>`).join('')}</div>
-      </div>`:'';
-      return`<div style="margin:1rem 1.4rem 0">
-        <div style="font-size:.62rem;text-transform:uppercase;letter-spacing:.12em;color:var(--moss);opacity:.5;margin-bottom:.6rem">📐 Cadres de référence</div>
-        <div style="display:flex;flex-direction:column;gap:.6rem">${esrsBlock}${oddBlock}${permaBlock}${griBlock}</div>
-      </div>`;
-    })()}
 
     <!-- ⑦ Indicateurs de Changement d'Impact (ICI) -->
     <div style="margin:1rem 1.4rem 0">
       ${typeof iciFicheSolutionHTML==='function'?iciFicheSolutionHTML(s.nom,s.ind):`<div style="font-size:.62rem;text-transform:uppercase;letter-spacing:.12em;color:var(--moss);opacity:.5;margin-bottom:.5rem">◆ Indicateurs CUMUL</div><div style="display:flex;flex-direction:column;gap:.35rem">${s.ind.map(i=>`<div style="display:flex;align-items:center;gap:.65rem;padding:.6rem .85rem;border-radius:.75rem;background:white;border:1px solid rgba(46,102,66,.1)"><div style="width:6px;height:6px;border-radius:50%;background:var(--fern);flex-shrink:0"></div><span style="font-size:.73rem;color:var(--ink)">${i}</span></div>`).join('')}</div>`}
+      ${typeof iciCorrespondancesHTML==='function'?iciCorrespondancesHTML(s):''}
     </div>
 
     <!-- ⑧ CTA -->
@@ -4256,13 +4225,6 @@ function showSolDetail(nom){
       </div>
     </div>
 
-    <!-- RSE / CSRD -->
-    <div style="font-family:'Satoshi', sans-serif;font-size:.82rem;font-weight:600;color:var(--ink);margin-bottom:.55rem;padding-bottom:.35rem;border-bottom:1px solid rgba(46,102,66,.1)">📋 Alignement RSE / CSRD</div>
-    <div style="background:rgba(58,110,140,0.05);border:1px solid rgba(58,110,140,0.18);border-radius:var(--r);padding:.75rem .85rem;margin-bottom:1rem">
-      <div style="display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.5rem">${esrsPills}</div>
-      <div style="font-size:.68rem;color:var(--ink);line-height:1.5;opacity:.85">${s.esrs_detail}</div>
-    </div>
-
     <!-- Quête -->
     <div style="font-family:'Satoshi', sans-serif;font-size:.82rem;font-weight:600;color:var(--ink);margin-bottom:.55rem;padding-bottom:.35rem;border-bottom:1px solid rgba(46,102,66,.1)">⚡ Quête associée</div>
     <div style="background:white;border:1px solid rgba(74,140,92,0.2);border-radius:var(--r);padding:.75rem .85rem;margin-bottom:1rem">
@@ -4278,6 +4240,7 @@ function showSolDetail(nom){
 
     <!-- Indicateurs de Changement d'Impact (ICI) -->
     ${typeof iciFicheSolutionHTML==='function'?iciFicheSolutionHTML(s.nom,s.ind):`<div style="font-family:'Satoshi', sans-serif;font-size:.82rem;font-weight:600;color:var(--ink);margin-bottom:.55rem;padding-bottom:.35rem;border-bottom:1px solid rgba(46,102,66,.1)">Indicateurs CUMUL</div>${s.ind.map(i=>`<div style="display:flex;align-items:center;gap:.5rem;padding:.4rem .6rem;border-radius:var(--r);background:white;border:1px solid rgba(46,102,66,.1);margin-bottom:.3rem;font-size:.68rem;color:var(--ink)"><span style="color:var(--fern);font-size:.6rem">◆</span>${i}</div>`).join('')}`}
+    ${typeof iciCorrespondancesHTML==='function'?iciCorrespondancesHTML(s):''}
 
     <!-- Graines -->
     <div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r);overflow:hidden;margin-top:1rem">

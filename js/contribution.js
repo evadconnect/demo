@@ -240,14 +240,11 @@ function creerOpenSolDetail(nomSol) {
       <p style="font-size:.73rem;color:var(--ink);line-height:1.6;margin-bottom:1rem">${s.desc}</p>
       ${avantagesHtml}
       ${budgetHtml}
-      ${esrsHtml}
-      ${permaHtml}
-      ${oddHtml}
       ${typeof iciFicheSolutionHTML==='function'?iciFicheSolutionHTML(s.nom,s.ind):''}
+      ${typeof iciCorrespondancesHTML==='function'?iciCorrespondancesHTML(s):''}
       ${queteHtml}
       ${matHtml}
       ${planHtml}
-      ${griHtml}
     </div>`;
   modal.style.display = 'flex';
 }

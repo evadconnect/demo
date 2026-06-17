@@ -127,6 +127,29 @@ function iciFicheSolutionHTML(solNom, fallbackInd) {
     </div>`;
 }
 
+/* ── Correspondances compactes (CSRD/ESRS · ODD · GRI · permaculture).
+   Cf. charte : ce sont des VUES DÉRIVÉES de l'ICI, pas des comptabilités
+   concurrentes. On les rétrograde à une seule ligne de puces, présentée
+   comme export de l'ICI. Renvoie '' si la solution n'a aucune correspondance.
+   s = objet SOLS ; odd/gri/perma proviennent de SOLS_INDICATORS[s.nom]. ── */
+function iciCorrespondancesHTML(s) {
+  if (!s) return '';
+  const ind = (typeof SOLS_INDICATORS !== 'undefined' && SOLS_INDICATORS[s.nom]) ? SOLS_INDICATORS[s.nom] : {};
+  const chip = (txt, col, mono) => `<span style="font-size:.58rem;font-weight:700;padding:.14rem .45rem;border-radius:100px;background:${col}14;color:${col};border:1px solid ${col}33;white-space:nowrap${mono ? ";font-family:monospace" : ""}">${txt}</span>`;
+  const chips = [];
+  (s.esrs || []).forEach((e) => chips.push(chip(e, '#2a6090', true)));
+  (ind.odd || []).forEach((n) => chips.push(chip('ODD ' + n, '#b86000', false)));
+  (ind.gri || []).forEach((g) => chips.push(chip(String(g).replace(/\s*\(.*\)$/, ''), '#5a3080', true)));
+  if (ind.perma && (ind.perma.ethiques || []).length) {
+    ind.perma.ethiques.forEach((et) => chips.push(chip(et, '#2e7d4f', false)));
+  }
+  if (!chips.length) return '';
+  return `<div style="margin-bottom:1rem;padding:.55rem .7rem;background:rgba(46,102,66,.035);border:1px solid rgba(46,102,66,.12);border-radius:var(--r)">
+    <div style="font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--moss);margin-bottom:.4rem">↳ Correspondances <span style="font-weight:500;text-transform:none;letter-spacing:0;opacity:.7">· vues dérivées de l'ICI (CSRD · ODD · GRI)</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:.3rem">${chips.join('')}</div>
+  </div>`;
+}
+
 /* ── Seed de mesures pour le lieu de démo.
    Écologie & social corrects, ÉCONOMIE LOCALE volontairement faible
    (sous le plancher) → déclenche l'alerte. ── */
