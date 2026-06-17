@@ -64,6 +64,25 @@ La méthode est un commun ouvert : référentiel public, inspectable et amendabl
 - Plancher : le seuil par capital qui déclenche l'alerte de non-compensation.
 - Taux de tenue : Vadité ÷ Vadance.
 - Vade : la monnaie locale, frappée sur impact prouvé, en boucle fermée.
-- Quête : une mission d'impact concrète portée par un lieu, à laquelle les Bâtisseurs contribuent.`;
+- Quête : une mission d'impact concrète portée par un lieu, à laquelle les Bâtisseurs contribuent.
+
+## EVAD Connect, l'organisation (source : evad.org)
+EVAD est porté par EVAD Connect, une association loi 1901 à but non lucratif : un collectif accessible à toutes et tous, à gouvernance partagée. Positionnement officiel : « L'écosystème régénératif de demain prend racine aujourd'hui ». EVAD relie porteurs de lieu, citoyens et financeurs autour d'une économie régénérative, avec des quêtes concrètes et des preuves d'impact mesurables. Site officiel : www.evad.org. La plateforme est en phase bêta (le prototype ouvre ; on s'inscrit pour le tester en avant-première).
+Gouvernance : le Conseil Régénératif définit les orientations, vote les budgets et vérifie les impacts (garantie anti-greenwashing) ; un conseil de chercheur·es et expert·es apporte un regard scientifique sur les outils et les méthodes. L'inspiration est l'écocratie : des décisions décentralisées, alignées sur les limites planétaires, un « conseil de toutes les voix ».
+Quatre fondations : l'économie régénérative, le mouvement solarpunk (à la croisée de la culture, de la science et d'un futur désirable), l'écocratie (gouvernance au service du vivant), et la gamification (des mécaniques de jeu au service de l'engagement).
+Mécénat : chaque euro finance des impacts vérifiés par le Conseil Régénératif, sans greenwashing. Don défiscalisé (par exemple 100 € ne coûtent que 34 €), avec des partenariats de mécénat sur mesure alignés sur les engagements RSE. Les données des inscrits ne sont jamais revendues.
+
+## Note sur les noms du parcours (REGEN et VADE)
+Le site public evad.org présente le parcours comme la « boucle REGEN » en cinq étapes : Rêver, Explorer, Générer, Entreprendre, Nourrir. Dans la plateforme et la charte des ICI, ce même parcours est formalisé comme la Boucle VADE en quatre étapes : Valoriser, Activer, Développer, Élever. C'est le même cheminement, à deux niveaux de lecture. Le score d'un lieu s'appelle aujourd'hui la Vadance (et non plus le « score REGEN »).
+
+## FAQ
+- EVAD, c'est quoi en une phrase ? L'écosystème régénératif qui relie lieux, citoyens et financeurs autour d'une économie régénérative, avec des quêtes concrètes et des preuves d'impact mesurables.
+- C'est payant ? La bêta est gratuite : on s'inscrit pour tester le prototype en avant-première.
+- Comment je commence ? Tu choisis ton profil (Pilote, Bâtisseur ou Semeur). En Pilote, tu crées ton lieu puis tu suis la Boucle VADE.
+- Mes données sont-elles partagées ou revendues ? Non, les données ne sont jamais revendues. Dans le prototype, ce que tu saisis reste dans ton navigateur.
+- Quelle différence entre Vadance et Vadité ? La Vadance est l'impact projeté (la promesse, sur 100) ; la Vadité est l'impact réellement prouvé et vérifié (la preuve), c'est ce que reçoit le financeur.
+- Le Vade et les graines, c'est pareil ? Le Vade est la monnaie locale frappée sur impact prouvé, qui circule en boucle fermée ; les graines sont la récompense gagnée par les Bâtisseurs. Le Vade n'est pas convertible en euros.
+- Comment EVAD se finance sans extraire ? EVAD ne vend pas l'impact, il vend le passage : une commission plafonnée sur la preuve (la Vadité) et la coordination. La valeur reste sur le territoire.
+- Qui est derrière EVAD ? L'association EVAD Connect (loi 1901, à but non lucratif), avec un Conseil Régénératif et un conseil scientifique. Pour le détail de l'équipe, voir www.evad.org.`;
 
 module.exports = { DEVA_KNOWLEDGE };
