@@ -4466,19 +4466,60 @@ function mmAdd(id,label,x,y,cls,col,bg){
   return el;
 }
 
-function mmLine(x1,y1,x2,y2,col,dash){
+function mmLine(x1,y1,x2,y2,col,dash,fromId,toId){
   const l=document.createElementNS('http://www.w3.org/2000/svg','line');
   l.setAttribute('x1',x1);
   l.setAttribute('y1',y1);
   l.setAttribute('x2',x2);
   l.setAttribute('y2',y2);
   l.setAttribute('stroke',col || 'rgba(46,102,66,.32)');
-  l.setAttribute('stroke-width', dash ? '1.4' : '1.8');
+  l.setAttribute('stroke-width', dash ? '1.8' : '2.2');
   if(dash) l.setAttribute('stroke-dasharray','6,6');
   l.setAttribute('stroke-linecap','round');
-  l.setAttribute('opacity', dash ? '0.7' : '0.95');
+  l.setAttribute('opacity', dash ? '0.75' : '0.95');
+  if(fromId) l.setAttribute('data-from', fromId);
+  if(toId) l.setAttribute('data-to', toId);
   document.getElementById('mm-svg').appendChild(l);
+  return l;
 }
+
+// Met à jour les extrémités des lignes connectées à un nœud déplacé.
+function mmUpdateLinesFor(domId, x, y){
+  const svg = document.getElementById('mm-svg'); if(!svg) return;
+  svg.querySelectorAll('line[data-from="'+domId+'"]').forEach(l=>{ l.setAttribute('x1', x); l.setAttribute('y1', y); });
+  svg.querySelectorAll('line[data-to="'+domId+'"]').forEach(l=>{ l.setAttribute('x2', x); l.setAttribute('y2', y); });
+}
+
+/* ─── Déplacement des nœuds du mind map de création (drag) ─── */
+(function(){
+  let drag=null, sx0=0, sy0=0, nx0=0, ny0=0, moved=false;
+  document.addEventListener('mousedown', e=>{
+    const node = e.target.closest('#mm-nodes .mm-node');
+    if(!node) return;
+    drag=node; moved=false;
+    sx0=e.clientX; sy0=e.clientY;
+    nx0=parseFloat(node.style.left)||0; ny0=parseFloat(node.style.top)||0;
+    node.style.zIndex='60'; node.style.cursor='grabbing'; node.style.transition='none';
+    e.preventDefault(); e.stopPropagation();
+  }, true);
+  document.addEventListener('mousemove', e=>{
+    if(!drag) return;
+    const dx=e.clientX-sx0, dy=e.clientY-sy0;
+    if(Math.abs(dx)>3||Math.abs(dy)>3) moved=true;
+    const nx=nx0+dx, ny=ny0+dy;
+    drag.style.left=nx+'px'; drag.style.top=ny+'px';
+    mmUpdateLinesFor(drag.id, nx, ny);
+  });
+  document.addEventListener('mouseup', ()=>{
+    if(!drag) return;
+    drag.style.zIndex=''; drag.style.cursor=''; drag.style.transition='';
+    if(moved){ window._mmJustDragged=true; setTimeout(()=>{ window._mmJustDragged=false; }, 60); }
+    drag=null;
+  });
+  document.addEventListener('click', e=>{
+    if(window._mmJustDragged && e.target.closest('#mm-nodes .mm-node')){ e.stopPropagation(); e.preventDefault(); }
+  }, true);
+})();
 
 function mmCenter(){
   const el=document.getElementById('mn-c');
@@ -4590,7 +4631,7 @@ function togSol(nom){
       el.style.borderColor=nowSel?e.c+'55':'rgba(130,130,130,.2)';
       el.style.background=nowSel?e.bg:'rgba(130,130,130,.05)';
       el.style.fontWeight=nowSel?'600':'400';
-      mmIciNodes(nom, parseFloat(el.style.left), parseFloat(el.style.top));
+      mmIciNodes(nom, parseFloat(el.style.left), parseFloat(el.style.top), el.id);
     }
   });
   // Update panel row in-place
@@ -4648,23 +4689,24 @@ function genMM(espItems){
     const re=Math.min(W,H)*.25; const ex=cx+re*Math.cos(a),ey=cy+re*Math.sin(a);
     const sols=byEsp[i]||[];
     setTimeout(()=>{
-      mmLine(cx,cy,ex,ey,col+'99');
-      mmAdd('e-'+i,label,ex,ey,'espace',col,bg);
+      mmLine(cx,cy,ex,ey,col+'99',false,'mn-c','mn-e-'+i);
+      mmAdd('e-'+i,label,ex,ey,'espace',col,bg).style.cursor='grab';
       sols.forEach((sol,j)=>{
-        const sa=a+(j-(sols.length-1)/2)*.48; const rs=re+100;
+        const sa=a+(j-(sols.length-1)/2)*.64; const rs=re+142;
         const sx=cx+rs*Math.cos(sa),sy=cy+rs*Math.sin(sa);
         const isSel=cData.solutions.includes(sol.nom);
+        const solDomId='mn-sol-'+i+'-'+j;
         setTimeout(()=>{
-          mmLine(ex,ey,sx,sy,col+'44',true);
+          mmLine(ex,ey,sx,sy,col+'55',true,'mn-e-'+i,solDomId);
           const sc=isSel?col:'rgba(130,130,130,.55)';
           const sb=isSel?bg:'rgba(130,130,130,.05)';
           const nd=mmAdd('sol-'+i+'-'+j,sol.img+' '+sol.nom,sx,sy,'sol',sc,sb);
           nd.dataset.solnom=sol.nom; nd.dataset.eid=item.eid;
           if(isSel){nd.style.fontWeight='600';nd.classList.add('sol-sel');}
-          nd.style.cursor='pointer';
+          nd.style.cursor='grab';
           nd.title=sol.impact;
           nd.onclick=()=>togSol(sol.nom);
-          mmIciNodes(sol.nom, sx, sy);
+          mmIciNodes(sol.nom, sx, sy, solDomId);
         },j*140);
       });
     },i*220);
@@ -4674,7 +4716,7 @@ function genMM(espItems){
 
 /* Sous-nœuds ICI sous une solution sélectionnée (mind map de création).
    Montre l'impact projeté que porte la solution (couleur = capital). */
-function mmIciNodes(solNom, sx, sy){
+function mmIciNodes(solNom, sx, sy, solDomId){
   const safe = String(solNom).replace(/[^a-zA-Z0-9]/g, '_');
   document.querySelectorAll('[id^="mn-ici-' + safe + '-"]').forEach(e => e.remove());
   document.querySelectorAll('line[data-ici="' + safe + '"]').forEach(e => e.remove());
@@ -4684,20 +4726,23 @@ function mmIciNodes(solNom, sx, sy){
   const st = window._mmStep4State || { cx: mmW() / 2, cy: mmH() / 2 };
   const cx = st.cx, cy = st.cy;
   const baseA = Math.atan2(sy - cy, sx - cx);
-  const rIci = Math.hypot(sx - cx, sy - cy) + 58;
+  const rIci = Math.hypot(sx - cx, sy - cy) + 96;
   const svg = document.getElementById('mm-svg');
   icis.forEach((ici, k) => {
     const meta = (typeof ICI_LIVRE_META !== 'undefined' ? ICI_LIVRE_META[ici.livre] : null) || { ic: '◆', col: '#4a8c5c' };
-    const ia = baseA + (k - (icis.length - 1) / 2) * 0.34;
+    const ia = baseA + (k - (icis.length - 1) / 2) * 0.5;
     const ix = cx + rIci * Math.cos(ia), iy = cy + rIci * Math.sin(ia);
+    const iciDomId = 'mn-ici-' + safe + '-' + k;
     const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     l.setAttribute('x1', sx); l.setAttribute('y1', sy); l.setAttribute('x2', ix); l.setAttribute('y2', iy);
-    l.setAttribute('stroke', meta.col + '66'); l.setAttribute('stroke-width', '1.2');
+    l.setAttribute('stroke', meta.col + '66'); l.setAttribute('stroke-width', '1.6');
     l.setAttribute('stroke-dasharray', '3,4'); l.setAttribute('stroke-linecap', 'round'); l.setAttribute('opacity', '0.85');
     l.setAttribute('data-ici', safe);
+    if (solDomId) l.setAttribute('data-from', solDomId);
+    l.setAttribute('data-to', iciDomId);
     if (svg) svg.appendChild(l);
     const nd = mmAdd('ici-' + safe + '-' + k, meta.ic + ' ' + ici.nom, ix, iy, 'ici', meta.col, meta.col + '22');
-    nd.style.fontSize = '.6rem'; nd.style.padding = '.2rem .45rem'; nd.style.fontWeight = '700'; nd.style.borderColor = meta.col + '66';
+    nd.style.fontSize = '.6rem'; nd.style.padding = '.2rem .45rem'; nd.style.fontWeight = '700'; nd.style.borderColor = meta.col + '66'; nd.style.cursor = 'grab';
     nd.title = (ici.unite || '') + ' · cible ' + ici.point100;
   });
 }
@@ -4712,23 +4757,24 @@ function mmRefreshSolsStep4() {
   const { cx, cy } = window._mmStep4State;
   window._mmStep4EspPos.forEach(({ x:ex, y:ey, a, re, item, idx }) => {
     const { c:col, bg } = item;
-    mmLine(cx, cy, ex, ey, col+'99');
+    mmLine(cx, cy, ex, ey, col+'99', false, 'mn-c', 'mn-e-'+idx);
     const solNoms = cData.solsByEspace[idx] || [];
     solNoms.forEach((solNom, j) => {
       const sol = SOLS.find(s => s.nom === solNom);
       if (!sol) return;
-      const sa = a + (j - (solNoms.length-1)/2) * .48;
-      const rs = re + 100;
+      const sa = a + (j - (solNoms.length-1)/2) * .64;
+      const rs = re + 142;
       const sx = cx + rs*Math.cos(sa), sy = cy + rs*Math.sin(sa);
-      mmLine(ex, ey, sx, sy, col+'44', true);
+      const solDomId = 'mn-sol-'+idx+'-'+j;
+      mmLine(ex, ey, sx, sy, col+'55', true, 'mn-e-'+idx, solDomId);
       const nd = mmAdd('sol-'+idx+'-'+j, sol.img+' '+sol.nom, sx, sy, 'sol', col, bg);
       nd.dataset.solnom = sol.nom;
       nd.dataset.eid = item.eid;
       nd.style.fontWeight = '600';
-      nd.style.cursor = 'pointer';
+      nd.style.cursor = 'grab';
       nd.title = sol.impact || '';
       nd.onclick = () => togSol(sol.nom);
-      mmIciNodes(sol.nom, sx, sy);
+      mmIciNodes(sol.nom, sx, sy, solDomId);
     });
   });
   const total = Object.values(cData.solsByEspace).flat().length;
