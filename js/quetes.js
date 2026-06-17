@@ -298,7 +298,7 @@ function renderPiloteQuetes() {
     }
   }
 
-  // Répercute sur l'aperçu (score REGEN + wallet graines)
+  // Répercute sur l'aperçu (Vadance + wallet graines)
   if (typeof updateApercuFromQuetes === 'function') updateApercuFromQuetes();
 }
 
@@ -309,7 +309,7 @@ function validerQuete(id) {
 
   // Gain visible : points REGEN + graines de la quête
   const _pts = (String(quete.impact || '').match(/(\d+)\s*pts?/i) || [])[1] || 5;
-  if (typeof mmBubble === 'function') mmBubble(`✓ Preuve validée · +${_pts} pts REGEN · +${quete.graines || 0} graines 🌱`);
+  if (typeof mmBubble === 'function') mmBubble(`✓ Preuve validée · +${_pts} pts Vadance · +${quete.graines || 0} graines 🌱`);
 
   const type = detectConvType(quete.titre, quete.impact);
   if (!type) {
@@ -791,7 +791,7 @@ function renderImpact() {
     if (['repair','compostage'].includes(a.type) && a.val2) dechetsKg += parseFloat(a.val2) || 0;
   });
 
-  // ── Score REGEN (0–100 basé sur couverture ESRS + nb actions) ──
+  // ── Vadance (0–100 basé sur couverture ESRS + nb actions) ──
   const esrsScore = Math.round((covered.size / 11) * 60);
   const actionsScore = Math.min(40, nb * 5);
   const regenScore = esrsScore + actionsScore;
@@ -858,9 +858,9 @@ function renderImpact() {
   const msg = document.getElementById('deva-impact-msg');
   if (msg) {
     if (regenScore >= 60) {
-      msg.textContent = `Score REGEN ${regenScore}/100, ton lieu est éligible aux financements Semeur. Génère le rapport pour le partager.`;
+      msg.textContent = `Vadance ${regenScore}/100, ton lieu est éligible aux financements Semeur. Génère le rapport pour le partager.`;
     } else {
-      msg.textContent = `${nb} action${nb>1?'s':''} saisie${nb>1?'s':''} · score REGEN ${regenScore}/100. Saisis ${Math.ceil((50 - regenScore) / 5)} action${Math.ceil((50-regenScore)/5)>1?'s':''} de plus pour atteindre le seuil Semeur.`;
+      msg.textContent = `${nb} action${nb>1?'s':''} saisie${nb>1?'s':''} · Vadance ${regenScore}/100. Saisis ${Math.ceil((50 - regenScore) / 5)} action${Math.ceil((50-regenScore)/5)>1?'s':''} de plus pour atteindre le seuil Semeur.`;
     }
   }
 

@@ -1,35 +1,31 @@
-/* ─── PARCOURS REGEN réutilisable (Bâtisseur & Semeur) ─── */
+/* ─── BOUCLE VADE réutilisable (Bâtisseur & Semeur) ───
+   Valoriser → Activer → Développer → Élever (charte des ICI). */
 const REGEN_LOOP_NODES = [
-  {letter:'R', name:'Rêver',        color:'#018262', x:150,   y:35},
-  {letter:'E', name:'Explorer',     color:'#2d6a9f', x:259.4, y:114.5},
-  {letter:'G', name:'Générer',      color:'#c8732a', x:217.6, y:243},
-  {letter:'E', name:'Entreprendre', color:'#0a7d3f', x:82.4,  y:243},
-  {letter:'N', name:'Nourrir',      color:'#6b5b95', x:40.6,  y:114.5},
+  {letter:'V', name:'Valoriser',  color:'#018262', x:150, y:35},
+  {letter:'A', name:'Activer',    color:'#2d6a9f', x:265, y:150},
+  {letter:'D', name:'Développer', color:'#c8732a', x:150, y:265},
+  {letter:'E', name:'Élever',     color:'#6b5b95', x:35,  y:150},
 ];
 const REGEN_PROFILE_CONTENT = {
   batisseur: { label:'Bâtisseur', steps:[
-    {title:'Rêver le monde de demain', desc:'Imaginer le futur régénératif qu\'on veut contribuer à bâtir.', tags:['☀️ Solarpunk','🎮 Gamification'], outils:['Serious game','Deva'],
-     taches:['Explorer les lieux solarpunk dans le jeu','Repérer les boucles où tes compétences comptent','Te projeter dans une contribution idéale']},
-    {title:'Explorer les solutions', desc:'Parcourir les quêtes et les lieux pour trouver où agir.', tags:['📚 Communs','🔍 Découverte'], outils:['Carte','Réseau','Bibliothèque'],
-     taches:['Parcourir les quêtes ouvertes sur la carte','Filtrer par compétences et proximité','Identifier 2-3 lieux alignés avec tes valeurs']},
-    {title:'Générer ta fiche et ton tableau de bord', desc:'Créer ta fiche de Bâtisseur et ton tableau de bord de contribution.', tags:['📊 Mesure','🏅 Compétences'], outils:['Fiche particulier','Tableau de bord','Compétences'],
-     taches:['Compléter ta fiche particulier','Déclarer tes compétences et disponibilités','Générer ton tableau de bord de contribution']},
-    {title:'Entreprendre les quêtes', desc:'Rejoindre des quêtes, contribuer sur le terrain, documenter les preuves.', tags:['⚡ Action','🤝 Communauté'], outils:['Quêtes','Preuves','Graines'],
-     taches:['Rejoindre une quête','Contribuer sur le terrain','Documenter les preuves et recevoir tes graines']},
-    {title:'Nourrir l\'écosystème', desc:'Partager tes retours, monter en compétences, enrichir les communs.', tags:['🌱 Communs','🔄 Itération'], outils:['Retours d\'expérience','Bibliothèque','Compétences'],
-     taches:['Partager ton retour d\'expérience','Enrichir les fiches des communs','Débloquer de nouvelles compétences']},
+    {title:'Valoriser : repérer où ton impact compte', desc:'Découvrir les lieux et leur base T0, repérer les boucles où tes compétences font la différence.', tags:['📍 Diagnostic T0','🔍 Découverte'], outils:['Carte','Modélisation 3D','Deva'],
+     taches:['Explorer les lieux et leur diagnostic T0','Repérer les boucles où tes compétences comptent','Te projeter dans une contribution idéale']},
+    {title:'Activer : rejoindre les quêtes', desc:'Répondre aux quêtes ouvertes et passer à l\'action sur le terrain.', tags:['⚡ Action','🤝 Communauté'], outils:['Quêtes','Réseau','Marketplace (Vade)'],
+     taches:['Parcourir les quêtes ouvertes sur la carte','Rejoindre une quête alignée avec tes valeurs','Mobiliser ta communauté autour de l\'action']},
+    {title:'Développer : prouver l\'impact', desc:'Réaliser les quêtes-preuve, documenter les preuves, gagner du Vade.', tags:['📊 Preuve','🪙 Vade'], outils:['Quêtes-preuve','Preuves','Monnaie Vade'],
+     taches:['Contribuer sur le terrain','Documenter les preuves (photos, registres)','Recevoir ton Vade en contrepartie']},
+    {title:'Élever : nourrir le commun', desc:'Faire vérifier, partager tes retours, enrichir le référentiel commun.', tags:['🔍 Pairs','🌍 Commun'], outils:['Vérification pairs','Bibliothèque','Amendement du commun'],
+     taches:['Faire vérifier tes preuves par les pairs','Partager ton retour d\'expérience','Enrichir les fiches des communs']},
   ]},
   semeur: { label:'Semeur', steps:[
-    {title:'Rêver le monde de demain', desc:'Définir la vision d\'impact que tu veux financer.', tags:['☀️ Solarpunk','🎯 Vision'], outils:['Serious game','Deva'],
-     taches:['Explorer les futurs régénératifs','Clarifier tes axes d\'impact prioritaires','Te projeter dans ta thèse d\'investissement']},
-    {title:'Explorer les solutions', desc:'Explorer les lieux et quêtes alignés avec tes critères.', tags:['🔍 Sourcing','📚 Communs'], outils:['Carte','Portefeuille','Réseau'],
-     taches:['Parcourir les lieux à fort impact','Filtrer selon tes critères ESRS / ODD','Présélectionner des lieux à financer']},
-    {title:'Générer ta fiche et ton tableau de bord', desc:'Créer ta fiche financeur et ton tableau de bord ESRS.', tags:['📊 Mesure','📄 CSRD'], outils:['Fiche financeur','Tableau de bord','Export CSRD'],
-     taches:['Compléter ta fiche financeur','Configurer tes cadres (CSRD, ODD…)','Générer ton tableau de bord d\'impact']},
-    {title:'Entreprendre les quêtes', desc:'Financer des quêtes, définir les jalons, sécuriser les preuves.', tags:['💶 Financement','🤝 Engagement'], outils:['Contrats','Jalons','Graines'],
-     taches:['Financer une ou plusieurs quêtes','Définir les jalons et contrats','Suivre et certifier les preuves d\'impact']},
-    {title:'Nourrir l\'écosystème', desc:'Capitaliser les retours et affiner ta stratégie de financement.', tags:['🌱 Communs','🔄 Itération'], outils:['Reporting','Bibliothèque','Stratégie'],
-     taches:['Récolter les preuves et apprentissages','Produire ton reporting CSRD','Ajuster ta stratégie de financement']},
+    {title:'Valoriser : découvrir les lieux à fort impact', desc:'Explorer les passeports de lieux et leur base T0, repérer l\'impact déjà présent.', tags:['📍 Diagnostic T0','🔍 Sourcing'], outils:['Carte','Passeport du lieu','Réseau'],
+     taches:['Parcourir les lieux et leur diagnostic T0','Filtrer selon tes critères ESRS / ODD','Présélectionner des lieux à financer']},
+    {title:'Activer : engager le capital', desc:'Financer en euros contre des paliers signés, ouvrir le projet.', tags:['💶 Financement','🤝 Engagement'], outils:['Contrats à impact','Paliers signés','Portefeuille'],
+     taches:['Engager des euros sur un ou plusieurs projets','Définir les paliers et jalons signés','Préciser ta thèse d\'investissement']},
+    {title:'Développer : suivre la preuve', desc:'Suivre le fil en direct, vérifier la Vadité (impact réellement prouvé).', tags:['📊 Vadité','📈 Taux de tenue'], outils:['Mesure d\'impact','Attestation Vadité','Suivi en direct'],
+     taches:['Suivre l\'avancée des quêtes en direct','Vérifier les preuves et le taux de tenue','Sécuriser la Vadité de ton financement']},
+    {title:'Élever : recevoir la Vadité', desc:'Recevoir l\'attestation Vadité et le dividende d\'impact, capitaliser.', tags:['📑 Attestation','📄 CSRD'], outils:['Attestation Vadité','Export CSRD','Dividende d\'impact'],
+     taches:['Recevoir la Vadité (ΔVadance / CSRD)','Produire ton reporting CSRD','Toucher ton dividende d\'impact']},
   ]},
 };
 const regenLoopState = {};
@@ -46,23 +42,22 @@ function regenLoopBuild(prefix, profileKey){
   cont.innerHTML = `
     <div style="background:white;border:1px solid rgba(46,102,66,.12);border-radius:var(--r-lg);padding:1.3rem 1.4rem 1.5rem">
       <div style="margin-bottom:.4rem">
-        <div style="font-family:'Satoshi', sans-serif;font-size:.95rem;font-weight:800;color:var(--ink)">🔄 Boucle REGEN</div>
-        <div style="font-size:.63rem;color:var(--moss);opacity:.65;margin-top:.15rem;line-height:1.4">La même boucle de valeur pour les trois profils, clique une étape, puis coche les tâches à faire</div>
+        <div style="font-family:'Satoshi', sans-serif;font-size:.95rem;font-weight:800;color:var(--ink)">🔄 Boucle VADE</div>
+        <div style="font-size:.63rem;color:var(--moss);opacity:.65;margin-top:.15rem;line-height:1.4">Valoriser → Activer → Développer → Élever : le même parcours pour les trois profils, clique une étape, puis coche les tâches à faire</div>
       </div>
       <div style="display:flex;justify-content:center">
         <div style="position:relative;width:300px;height:300px;margin:.4rem 0 .2rem">
           <svg width="300" height="300" viewBox="0 0 300 300" style="position:absolute;inset:0;pointer-events:none">
             <circle cx="150" cy="150" r="115" fill="none" stroke="rgba(46,102,66,.18)" stroke-width="1.5"/>
             <g fill="var(--sage)">
-              <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(217.6 57) rotate(36)"/>
-              <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(259.4 185.5) rotate(108)"/>
-              <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(150 265) rotate(180)"/>
-              <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(40.6 185.5) rotate(252)"/>
-              <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(82.4 57) rotate(324)"/>
+              <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(231.3 68.7) rotate(45)"/>
+              <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(231.3 231.3) rotate(135)"/>
+              <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(68.7 231.3) rotate(225)"/>
+              <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(68.7 68.7) rotate(315)"/>
             </g>
           </svg>
           <div style="position:absolute;left:150px;top:150px;transform:translate(-50%,-50%);width:152px;height:152px;border-radius:50%;background:white;border:1px solid rgba(46,102,66,.1);box-shadow:0 2px 14px rgba(46,102,66,.07);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
-            <div style="font-size:.5rem;color:var(--sage);text-transform:uppercase;letter-spacing:.16em;font-weight:700">Score REGEN</div>
+            <div style="font-size:.5rem;color:var(--sage);text-transform:uppercase;letter-spacing:.16em;font-weight:700">Vadance</div>
             <div id="${prefix}-center-score" style="font-family:'Satoshi', sans-serif;font-size:1.5rem;font-weight:900;color:#018262;line-height:1;margin:.2rem 0 .05rem">10<span style="font-size:.62rem;font-weight:700;opacity:.45">/100</span></div>
             <div id="${prefix}-center-sub" style="font-size:.6rem;color:var(--moss);opacity:.65">🌱 à venir</div>
           </div>
@@ -104,7 +99,7 @@ function regenLoopRenderDetail(prefix){
     <div style="display:flex;align-items:flex-start;gap:.85rem;margin-bottom:.7rem">
       <div style="width:46px;height:46px;border-radius:12px;background:${node.color};color:white;display:flex;align-items:center;justify-content:center;font-family:'Satoshi', sans-serif;font-weight:900;font-size:1.3rem;flex-shrink:0">${node.letter}</div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:.58rem;font-weight:700;color:${node.color};text-transform:uppercase;letter-spacing:.1em">Étape ${i+1} / 5 · ${node.name} · ${prof.label}</div>
+        <div style="font-size:.58rem;font-weight:700;color:${node.color};text-transform:uppercase;letter-spacing:.1em">Étape ${i+1} / ${prof.steps.length} · ${node.name} · ${prof.label}</div>
         <div style="font-family:'Satoshi', sans-serif;font-size:1.2rem;font-weight:900;color:var(--ink);line-height:1.15;margin-top:.15rem">${s.title}</div>
       </div>
     </div>

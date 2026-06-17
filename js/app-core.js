@@ -27,7 +27,7 @@ const OB_DATA = {
           { num: '1', title: 'Publie ton lieu & tes quêtes', text: 'Décris ton projet, ses espaces, sa phase. Propose des missions à fort impact.' },
           { num: '2', title: 'Les Bâtisseurs s\'engagent', text: 'Ils rejoignent tes quêtes, contribuent en compétences et génèrent des preuves vérifiables.' },
           { num: '3', title: 'Les Semeurs financent', text: 'Entreprises et fondations financent des projets contre des preuves d\'impact certifiés ESRS.' },
-          { num: '4', title: 'Le score REGEN progresse', text: 'Chaque preuve certifiée fait progresser ton lieu et débloque de nouveaux financements.' }
+          { num: '4', title: 'La Vadance progresse', text: 'Chaque preuve certifiée fait progresser ton lieu et débloque de nouveaux financements.' }
         ]
       }
     ]
@@ -315,7 +315,7 @@ function svgPiloteReseau(svg, c, ca) {
   const badge = svgEl('g', {});
   const br = svgEl('rect', { x:168,y:202, width:84, height:26, rx:13, fill:c, 'fill-opacity':'.85' });
   const bt = svgEl('text', { x:210, y:219, 'text-anchor':'middle','font-size':'10','fill':'white','font-weight':'700','font-family':'Satoshi,sans-serif' });
-  bt.textContent = 'Score REGEN 76';
+  bt.textContent = 'Vadance 76';
   badge.appendChild(br); badge.appendChild(bt);
   svg.appendChild(badge);
   // Floating seed tokens
@@ -817,7 +817,7 @@ function lieuRenderHero() {
     `;
   }
 
-  // Bandeau score REGEN + dimensions (rempli pour un lieu existant, sinon « à certifier »)
+  // Bandeau Vadance + dimensions (rempli pour un lieu existant, sinon « à certifier »)
   const heroStats = document.getElementById('lieu-hero-stats');
   if (heroStats) {
     const score = (typeof cData.score === 'number') ? cData.score : null;
@@ -831,7 +831,7 @@ function lieuRenderHero() {
     heroStats.innerHTML = `
       <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(74,140,92,0.3);border-radius:var(--r-lg);padding:.7rem .9rem;text-align:center">
         <div style="font-family:'Satoshi', sans-serif;font-size:1.8rem;font-weight:900;color:var(--sun);line-height:1">${score!=null?score:'0'}</div>
-        <div style="font-size:.55rem;color:var(--sage);text-transform:uppercase;letter-spacing:.1em;margin-top:.15rem">Score REGEN</div>
+        <div style="font-size:.55rem;color:var(--sage);text-transform:uppercase;letter-spacing:.1em;margin-top:.15rem">Vadance</div>
         <div style="font-size:.6rem;color:rgba(255,255,255,.45);margin-top:.1rem">${score!=null?(trim?'tendance '+trim:'sur 100'):'à certifier'}</div>
       </div>
       ${dims.slice(0,4).map((d,i)=>`
@@ -1863,7 +1863,7 @@ const ROLE_CONFIG={
     defaultScreen:'semeur',
     screens:{
       carte:{title:'Identifier les lieux à fort potentiel ESG',text:'Repérez les lieux dont les quêtes couvrent vos obligations ESRS et les zones où votre financement maximise la couverture réglementaire.',actions:['Filtrer par ESRS','Voir le potentiel E/S/G','Cartographier les gaps']},
-      lieu:{title:"Évaluer l'alignement RSE d'un lieu",text:'Analysez les preuves disponibles, le score REGEN et la correspondance avec vos indicateurs CSRD prioritaires.',actions:['Lire les preuves','Vérifier conformité ESRS','Préparer le financement']},
+      lieu:{title:"Évaluer l'alignement RSE d'un lieu",text:'Analysez les preuves disponibles, la Vadance et la correspondance avec vos indicateurs CSRD prioritaires.',actions:['Lire les preuves','Vérifier conformité ESRS','Préparer le financement']},
       semeur:{title:'Piloter votre portefeuille RSE',text:'Suivez la couverture ESRS, arbitrez les financements par pilier ESG et générez les preuves auditables pour votre rapport CSRD.',actions:['Couvrir les ESRS manquants','Exporter rapport','Comparer lieux par ESG']}
     },
     cartePrimary:'Financer un lieu ESG', carteSecondary:'Voir les preuves CSRD'
@@ -2015,7 +2015,7 @@ const MAP_PLACES = [
       {icon:'🔧',title:'Rénover la cuisine partagée',meta:'Bricolage · 6 pers.',status:'Ouverte',sBg:'rgba(74,140,92,.15)',sC:'var(--fern)'}
     ],
     besoins:["Animateur·rice d'ateliers",'Dons de matériel'],
-    deva:"Forte dimension sociale. Ajoute une quête « énergie » pour équilibrer le score REGEN."
+    deva:"Forte dimension sociale. Ajoute une quête « énergie » pour équilibrer la Vadance."
   },
   {
     nom:"Les Vivres de l'Art", type:'Tiers-lieu', ville:'Bordeaux', icon:'🌿',
@@ -2330,7 +2330,7 @@ function lieuRenderImpact() {
     const cols = ['#82b894','#6aa0bc','#e8a55a','#a09ad8'];
     const grad = ['linear-gradient(90deg,#4a8c5c,#82b894)','linear-gradient(90deg,#3a6e8c,#6aa0bc)','linear-gradient(90deg,#c8732a,#e8a55a)','linear-gradient(90deg,#7a6ea8,#a09ad8)'];
     scoreEl.innerHTML = `
-      <div style="font-size:.58rem;color:var(--sage);text-transform:uppercase;letter-spacing:.12em;opacity:.7;margin-bottom:.5rem">Score REGEN global</div>
+      <div style="font-size:.58rem;color:var(--sage);text-transform:uppercase;letter-spacing:.12em;opacity:.7;margin-bottom:.5rem">Vadance globale</div>
       <div style="font-family:'Satoshi', sans-serif;font-size:2.4rem;font-weight:900;color:var(--sun);line-height:1;margin-bottom:.2rem">${score!=null?score:'—'}</div>
       <div style="font-size:.65rem;color:rgba(255,255,255,.4);margin-bottom:1rem">${score!=null?(cData.scoreTrim?'tendance '+cData.scoreTrim+' ce trimestre':'sur 100'):'à certifier'}</div>
       <div style="display:flex;flex-direction:column;gap:.45rem">
@@ -2648,10 +2648,10 @@ function mapShowLieu(idx) {
       <!-- Description -->
       <p style="font-size:.72rem;color:var(--moss);line-height:1.6;margin-bottom:.75rem;opacity:.85">${place.desc}</p>
 
-      <!-- Score REGEN + dimensions -->
+      <!-- Vadance + dimensions -->
       <div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-lg);padding:.8rem .9rem;margin-bottom:.75rem">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem">
-          <span style="font-size:.68rem;font-weight:600;color:var(--ink)">Score REGEN</span>
+          <span style="font-size:.68rem;font-weight:600;color:var(--ink)">Vadance</span>
           <span style="font-family:'Satoshi', sans-serif;font-size:1.4rem;font-weight:900;color:var(--sun)">${place.score}</span>
         </div>
         <div class="score-bar-bg" style="height:5px;margin-bottom:.85rem"><div class="score-bar-fill" style="width:${place.score}%"></div></div>
@@ -2791,7 +2791,7 @@ function popupHTML(place) {
   return `
     <div class="popup-place-title">${place.nom}</div>
     <div class="popup-place-meta">${place.type} · ${place.ville}</div>
-    <div class="popup-place-score">Score REGEN : ${place.score} · ⚡ ${place.quetes} quête(s)</div>
+    <div class="popup-place-score">Vadance : ${place.score} · ⚡ ${place.quetes} quête(s)</div>
   `;
 }
 
@@ -4434,7 +4434,7 @@ function togSol(nom){
   const counter=document.getElementById('sol-counter');
   if(counter)counter.textContent=cData.solutions.length+' solution'+(cData.solutions.length!==1?'s':'')+' sélectionnée'+(cData.solutions.length!==1?'s':'');
   const devaTxt=document.querySelector('.deva-txt');
-  if(devaTxt)devaTxt.textContent='"Avec '+cData.solutions.length+' solution'+(cData.solutions.length!==1?'s':'')+', '+(cData.nom||'ton lieu')+' peut atteindre un score REGEN de '+(10+cData.solutions.length*5)+'/100 dès la première année."';
+  if(devaTxt)devaTxt.textContent='"Avec '+cData.solutions.length+' solution'+(cData.solutions.length!==1?'s':'')+', '+(cData.nom||'ton lieu')+' peut atteindre une Vadance de '+(10+cData.solutions.length*5)+'/100 dès la première année."';
 }
 
 function genMM(espItems){
@@ -5139,10 +5139,10 @@ function mapShowNewLieu() {
         ${desc ? `<div style="position:relative;margin-top:.85rem;font-size:.7rem;color:rgba(255,255,255,0.65);line-height:1.5">${desc.length > 120 ? desc.slice(0,120) + '…' : desc}</div>` : ''}
       </div>
 
-      <!-- Score REGEN -->
+      <!-- Vadance -->
       <div style="margin:.85rem .85rem .2rem;background:white;border:1px solid rgba(46,102,66,.12);border-radius:var(--r-lg);padding:.75rem 1rem">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem">
-          <span style="font-size:.65rem;font-weight:700;color:var(--ink)">Score REGEN</span>
+          <span style="font-size:.65rem;font-weight:700;color:var(--ink)">Vadance</span>
           <span style="font-size:1.3rem;font-weight:900;color:var(--amber)">${scoreVal}</span>
         </div>
         <div class="score-bar-bg" style="height:6px;border-radius:3px;background:rgba(46,102,66,.1)">
@@ -6512,13 +6512,13 @@ function evadSyncMyLieuOnMap() {
       evadMyLieuMarker.setPopupContent(
         '<div class="popup-place-title">' + (myLieuData.nom || 'Mon lieu') + '</div>' +
         '<div class="popup-place-meta">' + (myLieuData.localisation || 'Bordeaux') + '</div>' +
-        '<div class="popup-place-score">Score REGEN : ' + d.score + ' · ' + d.nbValidees + ' quête(s) validée(s)</div>'
+        '<div class="popup-place-score">Vadance : ' + d.score + ' · ' + d.nbValidees + ' quête(s) validée(s)</div>'
       );
     } catch (e) {}
   }
 }
 
-/* Reflète les quêtes validées sur l'aperçu (score REGEN + wallet graines)
+/* Reflète les quêtes validées sur l'aperçu (Vadance + wallet graines)
    et propage le score sur la carte (fil rouge). */
 function updateApercuFromQuetes() {
   const d = evadLieuScoreData();
@@ -6532,7 +6532,7 @@ function updateApercuFromQuetes() {
   evadSyncMyLieuOnMap();
 }
 
-/* ─── PARCOURS REGEN (boucle + détail par étape) ─── */
+/* ─── PARCOURS VADE (boucle + détail par étape) ─── */
 /* Boucle VADE (charte des ICI) : Valoriser → Activer → Développer → Élever.
    Un même parcours, un cran plus haut à chaque tour ; chaque étape outillée. */
 const VADE_STEPS = [
@@ -6667,7 +6667,7 @@ function regenRenderDetail() {
 }
 
 function regenUpdateCenter() {
-  // Score REGEN : 10 au départ, +90 répartis sur les tâches cochées du parcours.
+  // Vadance : 10 au départ, +90 répartis sur les tâches cochées du parcours.
   const total = regenTasksDone.reduce((a, arr) => a + arr.length, 0);
   const done = regenTasksDone.reduce((a, arr) => a + arr.filter(Boolean).length, 0);
   const score = total ? 10 + Math.round((done / total) * 90) : 10;
@@ -8157,7 +8157,7 @@ const SEM_IMPACT_BY_TYPE = {
 };
 
 let semFicheStep = 0;
-let semFicheData = { nom:'', localisation:'', type:'Fondation', secteur:'ESS', zone:'Nouvelle-Aquitaine', typeFinancement:'', axes:[], reporting:'CSRD', freq:'Trimestriel', kpis:'CO₂ évité, personnes formées, score REGEN', selectedKpis:[], selectedCadres:[], selectedCadreItems:{}, selectedODD:[] };
+let semFicheData = { nom:'', localisation:'', type:'Fondation', secteur:'ESS', zone:'Nouvelle-Aquitaine', typeFinancement:'', axes:[], reporting:'CSRD', freq:'Trimestriel', kpis:'CO₂ évité, personnes formées, Vadance', selectedKpis:[], selectedCadres:[], selectedCadreItems:{}, selectedODD:[] };
 
 function initFicheSem() {
   semFicheStep = 0;
