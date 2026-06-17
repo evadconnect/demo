@@ -12,7 +12,7 @@
         crossorigin=""
     />
         
-<link rel="stylesheet" href="css/styles.css?v=2">
+<link rel="stylesheet" href="css/styles.css?v=3">
 </head>
 <body>
 
@@ -111,7 +111,7 @@
 </div>
 
 
-<script src="js/splash-onboarding.js?v=2"></script>
+<script src="js/splash-onboarding.js?v=3"></script>
 
 <div class="app">
 
@@ -899,12 +899,13 @@
           </svg>
           <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px">
             <span id="apercu-regen-val" style="font-family:'Satoshi', sans-serif;font-size:1.65rem;font-weight:900;color:white;line-height:1">—</span>
-            <span style="font-size:.48rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.12em">REGEN</span>
+            <span style="font-size:.48rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.12em">VADANCE</span>
           </div>
         </div>
         <div style="flex:1;min-width:0">
           <div style="font-size:.55rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.14em;margin-bottom:.2rem">Mon lieu</div>
-          <div style="font-family:'Satoshi', sans-serif;font-size:1rem;font-weight:700;color:white;margin-bottom:.35rem">Score REGEN</div>
+          <div style="font-family:'Satoshi', sans-serif;font-size:1rem;font-weight:700;color:white;margin-bottom:.1rem">Vadance</div>
+          <div style="font-size:.58rem;color:rgba(255,255,255,.55);margin-bottom:.35rem">Score d’impact projeté · sur 100</div>
           <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.2rem">
             <button onclick="piloteTab('dossiers',document.getElementById('ptab-dossiers'))" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:100px;padding:.4rem 1rem;font-size:.68rem;font-weight:600;color:white;cursor:pointer">📊 Voir mon impact →</button>
             <button onclick="evadPublishLieuToReseau()" style="background:var(--cream);border:none;border-radius:100px;padding:.4rem 1rem;font-size:.68rem;font-weight:700;color:var(--forest);cursor:pointer">📣 Publier au réseau →</button>
@@ -915,8 +916,8 @@
       <!-- PARCOURS REGEN -->
       <div id="regen-parcours" style="background:white;border:1px solid rgba(46,102,66,.12);border-radius:var(--r-lg);padding:1.3rem 1.4rem 1.5rem;margin-bottom:.9rem">
         <div style="margin-bottom:.4rem">
-          <div style="font-family:'Satoshi', sans-serif;font-size:.95rem;font-weight:800;color:var(--ink)">🔄 Boucle REGEN</div>
-          <div style="font-size:.63rem;color:var(--moss);opacity:.65;margin-top:.15rem;line-height:1.4">La boucle de valeur de ton lieu, clique une étape, puis coche les tâches à faire</div>
+          <div style="font-family:'Satoshi', sans-serif;font-size:.95rem;font-weight:800;color:var(--ink)">🔄 Boucle VADE</div>
+          <div style="font-size:.63rem;color:var(--moss);opacity:.65;margin-top:.15rem;line-height:1.4">Valoriser → Activer → Développer → Élever : le parcours de ton lieu, un cran plus haut à chaque tour. Clique une étape, puis coche les tâches à faire</div>
         </div>
 
         <!-- ░░ BOUCLE ░░ -->
@@ -926,46 +927,40 @@
             <svg width="300" height="300" viewBox="0 0 300 300" style="position:absolute;inset:0;pointer-events:none">
               <circle cx="150" cy="150" r="115" fill="none" stroke="rgba(46,102,66,.18)" stroke-width="1.5"/>
               <g fill="var(--sage)">
-                <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(217.6 57) rotate(36)"/>
-                <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(259.4 185.5) rotate(108)"/>
-                <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(150 265) rotate(180)"/>
-                <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(40.6 185.5) rotate(252)"/>
-                <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(82.4 57) rotate(324)"/>
+                <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(231.3 68.7) rotate(45)"/>
+                <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(231.3 231.3) rotate(135)"/>
+                <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(68.7 231.3) rotate(225)"/>
+                <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(68.7 68.7) rotate(315)"/>
               </g>
             </svg>
 
             <!-- Centre : score REGEN -->
             <div style="position:absolute;left:150px;top:150px;transform:translate(-50%,-50%);width:152px;height:152px;border-radius:50%;background:white;border:1px solid rgba(46,102,66,.1);box-shadow:0 2px 14px rgba(46,102,66,.07);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
-              <div style="font-size:.5rem;color:var(--sage);text-transform:uppercase;letter-spacing:.16em;font-weight:700">Score REGEN</div>
+              <div style="font-size:.5rem;color:var(--sage);text-transform:uppercase;letter-spacing:.16em;font-weight:700">Vadance</div>
               <div id="regen-center-score" style="font-family:'Satoshi', sans-serif;font-size:1.5rem;font-weight:900;color:#018262;line-height:1;margin:.2rem 0 .05rem">10<span style="font-size:.62rem;font-weight:700;opacity:.45">/100</span></div>
               <div id="regen-center-sub" style="font-size:.6rem;color:var(--moss);opacity:.65">🌱 à venir</div>
             </div>
 
-            <!-- Nœuds (positionnés sur l'anneau) -->
-            <!-- R -->
+            <!-- Nœuds VADE (positionnés sur l'anneau) -->
+            <!-- V Valoriser (haut) -->
             <div onclick="regenSelect(0)" style="position:absolute;left:150px;top:35px;transform:translate(-50%,-22px);text-align:center;cursor:pointer">
-              <div id="rn-circ-0" style="width:44px;height:44px;border-radius:50%;background:white;border:2.5px solid #018262;color:#018262;display:flex;align-items:center;justify-content:center;font-family:'Satoshi', sans-serif;font-weight:900;font-size:1.05rem;margin:0 auto;transition:all .2s">R</div>
-              <div id="rn-lbl-0" style="font-size:.62rem;color:var(--moss);font-weight:600;margin-top:.3rem">Rêver</div>
+              <div id="rn-circ-0" style="width:44px;height:44px;border-radius:50%;background:white;border:2.5px solid #018262;color:#018262;display:flex;align-items:center;justify-content:center;font-family:'Satoshi', sans-serif;font-weight:900;font-size:1.05rem;margin:0 auto;transition:all .2s">V</div>
+              <div id="rn-lbl-0" style="font-size:.62rem;color:var(--moss);font-weight:600;margin-top:.3rem">Valoriser</div>
             </div>
-            <!-- E Explorer -->
-            <div onclick="regenSelect(1)" style="position:absolute;left:259.4px;top:114.5px;transform:translate(-50%,-22px);text-align:center;cursor:pointer">
-              <div id="rn-circ-1" style="width:44px;height:44px;border-radius:50%;background:white;border:2.5px solid #2d6a9f;color:#2d6a9f;display:flex;align-items:center;justify-content:center;font-family:'Satoshi', sans-serif;font-weight:900;font-size:1.05rem;margin:0 auto;transition:all .2s">E</div>
-              <div id="rn-lbl-1" style="font-size:.62rem;color:var(--moss);font-weight:600;margin-top:.3rem">Explorer</div>
+            <!-- A Activer (droite) -->
+            <div onclick="regenSelect(1)" style="position:absolute;left:265px;top:150px;transform:translate(-50%,-22px);text-align:center;cursor:pointer">
+              <div id="rn-circ-1" style="width:44px;height:44px;border-radius:50%;background:white;border:2.5px solid #2d6a9f;color:#2d6a9f;display:flex;align-items:center;justify-content:center;font-family:'Satoshi', sans-serif;font-weight:900;font-size:1.05rem;margin:0 auto;transition:all .2s">A</div>
+              <div id="rn-lbl-1" style="font-size:.62rem;color:var(--moss);font-weight:600;margin-top:.3rem">Activer</div>
             </div>
-            <!-- G Générer -->
-            <div onclick="regenSelect(2)" style="position:absolute;left:217.6px;top:243px;transform:translate(-50%,-22px);text-align:center;cursor:pointer">
-              <div id="rn-circ-2" style="width:44px;height:44px;border-radius:50%;background:white;border:2.5px solid #c8732a;color:#c8732a;display:flex;align-items:center;justify-content:center;font-family:'Satoshi', sans-serif;font-weight:900;font-size:1.05rem;margin:0 auto;transition:all .2s">G</div>
-              <div id="rn-lbl-2" style="font-size:.62rem;color:var(--moss);font-weight:600;margin-top:.3rem">Générer</div>
+            <!-- D Développer (bas) -->
+            <div onclick="regenSelect(2)" style="position:absolute;left:150px;top:265px;transform:translate(-50%,-22px);text-align:center;cursor:pointer">
+              <div id="rn-circ-2" style="width:44px;height:44px;border-radius:50%;background:white;border:2.5px solid #c8732a;color:#c8732a;display:flex;align-items:center;justify-content:center;font-family:'Satoshi', sans-serif;font-weight:900;font-size:1.05rem;margin:0 auto;transition:all .2s">D</div>
+              <div id="rn-lbl-2" style="font-size:.62rem;color:var(--moss);font-weight:600;margin-top:.3rem">Développer</div>
             </div>
-            <!-- E Entreprendre -->
-            <div onclick="regenSelect(3)" style="position:absolute;left:82.4px;top:243px;transform:translate(-50%,-22px);text-align:center;cursor:pointer">
-              <div id="rn-circ-3" style="width:44px;height:44px;border-radius:50%;background:white;border:2.5px solid #018262;color:#018262;display:flex;align-items:center;justify-content:center;font-family:'Satoshi', sans-serif;font-weight:900;font-size:1.05rem;margin:0 auto;transition:all .2s">E</div>
-              <div id="rn-lbl-3" style="font-size:.62rem;color:var(--moss);font-weight:600;margin-top:.3rem">Entreprendre</div>
-            </div>
-            <!-- N Nourrir -->
-            <div onclick="regenSelect(4)" style="position:absolute;left:40.6px;top:114.5px;transform:translate(-50%,-22px);text-align:center;cursor:pointer">
-              <div id="rn-circ-4" style="width:44px;height:44px;border-radius:50%;background:white;border:2.5px solid #6b5b95;color:#6b5b95;display:flex;align-items:center;justify-content:center;font-family:'Satoshi', sans-serif;font-weight:900;font-size:1.05rem;margin:0 auto;transition:all .2s">N</div>
-              <div id="rn-lbl-4" style="font-size:.62rem;color:var(--moss);font-weight:600;margin-top:.3rem">Nourrir</div>
+            <!-- E Élever (gauche) -->
+            <div onclick="regenSelect(3)" style="position:absolute;left:35px;top:150px;transform:translate(-50%,-22px);text-align:center;cursor:pointer">
+              <div id="rn-circ-3" style="width:44px;height:44px;border-radius:50%;background:white;border:2.5px solid #6b5b95;color:#6b5b95;display:flex;align-items:center;justify-content:center;font-family:'Satoshi', sans-serif;font-weight:900;font-size:1.05rem;margin:0 auto;transition:all .2s">E</div>
+              <div id="rn-lbl-3" style="font-size:.62rem;color:var(--moss);font-weight:600;margin-top:.3rem">Élever</div>
             </div>
 
           </div>
@@ -1014,7 +1009,7 @@
           <div style="font-size:2rem">✏️</div>
           <div>
             <div style="font-size:.8rem;font-weight:700;color:var(--ink);margin-bottom:.2rem">Compléter la fiche lieu</div>
-            <div style="font-size:.65rem;color:var(--moss);opacity:.65;line-height:1.4">Nom, type, surface, fonctions… plus ta fiche est complète, plus ton score REGEN est précis.</div>
+            <div style="font-size:.65rem;color:var(--moss);opacity:.65;line-height:1.4">Nom, type, surface, fonctions… plus ta fiche est complète, plus ta Vadance est précise.</div>
             <div style="margin-top:.5rem;font-size:.62rem;font-weight:600;color:var(--fern)">Compléter →</div>
           </div>
         </div>
@@ -1585,7 +1580,7 @@
   </div>
 </div>
 
-<script src="js/data-nextcloud.js?v=2"></script>
+<script src="js/data-nextcloud.js?v=3"></script>
 
 <!-- ═══ ÉCRAN : RÉSEAU (réseau social solarpunk) ═══ -->
 <div class="screen" id="screen-reseau">
@@ -1766,9 +1761,9 @@
   </div>
 </div>
 
-<script src="js/data-reseau.js?v=2"></script>
+<script src="js/data-reseau.js?v=3"></script>
 
-<script src="js/regen-loop.js?v=2"></script>
+<script src="js/regen-loop.js?v=3"></script>
 
 <!-- Modale ajout/édition offre Pilote -->
 <div id="pmkt-modal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(14,26,18,0.75);backdrop-filter:blur(6px);align-items:center;justify-content:center">
@@ -2507,7 +2502,7 @@
 
 
 
-<script src="js/app-core.js?v=2"></script>
+<script src="js/app-core.js?v=3"></script>
 
 <script
   src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -2566,9 +2561,9 @@
   </div>
 </div>
 
-<script src="js/deva.js?v=2"></script>
+<script src="js/deva.js?v=3"></script>
 
-<script src="js/nav-mobile.js?v=2"></script>
+<script src="js/nav-mobile.js?v=3"></script>
 
 <!-- ── Modal : Choisir ton profil ── -->
 <div id="auth-profil-modal" style="display:none;position:fixed;inset:0;z-index:10001;background:rgba(14,26,18,.6);backdrop-filter:blur(6px);align-items:center;justify-content:center">
@@ -2611,7 +2606,7 @@
 </div>
 
 
-<script src="js/auth.js?v=2"></script>
+<script src="js/auth.js?v=3"></script>
 
 <!-- Espace modal, placé au niveau body pour rester accessible depuis tous les contextes -->
 <div id="espace-modal">
@@ -2709,14 +2704,14 @@
     </div>
   </div>
 </div>
-<script src="js/espace-modal.js?v=2"></script>
+<script src="js/espace-modal.js?v=3"></script>
 
 <!-- ═══════════════════════════════════════════════════════
      COUCHE DE CONVERGENCE, PERMA-COMPTABILITÉ EVAD
      Saisie unique → traduction multi-cadres institutionnels
      ═══════════════════════════════════════════════════════ -->
-<script src="js/quetes.js?v=2"></script>
-<script src="js/ici.js?v=2"></script>
+<script src="js/quetes.js?v=3"></script>
+<script src="js/ici.js?v=3"></script>
 
 <!-- ─── MODAL CONTRIBUER ─── -->
 <div id="contrib-modal" style="display:none;position:fixed;inset:0;z-index:10002;background:rgba(14,26,18,.65);backdrop-filter:blur(7px);align-items:flex-end;justify-content:center;overflow:hidden">
@@ -2880,7 +2875,7 @@
   </div>
 </div>
 
-<script src="js/contribution.js?v=2"></script>
+<script src="js/contribution.js?v=3"></script>
 
 <!-- Modal détail solution (créer lieu step 4) -->
 <div id="creer-sol-detail-modal" style="display:none;position:fixed;inset:0;z-index:10010;background:rgba(13,43,34,.6);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)creerCloseSolDetail()">
@@ -2893,7 +2888,7 @@
   </div>
 </div>
 
-<script src="js/fil-rouge-feedback.js?v=2"></script>
+<script src="js/fil-rouge-feedback.js?v=3"></script>
 
 </body>
 </html>

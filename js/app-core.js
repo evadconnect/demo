@@ -6533,76 +6533,66 @@ function updateApercuFromQuetes() {
 }
 
 /* ─── PARCOURS REGEN (boucle + détail par étape) ─── */
-const REGEN_STEPS = [
+/* Boucle VADE (charte des ICI) : Valoriser → Activer → Développer → Élever.
+   Un même parcours, un cran plus haut à chaque tour ; chaque étape outillée. */
+const VADE_STEPS = [
   {
-    letter: 'R', name: 'Rêver', color: '#018262',
-    title: 'Rêver le monde de demain',
-    desc: 'Faire naître le lieu comme idée, librement, sans contrainte de réalisme.',
-    tags: ['☀️ Solarpunk', '🎮 Gamification'],
-    outils: ['Serious game', 'Modélisation (Minecraft)', 'Deva'],
+    letter: 'V', name: 'Valoriser', color: '#018262',
+    title: 'Valoriser l’existant',
+    desc: 'Établir la base de référence T0 et repérer l’impact déjà présent sur le lieu.',
+    tags: ['📍 Diagnostic T0', '📚 Bibliothèque d’ICI'],
+    outils: ['Diagnostic T0', 'Bibliothèque d’ICI', 'Deva'],
     taches: [
-      'Pose des cartes Espaces, Solutions et Boucles dans le serious game',
-      'Assemble des boucles circulaires : entrée → transformation → débouché',
-      'Bascule en Modélisation pour spatialiser le jumeau numérique du lieu',
+      'Établir la base de référence T0 de ton lieu',
+      'Repérer l’impact déjà présent (écologie, social, économie locale)',
+      'Identifier les ICI pertinents avec l’aide de Deva',
     ],
   },
   {
-    letter: 'E', name: 'Explorer', color: '#2d6a9f',
-    title: 'Explorer les solutions',
-    desc: 'Puiser dans la bibliothèque commune et open source pour adapter les techniques éprouvées à son lieu.',
-    tags: ['📚 Communs', '🔧 Low-tech'],
-    outils: ['Bibliothèque de fiches', 'Permaculture', 'Gouvernance'],
+    letter: 'A', name: 'Activer', color: '#2d6a9f',
+    title: 'Activer les solutions',
+    desc: 'Déclarer les solutions mises en œuvre et mobiliser la communauté.',
+    tags: ['🌱 Solutions', '🤝 Communauté'],
+    outils: ['Catalogue de solutions', 'Déclaration des ICI', 'Quêtes'],
     taches: [
-      'Parcourir les fiches low-tech, permaculture et gouvernance',
-      'Sélectionner les solutions adaptées au contexte du lieu',
-      'Adapter et annoter les fiches retenues',
+      'Déclarer les solutions que tu mets en œuvre',
+      'Chaque solution embarque ses ICI à suivre',
+      'Ouvrir des quêtes et mobiliser les Bâtisseurs',
     ],
   },
   {
-    letter: 'G', name: 'Générer', color: '#c8732a',
-    title: 'Générer les fiches et tableaux de bord',
-    desc: 'Chaque profil génère sa fiche de présentation et son tableau de bord. La mesure est outillée, transparente, exportable.',
-    tags: ['📊 Mesure', '📄 Open data'],
-    outils: ['Fiche lieu', 'Tableau de bord', 'Export REGEN'],
+    letter: 'D', name: 'Développer', color: '#c8732a',
+    title: 'Développer la preuve',
+    desc: 'Mesurer et prouver l’impact, puis sécuriser le financement.',
+    tags: ['📊 Vadité', '💶 Financement'],
+    outils: ['Mesure d’impact', 'Attestation Vadité', 'Monnaie Vade'],
     taches: [
-      'Compléter la fiche d’identité du lieu',
-      'Générer le tableau de bord et le score REGEN',
-      'Exporter le rapport partageable',
+      'Saisir les valeurs observées et leur niveau de preuve',
+      'Produire l’attestation Vadité (impact réellement prouvé)',
+      'Sécuriser le financement des Semeurs en euros',
     ],
   },
   {
-    letter: 'E', name: 'Entreprendre', color: '#018262',
-    title: 'Entreprendre les quêtes',
-    desc: 'Mettre les quêtes en ligne, mobiliser sa communauté, sécuriser le financement, documenter les preuves, créditer les graines.',
-    tags: ['⚡ Action', '🤝 Communauté'],
-    outils: ['Quêtes', 'Financement Semeur', 'Graines'],
+    letter: 'E', name: 'Élever', color: '#6b5b95',
+    title: 'Élever le commun',
+    desc: 'Faire vérifier par les pairs et l’audit, puis faire remonter les retours dans le référentiel.',
+    tags: ['🔍 Audit tiers', '🌍 Commun ouvert'],
+    outils: ['Audit tiers', 'Passeport du lieu', 'Amendement du commun'],
     taches: [
-      'Publier les quêtes et mobiliser les Bâtisseurs',
-      'Sécuriser le financement auprès des Semeurs',
-      'Documenter les preuves et créditer les graines',
-    ],
-  },
-  {
-    letter: 'N', name: 'Nourrir', color: '#6b5b95',
-    title: 'Nourrir l’écosystème',
-    desc: 'Récolter les apprentissages, affiner les fiches, améliorer les outils. Les retours remontent dans les communs.',
-    tags: ['🌱 Communs', '🔄 Itération'],
-    outils: ['Retours d’expérience', 'Bibliothèque', 'Amélioration continue'],
-    taches: [
-      'Récolter les apprentissages du cycle',
-      'Affiner et enrichir les fiches des communs',
-      'Partager les retours pour nourrir le parcours suivant',
+      'Faire vérifier tes preuves par les pairs puis l’audit tiers',
+      'Publier le passeport du lieu',
+      'Remonter tes retours pour amender le référentiel commun',
     ],
   },
 ];
 // état des tâches cochées par étape
-const regenTasksDone = REGEN_STEPS.map(s => s.taches.map(() => false));
+const regenTasksDone = VADE_STEPS.map(s => s.taches.map(() => false));
 let regenSelected = 0;
 
 function regenSelect(i) {
   regenSelected = i;
   // nœuds : mise en avant du sélectionné
-  REGEN_STEPS.forEach((s, k) => {
+  VADE_STEPS.forEach((s, k) => {
     const circ = document.getElementById('rn-circ-' + k);
     const lbl = document.getElementById('rn-lbl-' + k);
     if (!circ) return;
@@ -6632,7 +6622,7 @@ function regenToggleTask(stepIdx, taskIdx) {
 function regenRenderDetail() {
   const box = document.getElementById('regen-detail');
   if (!box) return;
-  const s = REGEN_STEPS[regenSelected];
+  const s = VADE_STEPS[regenSelected];
   const done = regenTasksDone[regenSelected];
   const nDone = done.filter(Boolean).length;
 
@@ -6656,7 +6646,7 @@ function regenRenderDetail() {
     <div style="display:flex;align-items:flex-start;gap:.85rem;margin-bottom:.7rem">
       <div style="width:46px;height:46px;border-radius:12px;background:${s.color};color:white;display:flex;align-items:center;justify-content:center;font-family:'Satoshi', sans-serif;font-weight:900;font-size:1.3rem;flex-shrink:0">${s.letter}</div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:.58rem;font-weight:700;color:${s.color};text-transform:uppercase;letter-spacing:.1em">Étape ${regenSelected + 1} / 5 · ${s.name} · Pilote</div>
+        <div style="font-size:.58rem;font-weight:700;color:${s.color};text-transform:uppercase;letter-spacing:.1em">Étape ${regenSelected + 1} / ${VADE_STEPS.length} · ${s.name} · Pilote</div>
         <div style="font-family:'Satoshi', sans-serif;font-size:1.2rem;font-weight:900;color:var(--ink);line-height:1.15;margin-top:.15rem">${s.title}</div>
       </div>
     </div>
