@@ -2818,7 +2818,7 @@ function mapRenderCommunity() {
         </div>
         <div class="pcm-score-row">
           <div class="score-bar-bg"><div class="score-bar-fill" style="width:${p.score}%"></div></div>
-          <div class="score-label">Score ${p.score}/100</div>
+          <div class="score-label">Vadance ${p.score}/100</div>
         </div>
         <div class="pcm-quetes" style="color:var(--fern)">⚡ ${p.quetes} quête${p.quetes>1?'s':''} · ${p.batisseurs} bâtisseur${p.batisseurs>1?'s':''}</div>
       `;
@@ -4914,7 +4914,7 @@ async function createLieuOnMap(){
       </div>
       <div class="pcm-score-row">
         <div class="score-bar-bg"><div id="evad-mylieu-scorebar" class="score-bar-fill" style="width:${_sd0.score}%"></div></div>
-        <div id="evad-mylieu-scorelabel" class="score-label" style="color:${_sd0.nbValidees>0?'var(--fern)':'var(--amber)'}">${_sd0.nbValidees>0?'↑ ':'Nouveau · '}Score ${_sd0.score}/100</div>
+        <div id="evad-mylieu-scorelabel" class="score-label" style="color:${_sd0.nbValidees>0?'var(--fern)':'var(--amber)'}">${_sd0.nbValidees>0?'↑ ':'Nouveau · '}Vadance ${_sd0.score}/100</div>
       </div>
       <div class="pcm-quetes" style="color:var(--fern)">✦ ${cData.solutions?.length || 0} solution${(cData.solutions?.length||0)!==1?'s':''} · Lieu régénératif</div>
     `;
@@ -6451,7 +6451,22 @@ function ficheFillFromMyLieu() {
   if (cover && d.cover) cover.innerHTML = '<img src="' + d.cover + '" style="width:100%;height:100%;object-fit:cover" alt="">';
 }
 
+// Reflète le lieu créé (myLieuData) dans l'en-tête du tableau de bord.
+function evadReflectLieuInDashboard() {
+  const d = (typeof myLieuData !== 'undefined' && myLieuData) ? myLieuData : null;
+  const sub = document.getElementById('pilote-lieu-sub');
+  if (!sub) return;
+  if (d && d.nom) {
+    const lieuType = (typeof TYPES_LIEU !== 'undefined' ? (TYPES_LIEU.find(t => t.id === d.type) || {}).l : null);
+    const detail = d.localisation || lieuType || '';
+    sub.textContent = d.nom + (detail ? ' · ' + detail : '');
+  } else {
+    sub.textContent = 'Mon lieu · —';
+  }
+}
+
 function piloteTab(tab, btn) {
+  evadReflectLieuInDashboard();
   document.querySelectorAll('.pilote-tab').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   document.querySelectorAll('.pilote-panel').forEach(p => p.classList.remove('active'));
@@ -6504,7 +6519,7 @@ function evadSyncMyLieuOnMap() {
   if (bar) bar.style.width = d.score + '%';
   const lbl = document.getElementById('evad-mylieu-scorelabel');
   if (lbl) {
-    lbl.textContent = (d.nbValidees > 0 ? '↑ ' : 'Nouveau · ') + 'Score ' + d.score + '/100';
+    lbl.textContent = (d.nbValidees > 0 ? '↑ ' : 'Nouveau · ') + 'Vadance ' + d.score + '/100';
     lbl.style.color = d.nbValidees > 0 ? 'var(--fern)' : 'var(--amber)';
   }
   if (evadMyLieuMarker && typeof myLieuData !== 'undefined' && myLieuData) {
