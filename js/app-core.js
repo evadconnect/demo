@@ -2654,12 +2654,13 @@ function mapShowLieu(idx) {
           <span style="font-size:.68rem;font-weight:600;color:var(--ink)">Score REGEN</span>
           <span style="font-family:'Satoshi', sans-serif;font-size:1.4rem;font-weight:900;color:var(--sun)">${place.score}</span>
         </div>
-        <div class="score-bar-bg" style="height:5px;margin-bottom:.7rem"><div class="score-bar-fill" style="width:${place.score}%"></div></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem">
+        <div class="score-bar-bg" style="height:5px;margin-bottom:.85rem"><div class="score-bar-fill" style="width:${place.score}%"></div></div>
+        <div style="display:grid;grid-template-columns:repeat(${place.dims.length || 1},1fr);gap:.55rem">
           ${place.dims.map(d => `
-          <div>
-            <div style="display:flex;justify-content:space-between;font-size:.6rem;color:var(--moss);opacity:.65;margin-bottom:.18rem"><span>${d.l}</span><span style="font-weight:700;color:${d.c};opacity:1">${d.v}</span></div>
-            <div style="height:3px;background:rgba(46,102,66,.08);border-radius:100px;overflow:hidden"><div style="width:${d.v}%;height:100%;background:${d.c};border-radius:100px"></div></div>
+          <div style="text-align:center;padding:.5rem .35rem;background:${d.c}0d;border:1px solid ${d.c}26;border-radius:10px">
+            <div style="font-family:'Satoshi', sans-serif;font-size:1.1rem;font-weight:900;color:${d.c};line-height:1">${d.v}</div>
+            <div style="font-size:.55rem;color:var(--moss);opacity:.75;margin:.18rem 0 .35rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d.l}</div>
+            <div style="height:3px;background:rgba(46,102,66,.1);border-radius:100px;overflow:hidden"><div style="width:${d.v}%;height:100%;background:${d.c};border-radius:100px"></div></div>
           </div>`).join('')}
         </div>
       </div>
