@@ -1,6 +1,19 @@
 /* ─── NAVIGATION ─── */
 /* ─── ONBOARDING ENGINE ─── */
 
+// Étape 2 d'onboarding commune aux 3 profils : la mesure d'impact (Vadance / Vadité).
+const OB_STEP2 = {
+  eyebrow: 'Étape 2 · La mesure d\'impact',
+  headline: 'Vadance\n& Vadité.',
+  desc: 'EVAD mesure l\'impact en deux temps : ce qu\'un lieu promet, et ce qu\'il prouve vraiment. L\'écart entre les deux, c\'est sa crédibilité.',
+  type: 'cycle',
+  steps: [
+    { num: '🎯', title: 'La Vadance, la promesse', text: 'Le score d\'impact projeté d\'un lieu, sur 100. Calculé sur les valeurs prévues (le plan). Il sert à mobiliser la communauté et à convaincre les financeurs.' },
+    { num: '✅', title: 'La Vadité, la preuve', text: 'L\'impact réellement prouvé et vérifié. Chaque donnée est décotée selon son niveau de preuve : déclaré, documenté, validé par les pairs, audité. C\'est ce que reçoit le financeur.' },
+    { num: '⚖️', title: 'Le taux de tenue', text: 'Vadité ÷ Vadance : la capacité d\'un lieu à transformer ses promesses en preuves. L\'indicateur anti-greenwashing d\'EVAD.' }
+  ]
+};
+
 const OB_DATA = {
   pilote: {
     color: '#2e6b47',
@@ -29,7 +42,8 @@ const OB_DATA = {
           { num: '3', title: 'Les Semeurs financent', text: 'Entreprises et fondations financent des projets contre des preuves d\'impact certifiés ESRS.' },
           { num: '4', title: 'La Vadance progresse', text: 'Chaque preuve certifiée fait progresser ton lieu et débloque de nouveaux financements.' }
         ]
-      }
+      },
+      OB_STEP2
     ]
   },
   batisseur: {
@@ -59,7 +73,8 @@ const OB_DATA = {
           { num: '3', title: 'Certifie ta contribution', text: 'Photo, mesure, témoignage pair. La preuve est vérifiée et publiée sur la blockchain légère EVAD.' },
           { num: '4', title: 'Reçois et dépense tes graines', text: 'Échange tes graines contre des avantages locaux : paniers, stages, hébergements, formations.' }
         ]
-      }
+      },
+      OB_STEP2
     ]
   },
   semeur: {
@@ -89,7 +104,8 @@ const OB_DATA = {
           { num: '3', title: 'Suivi des jalons & preuves', text: 'Chaque jalon est validé par les Bâtisseurs + oracle EVAD. Preuve NFT générée automatiquement.' },
           { num: '4', title: 'Rapport d\'impact ESRS exportable', text: 'Un rapport complet et auditable est généré à la clôture, intégrable directement dans ton CSRD.' }
         ]
-      }
+      },
+      OB_STEP2
     ]
   }
 };
