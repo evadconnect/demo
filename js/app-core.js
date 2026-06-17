@@ -3367,15 +3367,9 @@ function bddDetail(s){
       </div>`;
     })()}
 
-    <!-- ⑦ Indicateurs -->
+    <!-- ⑦ Indicateurs de Changement d'Impact (ICI) -->
     <div style="margin:1rem 1.4rem 0">
-      <div style="font-size:.62rem;text-transform:uppercase;letter-spacing:.12em;color:var(--moss);opacity:.5;margin-bottom:.5rem">◆ Indicateurs CUMUL</div>
-      <div style="display:flex;flex-direction:column;gap:.35rem">
-        ${s.ind.map(i=>`<div style="display:flex;align-items:center;gap:.65rem;padding:.6rem .85rem;border-radius:.75rem;background:white;border:1px solid rgba(46,102,66,.1)">
-          <div style="width:6px;height:6px;border-radius:50%;background:var(--fern);flex-shrink:0"></div>
-          <span style="font-size:.73rem;color:var(--ink)">${i}</span>
-        </div>`).join('')}
-      </div>
+      ${typeof iciFicheSolutionHTML==='function'?iciFicheSolutionHTML(s.nom,s.ind):`<div style="font-size:.62rem;text-transform:uppercase;letter-spacing:.12em;color:var(--moss);opacity:.5;margin-bottom:.5rem">◆ Indicateurs CUMUL</div><div style="display:flex;flex-direction:column;gap:.35rem">${s.ind.map(i=>`<div style="display:flex;align-items:center;gap:.65rem;padding:.6rem .85rem;border-radius:.75rem;background:white;border:1px solid rgba(46,102,66,.1)"><div style="width:6px;height:6px;border-radius:50%;background:var(--fern);flex-shrink:0"></div><span style="font-size:.73rem;color:var(--ink)">${i}</span></div>`).join('')}</div>`}
     </div>
 
     <!-- ⑧ CTA -->
