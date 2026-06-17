@@ -243,6 +243,7 @@ function creerOpenSolDetail(nomSol) {
       ${esrsHtml}
       ${permaHtml}
       ${oddHtml}
+      ${typeof iciFicheSolutionHTML==='function'?iciFicheSolutionHTML(s.nom,s.ind):''}
       ${queteHtml}
       ${matHtml}
       ${planHtml}

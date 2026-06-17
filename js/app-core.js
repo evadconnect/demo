@@ -4282,9 +4282,8 @@ function showSolDetail(nom){
       <div style="font-size:.63rem;color:var(--fern);font-weight:600;padding:.4rem .55rem;background:rgba(74,140,92,.06);border-radius:var(--r)">Impact : ${s.quete.impact_quete}</div>
     </div>
 
-    <!-- Indicateurs -->
-    <div style="font-family:'Satoshi', sans-serif;font-size:.82rem;font-weight:600;color:var(--ink);margin-bottom:.55rem;padding-bottom:.35rem;border-bottom:1px solid rgba(46,102,66,.1)">Indicateurs CUMUL</div>
-    ${s.ind.map(i=>`<div style="display:flex;align-items:center;gap:.5rem;padding:.4rem .6rem;border-radius:var(--r);background:white;border:1px solid rgba(46,102,66,.1);margin-bottom:.3rem;font-size:.68rem;color:var(--ink)"><span style="color:var(--fern);font-size:.6rem">◆</span>${i}</div>`).join('')}
+    <!-- Indicateurs de Changement d'Impact (ICI) -->
+    ${typeof iciFicheSolutionHTML==='function'?iciFicheSolutionHTML(s.nom,s.ind):`<div style="font-family:'Satoshi', sans-serif;font-size:.82rem;font-weight:600;color:var(--ink);margin-bottom:.55rem;padding-bottom:.35rem;border-bottom:1px solid rgba(46,102,66,.1)">Indicateurs CUMUL</div>${s.ind.map(i=>`<div style="display:flex;align-items:center;gap:.5rem;padding:.4rem .6rem;border-radius:var(--r);background:white;border:1px solid rgba(46,102,66,.1);margin-bottom:.3rem;font-size:.68rem;color:var(--ink)"><span style="color:var(--fern);font-size:.6rem">◆</span>${i}</div>`).join('')}`}
 
     <!-- Graines -->
     <div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r);overflow:hidden;margin-top:1rem">

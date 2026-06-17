@@ -64,6 +64,69 @@ const iciParLivre = (livre) => ICI_CATALOG.filter((i) => i.livre === livre);
 // ICI portés par une solution (par son nom SOLS).
 const iciPourSolution = (solNom) => ICI_CATALOG.filter((i) => (i.solutionIds || []).includes(solNom));
 
+/* ── Section « Indicateurs de Changement d'Impact » pour une FICHE SOLUTION.
+   Cf. charte des ICI : « chaque solution porte déjà ses ICI ». On affiche, pour
+   la solution, les ICI qu'elle embarque, chacun présenté comme une variation
+   T0 → cible (l'impact = la flèche, le changement attribuable, p.5 de la charte),
+   avec son capital (livre) et l'échelle de preuve commune. Renvoie une chaîne HTML.
+   fallbackInd = la liste d'indicateurs « libres » de la solution (s.ind), montrée
+   si aucun ICI normalisé n'est encore catalogué pour elle. ── */
+function iciFicheSolutionHTML(solNom, fallbackInd) {
+  if (typeof ICI_CATALOG === 'undefined') return '';
+  const icis = iciPourSolution(solNom);
+
+  const fmtNb = (v) => (typeof v === 'number'
+    ? (Number.isInteger(v) ? v : Math.round(v * 10) / 10).toLocaleString('fr-FR')
+    : v);
+  const fmt = (v, u) => (u ? fmtNb(v) + ' ' + u : fmtNb(v));
+
+  // Échelle de preuve (légende commune : du déclaratif à l'audit tiers).
+  const echelle = ICI_PREUVE_ORDRE.map((k, i) => {
+    const p = ICI_PREUVE_META[k];
+    const fleche = i < ICI_PREUVE_ORDRE.length - 1
+      ? '<span style="opacity:.4;font-size:.55rem;margin:0 .12rem">→</span>' : '';
+    return `<span style="display:inline-flex;align-items:center;gap:.2rem;font-size:.57rem;color:var(--moss);white-space:nowrap">${p.ic} ${p.label}</span>${fleche}`;
+  }).join('');
+
+  let corps;
+  if (icis.length) {
+    corps = icis.map((ici) => {
+      const meta = ICI_LIVRE_META[ici.livre] || { col: '#4a8c5c', ic: '◆', label: ici.livre };
+      const sens = ici.point100 >= ici.point0 ? '↗' : '↘'; // hausse / baisse favorable
+      return `<div style="background:white;border:1px solid rgba(46,102,66,.12);border-left:3px solid ${meta.col};border-radius:var(--r);padding:.6rem .7rem;margin-bottom:.4rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:.4rem;margin-bottom:.5rem">
+          <div style="font-size:.7rem;font-weight:700;color:var(--ink);line-height:1.25">${ici.nom}</div>
+          <span style="flex-shrink:0;font-size:.54rem;font-weight:700;padding:.12rem .42rem;border-radius:100px;background:${meta.col}1a;color:${meta.col};white-space:nowrap">${meta.ic} ${meta.label}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <div style="text-align:center;flex-shrink:0">
+            <div style="font-size:.5rem;text-transform:uppercase;letter-spacing:.08em;color:var(--moss);opacity:.65;margin-bottom:.1rem">T0</div>
+            <div style="font-size:.72rem;font-weight:800;color:var(--ink)">${fmt(ici.point0, ici.unite)}</div>
+          </div>
+          <div style="flex:1;position:relative;height:2px;background:linear-gradient(90deg,${meta.col}33,${meta.col});border-radius:2px;min-width:42px">
+            <span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:0 .28rem;font-size:.55rem;font-weight:700;color:${meta.col};white-space:nowrap">${sens} impact</span>
+          </div>
+          <div style="text-align:center;flex-shrink:0">
+            <div style="font-size:.5rem;text-transform:uppercase;letter-spacing:.08em;color:${meta.col};opacity:.85;margin-bottom:.1rem">Cible</div>
+            <div style="font-size:.72rem;font-weight:800;color:${meta.col}">${fmt(ici.point100, ici.unite)}</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    const list = (fallbackInd || []).map((i) => `<div style="display:flex;align-items:center;gap:.5rem;padding:.4rem .6rem;border-radius:var(--r);background:white;border:1px solid rgba(46,102,66,.1);margin-bottom:.3rem;font-size:.68rem;color:var(--ink)"><span style="color:var(--fern);font-size:.6rem">◆</span>${i}</div>`).join('');
+    corps = `<div style="font-size:.62rem;color:var(--moss);font-style:italic;margin-bottom:.45rem">ICI normalisés en cours de cadrage pour cette solution. Indicateurs suivis aujourd'hui :</div>${list}`;
+  }
+
+  return `
+    <div style="font-family:'Satoshi', sans-serif;font-size:.82rem;font-weight:600;color:var(--ink);margin-bottom:.4rem;padding-bottom:.35rem;border-bottom:1px solid rgba(46,102,66,.1)">🎯 Indicateurs de Changement d'Impact</div>
+    <div style="font-size:.63rem;color:var(--moss);line-height:1.5;margin-bottom:.55rem">Cette solution embarque ses ICI : la donnée que ton lieu mesurera, du point de départ (T0) à la cible. L'impact, c'est la flèche, le changement attribuable.</div>
+    ${corps}
+    <div style="display:flex;align-items:center;gap:.25rem;flex-wrap:wrap;margin:.5rem 0 1rem;padding:.45rem .6rem;background:rgba(58,110,140,.05);border:1px solid rgba(58,110,140,.14);border-radius:var(--r)">
+      <span style="font-size:.55rem;font-weight:700;color:#2a6090;text-transform:uppercase;letter-spacing:.06em;margin-right:.25rem">Niveau de preuve</span>${echelle}
+    </div>`;
+}
+
 /* ── Seed de mesures pour le lieu de démo.
    Écologie & social corrects, ÉCONOMIE LOCALE volontairement faible
    (sous le plancher) → déclenche l'alerte. ── */
