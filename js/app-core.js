@@ -1374,6 +1374,7 @@ function showScreen(id) {
 
   if(id==='bdd'){ initBDD(); setTimeout(bddUpdateContext, 50); }
   if(id==='creer') initCreer();
+  const _dfh = document.getElementById('deva-fiche-hint'); if (_dfh) _dfh.style.display = (id==='creer') ? 'block' : 'none';
   if(id==='semeur') { semeurTab('apercu', document.getElementById('stab-apercu')); }
   if(id==='carte') setTimeout(initRealMap, 80);
 
@@ -3796,6 +3797,13 @@ function devaAideCreer(){
   const input = document.getElementById('deva-chat-input');
   if (input) input.value = q;
   setTimeout(() => { if (typeof devaSubmit === 'function') devaSubmit(); }, open ? 60 : 360);
+}
+
+// Clic sur la pastille Deva : aide contextuelle en création de lieu, sinon ouvre le chat.
+function devaPillClick(){
+  const cr = document.getElementById('screen-creer');
+  if (cr && cr.classList.contains('active') && typeof devaAideCreer === 'function') devaAideCreer();
+  else if (typeof devaToggleChat === 'function') devaToggleChat();
 }
 
 function renderStep(){
