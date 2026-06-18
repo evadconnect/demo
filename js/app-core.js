@@ -4200,7 +4200,8 @@ function renderStep(){
         +'</div>';
     }
 
-    c.innerHTML=''
+    // ── Onglets « Solutions » / « Indicateurs » de la sidebar ──
+    const _solutionsPane=''
       +'<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem">'
         +'<div style="font-size:.72rem;font-weight:700;color:var(--ink)">🧩 Solutions sélectionnées par Deva</div>'
         +'<div style="margin-left:auto;font-size:.65rem;font-weight:700;background:rgba(1,130,98,.1);color:var(--forest);padding:.1rem .5rem;border-radius:100px">'+totalSols+' solution'+(totalSols!==1?'s':'')+'</div>'
@@ -4208,6 +4209,19 @@ function renderStep(){
       +'<div style="font-size:.65rem;color:var(--moss);opacity:.75;margin-bottom:.9rem;line-height:1.55">Deva a présélectionné les solutions les plus adaptées à chaque espace de ton lieu. Retire celles qui ne te conviennent pas ou ajoute-en d\'autres depuis la bibliothèque.</div>'
       +espacesHTML
       +synergiesHTML;
+    const _indicateursPane = (typeof creerStep3IndicateursHTML==='function') ? creerStep3IndicateursHTML() : '';
+    window._creerS3Panes = { solutions: _solutionsPane, indicateurs: _indicateursPane };
+    const _tab = window._creerStep3Tab || 'solutions';
+    const _tabBtn = (id,label)=>{
+      const on = _tab===id;
+      return '<button data-tab="'+id+'" onclick="creerStep3Tab(\''+id+'\')" style="flex:1;border:1px solid '+(on?'var(--forest)':'rgba(46,102,66,.2)')+';background:'+(on?'var(--forest)':'white')+';color:'+(on?'white':'var(--moss)')+';font-family:inherit;font-size:.68rem;font-weight:700;padding:.4rem .3rem;border-radius:100px;cursor:pointer;transition:all .15s">'+label+'</button>';
+    };
+    c.innerHTML=''
+      +'<div id="creer-s3-tabs" style="display:flex;gap:.4rem;margin-bottom:.8rem">'
+        +_tabBtn('solutions','🧩 Solutions')
+        +_tabBtn('indicateurs','📊 Indicateurs')
+      +'</div>'
+      +'<div id="creer-s3-pane">'+(_tab==='indicateurs'?_indicateursPane:_solutionsPane)+'</div>';
 
     genMM(espItems);
     mmDrawCircularLinks(espItems, circLinks);
@@ -4216,6 +4230,73 @@ function renderStep(){
 }
 window._solFilter = window._solFilter || {cat:'tous', q:''};
 window._activeEspacePanel = window._activeEspacePanel !== undefined ? window._activeEspacePanel : null;
+window._creerStep3Tab = window._creerStep3Tab || 'solutions';
+
+/* Onglet « Indicateurs » de l'étape 3 : les ICI portés par les solutions
+   sélectionnées, regroupés par capital (écologie / social / économie locale). */
+function creerStep3IndicateursHTML(){
+  const selSols = cData.solutions || [];
+  if (typeof iciPourSolution !== 'function') return '';
+  const iciMap = {}; // id -> {ici, sols:[]}
+  selSols.forEach(sn => {
+    (iciPourSolution(sn) || []).forEach(ici => {
+      if (!iciMap[ici.id]) iciMap[ici.id] = { ici: ici, sols: [] };
+      if (!iciMap[ici.id].sols.includes(sn)) iciMap[ici.id].sols.push(sn);
+    });
+  });
+  const entries = Object.values(iciMap);
+  const total = entries.length;
+  let html = ''
+    + '<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem">'
+      + '<div style="font-size:.72rem;font-weight:700;color:var(--ink)">📊 Indicateurs de Changement d\'Impact</div>'
+      + '<div style="margin-left:auto;font-size:.65rem;font-weight:700;background:rgba(1,130,98,.1);color:var(--forest);padding:.1rem .5rem;border-radius:100px">'+total+' ICI</div>'
+    + '</div>'
+    + '<div style="font-size:.65rem;color:var(--moss);opacity:.75;margin-bottom:.9rem;line-height:1.55">Chaque solution porte ses ICI : les changements concrets et mesurables que ton lieu projette (la base de ta Vadance).</div>';
+  if (!total) {
+    return html + '<div style="padding:1rem;text-align:center;font-size:.7rem;color:var(--moss);opacity:.55;border:1px dashed rgba(46,102,66,.2);border-radius:var(--r)">Aucun indicateur, ajoute des solutions qui portent des ICI.</div>';
+  }
+  const order = ['ecologie','social','economie_locale'];
+  const byLivre = {};
+  entries.forEach(e => { (byLivre[e.ici.livre] = byLivre[e.ici.livre] || []).push(e); });
+  order.forEach(livre => {
+    const list = byLivre[livre];
+    if (!list || !list.length) return;
+    const meta = (typeof ICI_LIVRE_META !== 'undefined' && ICI_LIVRE_META[livre]) || { label: livre, ic: '◆', col: '#4a8c5c' };
+    html += '<div style="display:flex;align-items:center;gap:.4rem;margin:.7rem 0 .45rem">'
+      + '<span style="font-size:.85rem">'+meta.ic+'</span>'
+      + '<span style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:'+meta.col+'">'+meta.label+'</span>'
+      + '<span style="margin-left:auto;font-size:.58rem;font-weight:700;color:'+meta.col+';background:'+meta.col+'18;padding:.05rem .45rem;border-radius:100px">'+list.length+'</span>'
+      + '</div>';
+    list.forEach(e => {
+      const ici = e.ici;
+      const chips = e.sols.map(sn => '<span style="font-size:.58rem;color:'+meta.col+';background:'+meta.col+'12;border:1px solid '+meta.col+'33;border-radius:100px;padding:.1rem .4rem">'+sn+'</span>').join(' ');
+      html += '<div style="background:white;border:1px solid '+meta.col+'22;border-left:3px solid '+meta.col+';border-radius:var(--r);padding:.5rem .6rem;margin-bottom:.35rem">'
+        + '<div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.3rem">'
+          + '<span style="font-size:.72rem;font-weight:700;color:var(--ink);line-height:1.2">'+ici.nom+'</span>'
+          + '<span style="font-size:.56rem;color:'+meta.col+';font-weight:600;white-space:nowrap">'+(ici.unite||'')+'</span>'
+        + '</div>'
+        + '<div style="display:flex;flex-wrap:wrap;gap:.25rem">'+chips+'</div>'
+      + '</div>';
+    });
+  });
+  return html;
+}
+
+/* Bascule entre les onglets « Solutions » et « Indicateurs » sans redessiner le mind map. */
+function creerStep3Tab(tab){
+  window._creerStep3Tab = tab;
+  const pane = document.getElementById('creer-s3-pane');
+  if (pane && window._creerS3Panes) pane.innerHTML = window._creerS3Panes[tab] || '';
+  const tabs = document.getElementById('creer-s3-tabs');
+  if (tabs) {
+    tabs.querySelectorAll('[data-tab]').forEach(b => {
+      const on = b.getAttribute('data-tab') === tab;
+      b.style.background = on ? 'var(--forest)' : 'white';
+      b.style.color = on ? 'white' : 'var(--moss)';
+      b.style.borderColor = on ? 'var(--forest)' : 'rgba(46,102,66,.2)';
+    });
+  }
+}
 
 function creerSolFilter(cat, btn){
   window._solFilter.cat = cat;
