@@ -3731,3 +3731,4 @@ body {
 /* Gamification Vadance (création de lieu) */
 @keyframes vadFloat { 0%{opacity:0;transform:translateX(-50%) translateY(6px) scale(.9)} 18%{opacity:1} 100%{opacity:0;transform:translateX(-50%) translateY(-28px) scale(1)} }
 @keyframes vadPop { 0%{transform:translateX(-50%) scale(1)} 40%{transform:translateX(-50%) scale(1.07)} 100%{transform:translateX(-50%) scale(1)} }
+.creer-doc-spin { width:14px; height:14px; flex-shrink:0; border:2px solid rgba(46,102,66,.25); border-top-color:var(--forest); border-radius:50%; animation:spin .7s linear infinite; display:inline-block; }

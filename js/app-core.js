@@ -4009,6 +4009,7 @@ function renderStep(){
         <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.odt" multiple style="display:none" onchange="creerDocs(this)">
       </label>
       <div id="creer-docs-list" style="display:flex;flex-direction:column;gap:.3rem;margin-bottom:.8rem">${(cData.docs||[]).map((d,i)=>`<div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;background:rgba(46,102,66,.05);border:1px solid rgba(46,102,66,.12);border-radius:var(--r);padding:.4rem .6rem"><span style="font-size:.68rem;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📄 ${d}</span><button onclick="cData.docs.splice(${i},1);renderStep()" style="background:none;border:none;color:var(--moss);opacity:.55;cursor:pointer;font-size:.85rem;flex-shrink:0;line-height:1">✕</button></div>`).join('')}</div>
+      <div id="creer-doc-status" style="display:none;align-items:center;gap:.55rem;background:rgba(46,102,66,.07);border:1px solid rgba(46,102,66,.18);border-radius:var(--r);padding:.5rem .7rem;margin-bottom:.8rem;font-size:.7rem;color:var(--forest)"><span id="creer-doc-status-spin" class="creer-doc-spin"></span><span id="creer-doc-status-txt"></span></div>
       <label class="creer-lbl">Description</label>
       <textarea class="creer-inp" placeholder="En quelques phrases, décris ton lieu, sa vision et ses activités…" style="height:90px;resize:none" oninput="cData.desc=this.value">${cData.desc||''}</textarea>
       <label class="creer-lbl">Phase du projet</label>
@@ -9557,7 +9558,22 @@ function creerDocs(input) {
   renderStep();
   // Pré-remplissage : tente d'extraire les infos du 1er PDF/txt déposé.
   const doc = files.find(f => /\.(pdf|txt)$/i.test(f.name) || f.type === 'application/pdf' || f.type === 'text/plain');
-  if (doc && typeof creerExtractFromDoc === 'function') creerExtractFromDoc(doc);
+  if (doc && typeof creerExtractFromDoc === 'function') {
+    // Feedback immédiat : Deva annonce qu'elle lit, pour que l'utilisateur patiente.
+    _creerDocSay("📄 Deva lit ton document <b>« " + (doc.name || 'document') + " »</b>… patiente quelques secondes.", true);
+    creerExtractFromDoc(doc);
+  }
+}
+
+/* Statut visible (inline + pill Deva) pendant la lecture d'un document. busy=true → spinner animé. */
+function _creerDocSay(html, busy){
+  const box = document.getElementById('creer-doc-status');
+  const txt = document.getElementById('creer-doc-status-txt');
+  const spin = document.getElementById('creer-doc-status-spin');
+  if (box){ box.style.display = 'flex'; }
+  if (txt){ txt.innerHTML = html; }
+  if (spin){ spin.style.display = busy ? 'inline-block' : 'none'; }
+  if (typeof _creerHintSay === 'function') _creerHintSay(html);
 }
 
 /* ─── Pré-remplissage de la fiche à partir d'un document (PDF/texte) via Deva ─── */
@@ -9611,13 +9627,14 @@ async function creerExtractFromDoc(file){
   const isPdf = name.endsWith('.pdf') || file.type === 'application/pdf';
   const isTxt = name.endsWith('.txt') || file.type === 'text/plain';
   if (!isPdf && !isTxt) return;
-  _creerHintSay('📄 Je lis ton document…');
+  _creerDocSay('📄 Deva lit ton document… <span style="opacity:.7">extraction du texte</span>', true);
   let text = '';
   try { text = isPdf ? await creerReadPdfText(file) : await creerReadTextFile(file); } catch(e){ text = ''; }
   if (!text || text.trim().length < 30){
-    _creerHintSay("Hmm, je n'ai pas réussi à lire ce document (un scan ?). Remplis à la main, je t'aide 🙂");
+    _creerDocSay("Hmm, je n'ai pas réussi à lire ce document (un scan ?). Remplis à la main, je t'aide 🙂", false);
     return;
   }
+  _creerDocSay('🧠 Deva analyse le contenu… <span style="opacity:.7">un instant</span>', true);
   const prompt = "Voici le texte d'un document qui décrit un lieu. Extrais ses informations et réponds UNIQUEMENT par un objet JSON valide (aucun texte avant/après, pas de balise code), avec ces clés (valeur \"\" ou [] si absente) : nom, type, ville, description, annee, surface, statut, espaces. Pour \"type\" choisis EXACTEMENT l'un de : ferme, jardin, fablab, repair, ressourcerie, tiers, cafe, epicerie, coworking, incubateur, ecolieu, habitat, ecole, autre. Garde \"description\" en 1 à 2 phrases. \"espaces\" est un tableau (max 6) des espaces physiques internes mentionnés (café, atelier, jardin, salle…) ; chaque espace = un objet {\"nom\":\"...\", \"fonction\":\"...\", \"capacite\":\"\", \"surface\":\"\", \"activites\":[]} où \"fonction\" est EXACTEMENT l'un de : cuisine, cafe, cantine, coworking, reunion, atelier, fablab, scene, expo, boutique, biblio, formation, jardin, serre, compost, hebergement, sport, meditation, stockage, autre. \"capacite\" en personnes et \"surface\" en m² si connus (sinon \"\"). N'invente pas d'espaces : uniquement ceux décrits dans le texte.\n\nTEXTE:\n" + text;
   try {
     const r = await fetch(DEVA_API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ messages:[{ role:'user', content: prompt }] }) });
@@ -9626,7 +9643,7 @@ async function creerExtractFromDoc(file){
     const jsonStr = (reply.match(/\{[\s\S]*\}/) || [reply])[0];
     creerApplyExtracted(JSON.parse(jsonStr));
   } catch(e){
-    _creerHintSay("Je n'ai pas réussi à analyser ce document. Remplis à la main, je suis là 🙂");
+    _creerDocSay("Je n'ai pas réussi à analyser ce document. Remplis à la main, je suis là 🙂", false);
   }
 }
 
@@ -9681,9 +9698,9 @@ function creerApplyExtracted(data){
   const parts = [];
   if (n > 0)    parts.push("<b>" + n + " champ" + (n>1?'s':'') + "</b>");
   if (nEsp > 0) parts.push("<b>" + nEsp + " espace" + (nEsp>1?'s':'') + "</b>");
-  _creerHintSay(parts.length
+  _creerDocSay(parts.length
     ? "✅ J'ai lu ton document et pré-rempli " + parts.join(' et ') + " 🌱 vérifie et ajuste."
-    : "J'ai lu ton document mais peu d'infos exploitables. Remplis à la main, je t'aide 🙂");
+    : "J'ai lu ton document mais peu d'infos exploitables. Remplis à la main, je t'aide 🙂", false);
 }
 
 function ficheAddBesoin() {
