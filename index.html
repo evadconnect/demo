@@ -12,7 +12,7 @@
         crossorigin=""
     />
         
-<link rel="stylesheet" href="css/styles.css?v=35">
+<link rel="stylesheet" href="css/styles.css?v=36">
 </head>
 <body>
 
@@ -111,7 +111,7 @@
 </div>
 
 
-<script src="js/splash-onboarding.js?v=35"></script>
+<script src="js/splash-onboarding.js?v=36"></script>
 
 <div class="app">
 
@@ -1402,35 +1402,6 @@
       <!-- Exports : correspondances ODD / ESRS / VSME (dérivé, lecture seule) -->
       <div id="ici-exports"></div>
 
-    <!-- KPIs concrets (unités cumulées) -->
-    <div class="dash-grid" style="margin-bottom:1rem;grid-template-columns:repeat(3,1fr)">
-      <div class="kpi-card"><div class="kpi-label">tCO₂ évitées</div><div class="kpi-val" id="impact-kpi-co2">—</div><div class="kpi-trend" id="impact-kpi-co2-trend">à mesurer</div></div>
-      <div class="kpi-card"><div class="kpi-label">Personnes formées</div><div class="kpi-val" id="impact-kpi-personnes">—</div><div class="kpi-trend" id="impact-kpi-personnes-trend">à renseigner</div></div>
-      <div class="kpi-card"><div class="kpi-label">Actions saisies</div><div class="kpi-val" id="impact-kpi-preuves">—</div><div class="kpi-trend" id="impact-kpi-preuves-trend">aucune pour l'instant</div></div>
-    </div>
-
-    <!-- Barres impact + couverture ESRS -->
-    <div class="dash-two-col" style="margin-bottom:1rem">
-      <div class="dash-card">
-        <div class="dc-head"><div class="dc-title">Impact mesuré (cumul)</div></div>
-        <div class="dc-body">
-          <div class="impact-bar-item"><div class="ib-top"><span class="ib-label">🥦 Alimentation locale</span><span class="ib-val" id="imp-bar-val-alim">—</span></div><div class="ib-bar"><div class="ib-fill" id="imp-bar-alim" style="width:0%"></div></div></div>
-          <div class="impact-bar-item"><div class="ib-top"><span class="ib-label">👥 Personnes formées</span><span class="ib-val" id="imp-bar-val-pers">—</span></div><div class="ib-bar"><div class="ib-fill" id="imp-bar-pers" style="width:0%"></div></div></div>
-          <div class="impact-bar-item"><div class="ib-top"><span class="ib-label">⚡ Énergie évitée</span><span class="ib-val" id="imp-bar-val-nrj">—</span></div><div class="ib-bar"><div class="ib-fill" id="imp-bar-nrj" style="width:0%"></div></div></div>
-          <div class="impact-bar-item"><div class="ib-top"><span class="ib-label">♻️ Déchets évités</span><span class="ib-val" id="imp-bar-val-dech">—</span></div><div class="ib-bar"><div class="ib-fill" id="imp-bar-dech" style="width:0%"></div></div></div>
-        </div>
-      </div>
-      <div class="dash-card">
-        <div class="dc-head"><div class="dc-title">📊 Couverture ESRS</div></div>
-        <div class="dc-body">
-          <div class="impact-bar-item"><div class="ib-top"><span class="ib-label">Environnement (E1–E5)</span><span class="ib-val" id="imp-esrs-e-val">0 / 5</span></div><div class="ib-bar"><div class="ib-fill" id="imp-esrs-e" style="width:0%"></div></div></div>
-          <div class="impact-bar-item"><div class="ib-top"><span class="ib-label">Social (S1–S4)</span><span class="ib-val" id="imp-esrs-s-val">0 / 4</span></div><div class="ib-bar"><div class="ib-fill" id="imp-esrs-s" style="width:0%;background:linear-gradient(90deg,var(--sky),#7ab8d4)"></div></div></div>
-          <div class="impact-bar-item"><div class="ib-top"><span class="ib-label">Gouvernance (G1–G2)</span><span class="ib-val" id="imp-esrs-g-val">0 / 2</span></div><div class="ib-bar"><div class="ib-fill" id="imp-esrs-g" style="width:0%;background:linear-gradient(90deg,var(--lavender),#b8a8d8)"></div></div></div>
-          <div class="impact-bar-item" style="margin-bottom:0"><div class="ib-top"><span class="ib-label" style="font-weight:700">Total ESRS couvert</span><span class="ib-val" id="imp-esrs-total-val" style="color:var(--fern);font-weight:700">0 / 11</span></div><div class="ib-bar"><div class="ib-fill" id="imp-esrs-total" style="width:0%"></div></div></div>
-        </div>
-      </div>
-    </div>
-
     <!-- Saisie terrain rapide -->
     <div class="terrain-saisie" id="terrain-saisie-block" style="display:none">
       <div class="terrain-saisie-title">⚡ Saisie rapide, une donnée, tous les cadres</div>
@@ -1486,13 +1457,6 @@
       </div>
     </div>
 
-    <!-- KPIs convergence -->
-    <div class="bat-kpi-row" style="margin-bottom:1rem">
-      <div class="bat-kpi" style="border-top:3px solid var(--sky)"><div class="bat-kpi-val" id="doss-nb-cadres" style="color:var(--sky)">8</div><div class="bat-kpi-lbl">Cadres couverts</div><div class="bat-kpi-trend" style="color:var(--fern)">automatiquement</div></div>
-      <div class="bat-kpi" style="border-top:3px solid var(--fern)"><div class="bat-kpi-val" id="doss-nb-actions" style="color:var(--fern)">0</div><div class="bat-kpi-lbl">Actions saisies</div><div class="bat-kpi-trend" style="color:var(--moss);opacity:.6">ce trimestre</div></div>
-      <div class="bat-kpi" style="border-top:3px solid var(--amber)"><div class="bat-kpi-val" id="doss-economie" style="color:var(--amber)">—</div><div class="bat-kpi-lbl">Économie conseil</div><div class="bat-kpi-trend" style="color:var(--fern)">vs prestataire externe</div></div>
-      <div class="bat-kpi" style="border-top:3px solid var(--lavender)"><div class="bat-kpi-val" id="doss-completude" style="color:var(--lavender)">0%</div><div class="bat-kpi-lbl">Complétude dossiers</div><div class="bat-kpi-trend" style="color:var(--moss);opacity:.6">moyenne</div></div>
-    </div>
 
     <!-- ── Bilan ESRS agrégé ── -->
     <div class="pc-bilan" id="pc-bilan-block">
@@ -1531,7 +1495,7 @@
     <!-- ── Journal des actions terrain ── -->
     <div class="pc-journal">
       <div class="pc-journal-header">
-        <div class="pc-journal-title">📓 Journal des actions terrain</div>
+        <div class="pc-journal-title">📓 Journal des preuves</div>
         <span style="font-size:.62rem;color:var(--moss);opacity:.45" id="pc-journal-count">0 entrée</span>
       </div>
       <div id="pc-journal-list"></div>
@@ -1607,7 +1571,7 @@
   </div>
 </div>
 
-<script src="js/data-nextcloud.js?v=35"></script>
+<script src="js/data-nextcloud.js?v=36"></script>
 
 <!-- ═══ ÉCRAN : RÉSEAU (réseau social solarpunk) ═══ -->
 <div class="screen" id="screen-reseau">
@@ -1788,9 +1752,9 @@
   </div>
 </div>
 
-<script src="js/data-reseau.js?v=35"></script>
+<script src="js/data-reseau.js?v=36"></script>
 
-<script src="js/regen-loop.js?v=35"></script>
+<script src="js/regen-loop.js?v=36"></script>
 
 <!-- Modale ajout/édition offre Pilote -->
 <div id="pmkt-modal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(14,26,18,0.75);backdrop-filter:blur(6px);align-items:center;justify-content:center">
@@ -2536,7 +2500,7 @@
 
 
 
-<script src="js/app-core.js?v=35"></script>
+<script src="js/app-core.js?v=36"></script>
 
 <script
   src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -2595,9 +2559,9 @@
   </div>
 </div>
 
-<script src="js/deva.js?v=35"></script>
+<script src="js/deva.js?v=36"></script>
 
-<script src="js/nav-mobile.js?v=35"></script>
+<script src="js/nav-mobile.js?v=36"></script>
 
 <!-- ── Modal : Choisir ton profil ── -->
 <div id="auth-profil-modal" style="display:none;position:fixed;inset:0;z-index:10001;background:rgba(14,26,18,.6);backdrop-filter:blur(6px);align-items:center;justify-content:center">
@@ -2640,7 +2604,7 @@
 </div>
 
 
-<script src="js/auth.js?v=35"></script>
+<script src="js/auth.js?v=36"></script>
 
 <!-- Espace modal, placé au niveau body pour rester accessible depuis tous les contextes -->
 <div id="espace-modal">
@@ -2738,14 +2702,14 @@
     </div>
   </div>
 </div>
-<script src="js/espace-modal.js?v=35"></script>
+<script src="js/espace-modal.js?v=36"></script>
 
 <!-- ═══════════════════════════════════════════════════════
      COUCHE DE CONVERGENCE, PERMA-COMPTABILITÉ EVAD
      Saisie unique → traduction multi-cadres institutionnels
      ═══════════════════════════════════════════════════════ -->
-<script src="js/quetes.js?v=35"></script>
-<script src="js/ici.js?v=35"></script>
+<script src="js/quetes.js?v=36"></script>
+<script src="js/ici.js?v=36"></script>
 
 <!-- ─── MODAL CONTRIBUER ─── -->
 <div id="contrib-modal" style="display:none;position:fixed;inset:0;z-index:10002;background:rgba(14,26,18,.65);backdrop-filter:blur(7px);align-items:flex-end;justify-content:center;overflow:hidden">
@@ -2909,7 +2873,7 @@
   </div>
 </div>
 
-<script src="js/contribution.js?v=35"></script>
+<script src="js/contribution.js?v=36"></script>
 
 <!-- Modal détail solution (créer lieu step 4) -->
 <div id="creer-sol-detail-modal" style="display:none;position:fixed;inset:0;z-index:10010;background:rgba(13,43,34,.6);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)creerCloseSolDetail()">
@@ -2922,7 +2886,7 @@
   </div>
 </div>
 
-<script src="js/fil-rouge-feedback.js?v=35"></script>
+<script src="js/fil-rouge-feedback.js?v=36"></script>
 
 </body>
 </html>

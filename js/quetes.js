@@ -892,8 +892,8 @@ function renderJournal() {
     list.innerHTML = `
       <div class="pc-empty">
         <div style="font-size:1.6rem;margin-bottom:.5rem">📓</div>
-        <div style="font-size:.78rem;font-weight:600;margin-bottom:.25rem">Journal vide</div>
-        <div style="font-size:.67rem">Saisis ta première action pour la voir apparaître ici et se propager automatiquement dans tous les cadres.</div>
+        <div style="font-size:.78rem;font-weight:600;margin-bottom:.25rem">Aucune preuve pour l'instant</div>
+        <div style="font-size:.67rem">Valide des quêtes pour générer tes preuves d'impact : elles apparaîtront ici et alimenteront tes rapports.</div>
       </div>`;
     return;
   }
@@ -1010,9 +1010,10 @@ function initDossiers() {
   const ecoTotal  = nbActions > 0 ? Math.round(nbActions * 1200) : null;
   const compMoy   = Math.round(DOSSIERS_CATALOGUE.reduce((s, d) => s + calculCompletude(d), 0) / DOSSIERS_CATALOGUE.length);
 
-  document.getElementById('doss-nb-actions').textContent  = nbActions;
-  document.getElementById('doss-economie').textContent    = ecoTotal ? ecoTotal.toLocaleString('fr-FR') + '€' : '—';
-  document.getElementById('doss-completude').textContent  = compMoy + '%';
+  const _set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  _set('doss-nb-actions', nbActions);
+  _set('doss-economie', ecoTotal ? ecoTotal.toLocaleString('fr-FR') + '€' : '—');
+  _set('doss-completude', compMoy + '%');
 
 }
 
