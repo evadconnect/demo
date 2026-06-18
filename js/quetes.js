@@ -188,12 +188,15 @@ function syncPiloteQuetesFromLieu() {
   }
   PILOTE_QUETES_DEMO.length = 0;
   if (typeof SOLS === 'undefined') return;
-  sols.forEach(nom => {
+  const _slug = nom => 'q-' + String(nom).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  const _pushQuete = nom => {
     const sol = SOLS.find(s => s.nom === nom);
     if (!sol || !sol.quete) return;
+    const id = _slug(nom);
+    if (PILOTE_QUETES_DEMO.some(q => q.id === id)) return;
     const q = sol.quete;
     PILOTE_QUETES_DEMO.push({
-      id: 'q-' + String(nom).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+      id: id,
       titre: q.titre || ('Quête · ' + nom),
       statut: 'ouverte',
       duree: q.duree || '—',
@@ -203,7 +206,10 @@ function syncPiloteQuetesFromLieu() {
       source: nom,
       sourceIc: sol.img || '✦'
     });
-  });
+  };
+  sols.forEach(_pushQuete);
+  // Démo : on garantit un jeu de quêtes fonctionnelles prêtes à l'emploi.
+  ['Compostage partagé', 'Repair café', 'AMAP circuit court', 'Jardin permaculture', 'Panneaux solaires PV', 'Récupération eau de pluie'].forEach(_pushQuete);
 }
 
 /* ─── Détection automatique du type de convergence ─── */
