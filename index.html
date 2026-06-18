@@ -12,7 +12,7 @@
         crossorigin=""
     />
         
-<link rel="stylesheet" href="css/styles.css?v=34">
+<link rel="stylesheet" href="css/styles.css?v=35">
 </head>
 <body>
 
@@ -111,7 +111,7 @@
 </div>
 
 
-<script src="js/splash-onboarding.js?v=34"></script>
+<script src="js/splash-onboarding.js?v=35"></script>
 
 <div class="app">
 
@@ -1379,20 +1379,28 @@
   <div class="dashboard">
 
     <!-- Header -->
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.2rem;gap:1rem">
-      <div>
-        <div style="font-family:'Satoshi', sans-serif;font-size:1.3rem;font-weight:700;color:var(--ink);line-height:1.2">Impact & Dossiers</div>
-        <div style="font-size:.72rem;color:var(--moss);opacity:.7;margin-top:.25rem">Saisis une action → traduite automatiquement en Vadance et dans tous tes rapports institutionnels</div>
-      </div>
-      <button class="btn btn-primary" style="font-size:.72rem;white-space:nowrap" onclick="ouvrirSaisie()">+ Saisir une action</button>
+    <div style="margin-bottom:1.1rem">
+      <div style="font-family:'Satoshi', sans-serif;font-size:1.3rem;font-weight:700;color:var(--ink);line-height:1.2">📊 Mon impact</div>
+      <div style="font-size:.72rem;color:var(--moss);opacity:.7;margin-top:.25rem">Ta promesse, et ce que tu as déjà prouvé. Ton jardin grandit quand tu valides des quêtes.</div>
     </div>
 
-    <!-- Mesure d'impact ICI (triple capital · Vadance/Vadité) -->
+    <!-- Le jardin (l'essentiel) -->
     <div id="ici-mesure-impact"></div>
-    <!-- Saisie des ICI (projeté → Vadance, prouvé + preuve → Vadité) -->
-    <div id="ici-saisie"></div>
-    <!-- Exports : correspondances ODD / ESRS / VSME (dérivé, lecture seule) -->
-    <div id="ici-exports"></div>
+    <div id="ici-saisie" style="display:none"></div>
+
+    <!-- Prochain pas -->
+    <div onclick="piloteTab('quetes',document.getElementById('ptab-quetes'))" style="display:flex;align-items:center;gap:.8rem;background:rgba(46,102,66,.05);border:1px solid rgba(46,102,66,.14);border-radius:var(--r-lg);padding:.9rem 1.1rem;margin-bottom:1rem;cursor:pointer" onmouseover="this.style.background='rgba(46,102,66,.09)'" onmouseout="this.style.background='rgba(46,102,66,.05)'">
+      <span style="font-size:1.5rem">⚡</span>
+      <div style="flex:1"><div style="font-size:.78rem;font-weight:700;color:var(--ink)">Fais grandir ton impact</div><div style="font-size:.66rem;color:var(--moss);opacity:.7">Chaque quête validée fait pousser tes plantes et monte ta Vadité.</div></div>
+      <span style="font-size:.72rem;font-weight:700;color:var(--fern);white-space:nowrap">Voir les quêtes →</span>
+    </div>
+
+    <!-- Détail complet & rapport institutionnel (replié) -->
+    <details style="margin-bottom:1rem">
+      <summary style="cursor:pointer;font-size:.72rem;font-weight:700;color:var(--moss);padding:.7rem .9rem;background:rgba(46,102,66,.04);border:1px solid rgba(46,102,66,.12);border-radius:var(--r-lg)">📋 Détail complet & rapport institutionnel (ESRS · ODD · dossiers)</summary>
+      <div style="margin-top:1rem">
+      <!-- Exports : correspondances ODD / ESRS / VSME (dérivé, lecture seule) -->
+      <div id="ici-exports"></div>
 
     <!-- KPIs concrets (unités cumulées) -->
     <div class="dash-grid" style="margin-bottom:1rem;grid-template-columns:repeat(3,1fr)">
@@ -1533,6 +1541,8 @@
     <div class="section-title" style="margin-bottom:.8rem">📂 Dossiers institutionnels</div>
     <div class="dossier-grid" id="dossier-grid"></div>
 
+      </div>
+    </details>
 
   </div>
 </div>
@@ -1597,7 +1607,7 @@
   </div>
 </div>
 
-<script src="js/data-nextcloud.js?v=34"></script>
+<script src="js/data-nextcloud.js?v=35"></script>
 
 <!-- ═══ ÉCRAN : RÉSEAU (réseau social solarpunk) ═══ -->
 <div class="screen" id="screen-reseau">
@@ -1778,9 +1788,9 @@
   </div>
 </div>
 
-<script src="js/data-reseau.js?v=34"></script>
+<script src="js/data-reseau.js?v=35"></script>
 
-<script src="js/regen-loop.js?v=34"></script>
+<script src="js/regen-loop.js?v=35"></script>
 
 <!-- Modale ajout/édition offre Pilote -->
 <div id="pmkt-modal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(14,26,18,0.75);backdrop-filter:blur(6px);align-items:center;justify-content:center">
@@ -2526,7 +2536,7 @@
 
 
 
-<script src="js/app-core.js?v=34"></script>
+<script src="js/app-core.js?v=35"></script>
 
 <script
   src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -2585,9 +2595,9 @@
   </div>
 </div>
 
-<script src="js/deva.js?v=34"></script>
+<script src="js/deva.js?v=35"></script>
 
-<script src="js/nav-mobile.js?v=34"></script>
+<script src="js/nav-mobile.js?v=35"></script>
 
 <!-- ── Modal : Choisir ton profil ── -->
 <div id="auth-profil-modal" style="display:none;position:fixed;inset:0;z-index:10001;background:rgba(14,26,18,.6);backdrop-filter:blur(6px);align-items:center;justify-content:center">
@@ -2630,7 +2640,7 @@
 </div>
 
 
-<script src="js/auth.js?v=34"></script>
+<script src="js/auth.js?v=35"></script>
 
 <!-- Espace modal, placé au niveau body pour rester accessible depuis tous les contextes -->
 <div id="espace-modal">
@@ -2728,14 +2738,14 @@
     </div>
   </div>
 </div>
-<script src="js/espace-modal.js?v=34"></script>
+<script src="js/espace-modal.js?v=35"></script>
 
 <!-- ═══════════════════════════════════════════════════════
      COUCHE DE CONVERGENCE, PERMA-COMPTABILITÉ EVAD
      Saisie unique → traduction multi-cadres institutionnels
      ═══════════════════════════════════════════════════════ -->
-<script src="js/quetes.js?v=34"></script>
-<script src="js/ici.js?v=34"></script>
+<script src="js/quetes.js?v=35"></script>
+<script src="js/ici.js?v=35"></script>
 
 <!-- ─── MODAL CONTRIBUER ─── -->
 <div id="contrib-modal" style="display:none;position:fixed;inset:0;z-index:10002;background:rgba(14,26,18,.65);backdrop-filter:blur(7px);align-items:flex-end;justify-content:center;overflow:hidden">
@@ -2899,7 +2909,7 @@
   </div>
 </div>
 
-<script src="js/contribution.js?v=34"></script>
+<script src="js/contribution.js?v=35"></script>
 
 <!-- Modal détail solution (créer lieu step 4) -->
 <div id="creer-sol-detail-modal" style="display:none;position:fixed;inset:0;z-index:10010;background:rgba(13,43,34,.6);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)creerCloseSolDetail()">
@@ -2912,7 +2922,7 @@
   </div>
 </div>
 
-<script src="js/fil-rouge-feedback.js?v=34"></script>
+<script src="js/fil-rouge-feedback.js?v=35"></script>
 
 </body>
 </html>
