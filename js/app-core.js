@@ -4109,6 +4109,9 @@ function renderStep(){
         cData.solsByEspace[idx]=[...(meta?.sols||[])];
       });
       cData.solutions=[...new Set(Object.values(cData.solsByEspace).flat())];
+      // La présélection ajoute des solutions APRÈS le 1er calcul de jauge :
+      // on recalcule pour que la Vadance projetée = celle de la fiche publiée.
+      if (typeof creerUpdateVadance === 'function') creerUpdateVadance();
     }
 
     const totalSols=cData.solutions.length;
