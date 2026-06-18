@@ -7019,21 +7019,32 @@ function apercuRender() {
   const PLANCHER = (typeof ICI_PLANCHER !== 'undefined') ? ICI_PLANCHER : 40;
   const META = (typeof ICI_LIVRE_META !== 'undefined') ? ICI_LIVRE_META : { ecologie:{label:'Écologie',ic:'🌿',col:'#2e9960'}, social:{label:'Social',ic:'🤝',col:'#3a6e8c'}, economie_locale:{label:'Éco. locale',ic:'♻️',col:'#c8732a'} };
   const scores = apercuCapitauxScores();
+  const ratio = imp.vadance > 0 ? (imp.vadite / imp.vadance) : 0; // part déjà prouvée
   let lowLabel = null, lowVal = null;
   const trip = document.getElementById('apercu-triptyque');
   if (trip) {
-    trip.innerHTML = ['ecologie', 'social', 'economie_locale'].map(k => {
+    // Légende : barre claire = promesse (Vadance), barre pleine = preuve (Vadité).
+    const legende = '<div style="display:flex;gap:1rem;align-items:center;margin-bottom:.6rem;font-size:.58rem;color:var(--moss);opacity:.75">'
+      + '<span style="display:inline-flex;align-items:center;gap:.3rem"><span style="width:14px;height:8px;border-radius:100px;background:rgba(46,102,66,.22);display:inline-block"></span> promesse (Vadance)</span>'
+      + '<span style="display:inline-flex;align-items:center;gap:.3rem"><span style="width:14px;height:8px;border-radius:100px;background:var(--forest);display:inline-block"></span> preuve (Vadité)</span>'
+      + '</div>';
+    trip.innerHTML = legende + ['ecologie', 'social', 'economie_locale'].map(k => {
       const m = META[k] || { label: k, ic: '◆', col: '#4a8c5c' };
-      const sc = scores[k] || 0;
-      const low = hasV && sc < PLANCHER;
-      if (low && (lowVal === null || sc < lowVal)) { lowLabel = m.label; lowVal = sc; }
-      return '<div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.6rem">'
+      const vad = scores[k] || 0;                  // promesse
+      const vit = hasV ? Math.round(vad * ratio) : 0; // preuve
+      const low = hasV && vad < PLANCHER;
+      if (low && (lowVal === null || vad < lowVal)) { lowLabel = m.label; lowVal = vad; }
+      return '<div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.65rem">'
         + '<div style="width:108px;flex-shrink:0;font-size:.72rem;font-weight:600;color:var(--ink)">' + m.ic + ' ' + m.label + '</div>'
-        + '<div style="flex:1;position:relative;height:9px;background:rgba(46,102,66,.08);border-radius:100px">'
-          + '<div style="position:absolute;left:0;top:0;height:100%;width:' + (hasV ? sc : 0) + '%;background:' + (low ? '#b84e35' : m.col) + ';border-radius:100px;transition:width .6s ease"></div>'
+        + '<div style="flex:1;position:relative;height:11px;background:rgba(46,102,66,.07);border-radius:100px">'
+          + '<div style="position:absolute;left:0;top:0;height:100%;width:' + (hasV ? vad : 0) + '%;background:' + m.col + ';opacity:.25;border-radius:100px;transition:width .6s ease"></div>'
+          + '<div style="position:absolute;left:0;top:0;height:100%;width:' + vit + '%;background:' + m.col + ';border-radius:100px;transition:width .6s ease"></div>'
           + '<div style="position:absolute;left:' + PLANCHER + '%;top:-3px;bottom:-3px;width:2px;background:rgba(46,102,66,.45)"></div>'
         + '</div>'
-        + '<div style="width:32px;text-align:right;font-family:\'Satoshi\',sans-serif;font-size:1rem;font-weight:800;color:' + (low ? '#b84e35' : 'var(--ink)') + '">' + (hasV ? sc : '—') + '</div>'
+        + '<div style="width:54px;text-align:right;font-family:\'Satoshi\',sans-serif;line-height:1">'
+          + '<span style="font-size:1rem;font-weight:800;color:' + m.col + '">' + (hasV ? vit : '—') + '</span>'
+          + '<span style="font-size:.62rem;font-weight:700;color:' + (low ? '#b84e35' : 'var(--moss)') + ';opacity:' + (low ? '1' : '.55') + '"> / ' + (hasV ? vad : '—') + '</span>'
+        + '</div>'
       + '</div>';
     }).join('');
   }
