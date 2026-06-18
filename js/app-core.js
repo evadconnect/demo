@@ -3761,20 +3761,22 @@ const VADANCE_PALIERS = [
 ];
 let creerLastVadance = 0;
 
-function creerVadance(){
+// Calcul pur de la Vadance (promesse) à partir d'une fiche lieu (cData OU myLieuData).
+function computeVadance(d){
+  d = d || {};
   let v = 0;
   // Fondations (mise en place) : peu de points, ce n'est PAS de l'impact.
-  if (cData.nom) v += 3;
-  if (cData.type) v += 3;
-  if (cData.localisation) v += 2;
-  if (cData.desc && cData.desc.trim().length > 15) v += 3;
-  if (cData.phase) v += 2;
+  if (d.nom) v += 3;
+  if (d.type) v += 3;
+  if (d.localisation) v += 2;
+  if (d.desc && String(d.desc).trim().length > 15) v += 3;
+  if (d.phase) v += 2;
   // (année / surface / statut : 0 point, pur remplissage administratif)
 
   // Impact projeté : les espaces structurent, les solutions PORTENT l'impact (ICI).
-  v += Math.min(3, (cData.espacesData || []).length) * 5;
+  v += Math.min(3, (d.espacesData || []).length) * 5;
   let solPts = 0;
-  (cData.solutions || []).forEach(nom => {
+  (d.solutions || []).forEach(nom => {
     const nbIci = (typeof iciPourSolution === 'function') ? iciPourSolution(nom).length : 0;
     solPts += 10 + nbIci * 6;   // base impact + bonus par ICI réel porté (CO₂ évité, m² renaturés…)
   });
@@ -3782,6 +3784,7 @@ function creerVadance(){
 
   return Math.min(100, v);
 }
+function creerVadance(){ return computeVadance(cData); }
 const creerVadancePalier = (s) => VADANCE_PALIERS.find(p => s >= p.min) || null;
 
 function creerUpdateVadance(silent){
@@ -5137,7 +5140,11 @@ async function createLieuOnMap(){
   const adresse = cData.localisation || 'Nouvelle-Aquitaine';
 
   // On mémorise la fiche saisie pour la refléter dans le tableau de bord
-  try { myLieuData = Object.assign({}, cData); } catch(e) {}
+  try {
+    myLieuData = Object.assign({}, cData);
+    // Vadance (promesse) figée au résultat de la création
+    myLieuData.vadance = (typeof computeVadance === 'function') ? computeVadance(cData) : 0;
+  } catch(e) {}
 
   showScreen('carte');
   setTimeout(initRealMap, 80);
@@ -5213,7 +5220,7 @@ async function createLieuOnMap(){
     sectionLieux.querySelectorAll(':scope > div:not(:first-child)').forEach(el => {
       if(el.textContent.includes('Aucun lieu')) el.remove();
     });
-    const _sd0 = (typeof evadLieuScoreData === 'function') ? evadLieuScoreData() : {score:10, nbValidees:0};
+    const _imp0 = (typeof evadImpactData === 'function') ? evadImpactData() : {vadance:0, vadite:0, taux:0};
     const card = document.createElement('div');
     card.className = 'place-card-mini';
     card.id = 'evad-mylieu-card';
@@ -5228,9 +5235,10 @@ async function createLieuOnMap(){
         </div>
       </div>
       <div class="pcm-score-row">
-        <div class="score-bar-bg"><div id="evad-mylieu-scorebar" class="score-bar-fill" style="width:${_sd0.score}%"></div></div>
-        <div id="evad-mylieu-scorelabel" class="score-label" style="color:${_sd0.nbValidees>0?'var(--fern)':'var(--amber)'}">${_sd0.nbValidees>0?'↑ ':'Nouveau · '}Vadance ${_sd0.score}/100</div>
+        <div class="score-bar-bg"><div id="evad-mylieu-scorebar" class="score-bar-fill" style="width:${_imp0.vadance}%"></div></div>
+        <div id="evad-mylieu-scorelabel" class="score-label" style="color:var(--fern)">Vadance ${_imp0.vadance}/100 <span style="opacity:.6;font-weight:500">(promesse)</span></div>
       </div>
+      <div id="evad-mylieu-preuve" class="pcm-quetes" style="color:var(--moss);opacity:.85">✅ Vadité ${_imp0.vadite}/100 · ⚖️ Taux de tenue ${_imp0.taux}%</div>
       <div class="pcm-quetes" style="color:var(--fern)">✦ ${cData.solutions?.length || 0} solution${(cData.solutions?.length||0)!==1?'s':''} · Lieu régénératif</div>
     `;
     // Insère en haut de la liste (juste après l'en-tête « 🏡 Lieux »)
@@ -6823,6 +6831,44 @@ function evadLieuScoreData() {
   return { score: Math.min(100, 10 + bonus), bonus: bonus, graines: graines, nbValidees: nbVal };
 }
 
+/* ─── Vadance (promesse) vs Vadité (preuve) + taux de tenue ───
+   Vadance : impact projeté figé à la création.
+   Vadité  : impact réellement prouvé (quêtes validées + actions terrain certifiées).
+   Taux    : Vadité ÷ Vadance, l'indicateur anti-greenwashing. */
+function evadImpactData() {
+  let vadance = 0;
+  if (typeof myLieuData !== 'undefined' && myLieuData) {
+    vadance = (typeof myLieuData.vadance === 'number') ? myLieuData.vadance : 0;
+    if (!vadance && typeof computeVadance === 'function') vadance = computeVadance(myLieuData);
+  }
+  // Repli : fiche saisie mais pas encore publiée → on calcule depuis cData.
+  if (!vadance && typeof cData !== 'undefined' && cData && cData.type && typeof computeVadance === 'function') {
+    vadance = computeVadance(cData);
+  }
+  // Preuve : base + bonus des quêtes validées, et/ou score des actions terrain certifiées.
+  let vadite = (typeof evadLieuScoreData === 'function') ? (evadLieuScoreData().score || 0) : 0;
+  if (typeof window !== 'undefined' && typeof window._evadProvenActions === 'number') {
+    vadite = Math.max(vadite, window._evadProvenActions);
+  }
+  // La preuve ne dépasse pas la promesse : le taux de tenue est plafonné à 100 %.
+  if (vadance > 0) vadite = Math.min(vadite, vadance);
+  const taux = vadance > 0 ? Math.round(vadite / vadance * 100) : 0;
+  return { vadance: vadance, vadite: vadite, taux: taux };
+}
+
+/* Reflète Vadance / Vadité / taux dans le bandeau « Mon lieu » (aperçu Pilote). */
+function evadReflectImpact() {
+  const d = evadImpactData();
+  const val = document.getElementById('apercu-regen-val');
+  if (val) val.textContent = d.vadance > 0 ? d.vadance : '—';
+  const arc = document.getElementById('regen-arc');
+  if (arc) arc.style.strokeDashoffset = String(226.2 * (1 - d.vadance / 100));
+  const vit = document.getElementById('apercu-vadite-val');
+  if (vit) vit.textContent = d.vadance > 0 ? d.vadite : '—';
+  const tx = document.getElementById('apercu-taux-val');
+  if (tx) tx.textContent = d.vadance > 0 ? d.taux + '%' : '—';
+}
+
 // Marqueur Leaflet du lieu créé par l'utilisateur (pour MAJ live du popup)
 let evadMyLieuMarker = null;
 
@@ -6830,19 +6876,22 @@ let evadMyLieuMarker = null;
 function evadSyncMyLieuOnMap() {
   const d = evadLieuScoreData();
   if (typeof myLieuData !== 'undefined' && myLieuData) myLieuData.score = d.score;
+  const imp = (typeof evadImpactData === 'function') ? evadImpactData() : { vadance: d.score, vadite: d.score, taux: 100 };
   const bar = document.getElementById('evad-mylieu-scorebar');
-  if (bar) bar.style.width = d.score + '%';
+  if (bar) bar.style.width = imp.vadance + '%';
   const lbl = document.getElementById('evad-mylieu-scorelabel');
   if (lbl) {
-    lbl.textContent = (d.nbValidees > 0 ? '↑ ' : 'Nouveau · ') + 'Vadance ' + d.score + '/100';
-    lbl.style.color = d.nbValidees > 0 ? 'var(--fern)' : 'var(--amber)';
+    lbl.innerHTML = 'Vadance ' + imp.vadance + '/100 <span style="opacity:.6;font-weight:500">(promesse)</span>';
+    lbl.style.color = 'var(--fern)';
   }
+  const pv = document.getElementById('evad-mylieu-preuve');
+  if (pv) pv.textContent = '✅ Vadité ' + imp.vadite + '/100 · ⚖️ Taux de tenue ' + imp.taux + '%';
   if (evadMyLieuMarker && typeof myLieuData !== 'undefined' && myLieuData) {
     try {
       evadMyLieuMarker.setPopupContent(
         '<div class="popup-place-title">' + (myLieuData.nom || 'Mon lieu') + '</div>' +
         '<div class="popup-place-meta">' + (myLieuData.localisation || 'Bordeaux') + '</div>' +
-        '<div class="popup-place-score">Vadance : ' + d.score + ' · ' + d.nbValidees + ' quête(s) validée(s)</div>'
+        '<div class="popup-place-score">Vadance ' + imp.vadance + ' · Vadité ' + imp.vadite + ' · taux ' + imp.taux + '%</div>'
       );
     } catch (e) {}
   }
@@ -6853,10 +6902,8 @@ function evadSyncMyLieuOnMap() {
 function updateApercuFromQuetes() {
   const d = evadLieuScoreData();
   if (typeof myLieuData !== 'undefined' && myLieuData) myLieuData.score = d.score;
-  const valEl = document.getElementById('apercu-regen-val');
-  if (valEl) valEl.textContent = d.score;
-  const arc = document.getElementById('regen-arc');
-  if (arc) arc.style.strokeDashoffset = String(226.2 * (1 - d.score / 100));
+  // Hero : Vadance (promesse) + Vadité (preuve) + taux de tenue
+  if (typeof evadReflectImpact === 'function') evadReflectImpact();
   const wallet = document.getElementById('apercu-graines-wallet');
   if (wallet) wallet.textContent = d.graines.toLocaleString('fr');
   evadSyncMyLieuOnMap();

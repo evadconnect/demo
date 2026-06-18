@@ -864,11 +864,10 @@ function renderImpact() {
     }
   }
 
-  // ── Arc REGEN + valeur (hero Aperçu) ──
-  const arc = document.getElementById('regen-arc');
-  if (arc) arc.style.strokeDashoffset = String(226.2 * (1 - regenScore / 100));
-  const arcVal = document.getElementById('apercu-regen-val');
-  if (arcVal) arcVal.textContent = nb > 0 ? regenScore : '—';
+  // ── Vadité (preuve) : les actions terrain certifiées alimentent l'impact prouvé ──
+  if (typeof window !== 'undefined') window._evadProvenActions = nb > 0 ? regenScore : 0;
+  // Reflète Vadance (promesse, figée) + Vadité (preuve) + taux dans le hero Aperçu.
+  if (typeof evadReflectImpact === 'function') evadReflectImpact();
 
   // ── Message Deva Aperçu ──
 }
