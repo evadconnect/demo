@@ -3799,6 +3799,7 @@ function creerUpdateVadance(silent){
     if (p && (!prevP || p.min > prevP.min)) creerVadanceCelebrate(p.label);
   }
   creerLastVadance = v;
+  if (typeof creerUpdateHint === 'function') creerUpdateHint(silent);
 }
 
 function creerVadanceFloat(txt){
@@ -3895,23 +3896,68 @@ function devaPillClick(){
   else if (typeof devaToggleChat === 'function') devaToggleChat();
 }
 
-// Bulle Deva contextuelle pendant la création : explique les solutions/ICI à l'étape 4.
-function creerUpdateHint(){
+// État « rempli » du lieu, pour détecter ce que l'utilisateur vient d'ajouter.
+function creerSnapshot(){
+  return {
+    nom: !!cData.nom, loc: !!cData.localisation, type: !!cData.type,
+    desc: !!(cData.desc && cData.desc.trim().length > 15), phase: !!cData.phase,
+    esp: (cData.espacesData || []).length,
+    sols: (cData.solutions || []).slice().sort().join('|')
+  };
+}
+// Nudge vers le prochain palier de Vadance.
+function creerNextNudge(){
+  if (typeof creerVadance !== 'function' || typeof VADANCE_PALIERS === 'undefined') return '';
+  const v = creerVadance();
+  const next = VADANCE_PALIERS.slice().reverse().find(p => p.min > v);
+  if (!next) return ' 🚀 Lieu à fort impact, bravo !';
+  return ' Plus que <b>+' + (next.min - v) + '</b> pour <b>' + next.label + '</b>.';
+}
+// Réaction de Deva à ce qui vient d'être rempli (gain + bénéfice concret).
+function creerChangeMsg(prev, cur){
+  const prevSols = (prev.sols || '').split('|').filter(Boolean);
+  const curSols = (cur.sols || '').split('|').filter(Boolean);
+  const added = curSols.find(s => !prevSols.includes(s));
+  if (added){
+    const n = (typeof iciPourSolution === 'function') ? iciPourSolution(added).length : 0;
+    if (n > 0) return '☀️ <b>' + added + '</b> : elle porte <b>' + n + ' ICI</b>' + (n > 1 ? '' : '') + ', du concret pour tes Semeurs 🌿';
+    return '✅ <b>' + added + '</b> ajoutée, une action de plus pour ton lieu.';
+  }
+  if (cur.esp > (prev.esp || 0)) return '🧩 Un espace de plus : ton lieu devient lisible, les Bâtisseurs voient où agir.';
+  if (cur.nom && !prev.nom)   return '🌱 Ton lieu a un nom, il existe !';
+  if (cur.type && !prev.type) return '🏷️ Type choisi : je peux adapter les solutions et les quêtes.';
+  if (cur.loc && !prev.loc)   return '📍 Localisé : il apparaîtra sur la carte, près des bâtisseurs du coin.';
+  if (cur.desc && !prev.desc) return '✍️ Belle vision : ça aide les financeurs à te comprendre.';
+  if (cur.phase && !prev.phase) return '🚧 Phase indiquée : la communauté sait où en est ton projet.';
+  return null;
+}
+// Bulle Deva : réagit à chaque champ rempli, sinon message d'aide / explication ICI.
+function creerUpdateHint(silent){
   const txt = document.getElementById('deva-fiche-hint-txt');
   const tip = document.getElementById('deva-fiche-hint');
   if (!txt) return;
-  if (cStep === 3 && cData._solsReady) {
-    txt.innerHTML = "Voici les solutions repérées, et sous chacune ses <b>ICI</b> 🌱 : l'impact que ton lieu va mesurer. Garde celles qui comptent, ta Vadance monte avec.";
+  const cur = creerSnapshot();
+  const prev = window._creerSnap;
+  let reaction = null;
+  if (!silent && prev){
+    const msg = creerChangeMsg(prev, cur);
+    if (msg) reaction = msg + creerNextNudge();
+  }
+  window._creerSnap = cur;
+  if (reaction){
+    txt.innerHTML = reaction;
     if (tip) tip.style.display = 'block';
   } else {
-    txt.textContent = "Besoin d'aide pour remplir la fiche, je suis là 🌱";
+    txt.innerHTML = (cStep === 3 && cData._solsReady)
+      ? "Voici les solutions repérées, et sous chacune ses <b>ICI</b> 🌱 : l'impact que ton lieu va mesurer."
+      : "Besoin d'aide pour remplir la fiche, je suis là 🌱";
+    if (tip && cStep === 3) tip.style.display = 'block';
   }
 }
 
 function renderStep(){
   navWizardSet(STEPS.map(s=>s.t), cStep, (i)=>{ cStep=i; renderStep(); });
   if (typeof creerUpdateVadance === 'function') creerUpdateVadance();
-  if (typeof creerUpdateHint === 'function') creerUpdateHint();
   document.getElementById('creer-prev').style.display=cStep>0?'block':'none';
   const nx=document.getElementById('creer-next');
   const sv=document.getElementById('creer-save-btn');
@@ -4665,6 +4711,7 @@ function togSol(nom){
   if(counter)counter.textContent=cData.solutions.length+' solution'+(cData.solutions.length!==1?'s':'')+' sélectionnée'+(cData.solutions.length!==1?'s':'');
   const devaTxt=document.querySelector('.deva-txt');
   if(devaTxt)devaTxt.textContent='"Avec '+cData.solutions.length+' solution'+(cData.solutions.length!==1?'s':'')+', '+(cData.nom||'ton lieu')+' peut atteindre une Vadance de '+(10+cData.solutions.length*5)+'/100 dès la première année."';
+  if (typeof creerUpdateVadance === 'function') creerUpdateVadance();
 }
 
 function genMM(espItems){
