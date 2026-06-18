@@ -9618,7 +9618,7 @@ async function creerExtractFromDoc(file){
     _creerHintSay("Hmm, je n'ai pas réussi à lire ce document (un scan ?). Remplis à la main, je t'aide 🙂");
     return;
   }
-  const prompt = "Voici le texte d'un document qui décrit un lieu. Extrais ses informations et réponds UNIQUEMENT par un objet JSON valide (aucun texte avant/après, pas de balise code), avec ces clés (valeur \"\" si absente) : nom, type, ville, description, annee, surface, statut. Pour \"type\" choisis EXACTEMENT l'un de : ferme, jardin, fablab, repair, ressourcerie, tiers, cafe, epicerie, coworking, incubateur, ecolieu, habitat, ecole, autre. Garde \"description\" en 1 à 2 phrases.\n\nTEXTE:\n" + text;
+  const prompt = "Voici le texte d'un document qui décrit un lieu. Extrais ses informations et réponds UNIQUEMENT par un objet JSON valide (aucun texte avant/après, pas de balise code), avec ces clés (valeur \"\" ou [] si absente) : nom, type, ville, description, annee, surface, statut, espaces. Pour \"type\" choisis EXACTEMENT l'un de : ferme, jardin, fablab, repair, ressourcerie, tiers, cafe, epicerie, coworking, incubateur, ecolieu, habitat, ecole, autre. Garde \"description\" en 1 à 2 phrases. \"espaces\" est un tableau (max 6) des espaces physiques internes mentionnés (café, atelier, jardin, salle…) ; chaque espace = un objet {\"nom\":\"...\", \"fonction\":\"...\", \"capacite\":\"\", \"surface\":\"\", \"activites\":[]} où \"fonction\" est EXACTEMENT l'un de : cuisine, cafe, cantine, coworking, reunion, atelier, fablab, scene, expo, boutique, biblio, formation, jardin, serre, compost, hebergement, sport, meditation, stockage, autre. \"capacite\" en personnes et \"surface\" en m² si connus (sinon \"\"). N'invente pas d'espaces : uniquement ceux décrits dans le texte.\n\nTEXTE:\n" + text;
   try {
     const r = await fetch(DEVA_API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ messages:[{ role:'user', content: prompt }] }) });
     const d = await r.json();
@@ -9648,10 +9648,41 @@ function creerApplyExtracted(data){
     const found = STATUTS.find(([v,l]) => v === sv || l.toLowerCase().includes(sv));
     if (found){ cData.statut = found[0]; n++; }
   }
+  // ── Espaces : créés depuis le document (seulement si aucun espace n'existe encore) ──
+  let nEsp = 0;
+  if (Array.isArray(data.espaces) && data.espaces.length && (!cData.espacesData || cData.espacesData.length === 0)){
+    const fnIds = (typeof FONCTIONS_ESPACE !== 'undefined') ? FONCTIONS_ESPACE.map(f => f.id) : [];
+    const num = v => String(v == null ? '' : v).replace(/[^0-9]/g, '');
+    const esps = [];
+    data.espaces.slice(0, 6).forEach(e => {
+      if (!e || typeof e !== 'object') return;
+      const nom = String(e.nom || '').trim();
+      if (!nom) return;
+      let fid = String(e.fonction || '').toLowerCase().trim();
+      if (!fnIds.includes(fid)) fid = 'autre';
+      const acts = Array.isArray(e.activites) ? e.activites.map(a => String(a || '').trim()).filter(Boolean).slice(0, 4) : [];
+      esps.push({
+        nom: nom,
+        fonctions: [fid],
+        inputs: [], outputs: [],
+        activites: acts,
+        capacite: num(e.capacite),
+        surface: num(e.surface),
+        acces: 'libre', notes: '', responsable: '',
+        phase: cData.phase || 'operationnel'
+      });
+    });
+    if (esps.length){ cData.espacesData = esps; nEsp = esps.length; }
+  }
   renderStep();
+  if (typeof creerRenderEspaces === 'function') creerRenderEspaces();
   if (typeof mmCenter === 'function') mmCenter();
-  _creerHintSay(n > 0
-    ? "✅ J'ai lu ton document et pré-rempli <b>" + n + " champ" + (n>1?'s':'') + "</b> 🌱 vérifie et ajuste."
+  if (typeof creerUpdateVadance === 'function') creerUpdateVadance(true);
+  const parts = [];
+  if (n > 0)    parts.push("<b>" + n + " champ" + (n>1?'s':'') + "</b>");
+  if (nEsp > 0) parts.push("<b>" + nEsp + " espace" + (nEsp>1?'s':'') + "</b>");
+  _creerHintSay(parts.length
+    ? "✅ J'ai lu ton document et pré-rempli " + parts.join(' et ') + " 🌱 vérifie et ajuste."
     : "J'ai lu ton document mais peu d'infos exploitables. Remplis à la main, je t'aide 🙂");
 }
 
