@@ -6895,7 +6895,7 @@ function piloteTab(tab, btn) {
   const panel = document.getElementById('pilote-panel-' + tab);
   if (panel) panel.classList.add('active');
   if (tab === 'marketplace') setTimeout(pmktRenderOffers, 50);
-  if (tab === 'dossiers')   { setTimeout(initDossiers, 50); setTimeout(() => { if (typeof impactRenderEtat === 'function') impactRenderEtat(); if (typeof iciRenderSaisie === 'function') iciRenderSaisie(); if (typeof iciRenderExports === 'function') iciRenderExports(); }, 50); }
+  if (tab === 'dossiers')   { setTimeout(initDossiers, 50); setTimeout(() => { if (typeof impactRenderEtat === 'function') impactRenderEtat(); if (typeof funSaisieRender === 'function') funSaisieRender(); if (typeof iciRenderExports === 'function') iciRenderExports(); }, 50); }
   if (tab === 'quetes')     { if (typeof syncPiloteQuetesFromLieu === 'function') syncPiloteQuetesFromLieu(); setTimeout(renderPiloteQuetes, 50); }
   if (tab === 'fiche')      {
     // Reflète le lieu créé : identité + espaces + carte mentale
@@ -6957,6 +6957,41 @@ function evadImpactData() {
 
 /* ─── APERÇU : « où en est mon lieu, et quel est le prochain cran ? » ─── */
 
+/* ════════ IMPACT « FUN » : actions concrètes en 1 geste ════════
+   Chaque action ajoute des points de preuve à un capital, raconte une
+   équivalence parlante, et fait pousser le jardin. */
+const FUN_ACTIONS = [
+  { id:'plante',   ic:'🌱', label:'J\'ai planté',     capital:'ecologie',        unit:'plants',    gain:7,  q:(n)=> (n*4) + ' m² végétalisés' },
+  { id:'composte', ic:'♻️', label:'J\'ai composté',    capital:'ecologie',        unit:'kg',        gain:6,  q:(n)=> Math.round(n*0.5) + ' kg CO₂ évités' },
+  { id:'energie',  ic:'☀️', label:'Énergie propre',   capital:'ecologie',        unit:'kWh',       gain:6,  q:(n)=> Math.round(n*0.06) + ' kg CO₂ évités' },
+  { id:'repare',   ic:'🔧', label:'J\'ai réparé',      capital:'economie_locale', unit:'objets',    gain:7,  q:(n)=> n + ' objets sauvés de la benne' },
+  { id:'local',    ic:'🥗', label:'Repas local',      capital:'economie_locale', unit:'repas',     gain:5,  q:(n)=> n + ' repas en circuit court' },
+  { id:'forme',    ic:'👥', label:'J\'ai formé',       capital:'social',          unit:'personnes', gain:9,  q:(n)=> n + ' personnes montées en compétence' },
+];
+window._funLog = window._funLog || [];        // { id, qty }
+window._funBadges = window._funBadges || {};  // id de badge -> true
+
+// Bonus de preuve accumulé par capital (issu des actions saisies).
+function funCapBonus() {
+  const cap = { ecologie: 0, social: 0, economie_locale: 0 };
+  (window._funLog || []).forEach(e => {
+    const a = FUN_ACTIONS.find(x => x.id === e.id);
+    if (a) cap[a.capital] = (cap[a.capital] || 0) + a.gain;
+  });
+  return cap;
+}
+// Score global de preuve issu des actions (0–100) → alimente la Vadité.
+function funGlobalScore() {
+  const c = funCapBonus();
+  return Math.min(100, c.ecologie + c.social + c.economie_locale);
+}
+// Cumuls concrets par type d'action (pour les équivalences parlantes).
+function funTotals() {
+  const t = {};
+  (window._funLog || []).forEach(e => { t[e.id] = (t[e.id] || 0) + e.qty; });
+  return t;
+}
+
 // Score par capital (0–100), dérivé de la couverture ICI des solutions du lieu,
 // mis à l'échelle de la Vadance. Un capital peu couvert tombe sous le plancher.
 function apercuCapitauxScores() {
@@ -6990,11 +7025,12 @@ function apercuCapitauxPaire() {
   const imp = (typeof evadImpactData === 'function') ? evadImpactData() : { vadance: 0, vadite: 0 };
   const vadCap = apercuCapitauxScores();
   const ratio = imp.vadance > 0 ? (imp.vadite / imp.vadance) : 0;
+  const bonus = (typeof funCapBonus === 'function') ? funCapBonus() : { ecologie:0, social:0, economie_locale:0 };
   const out = {};
   ['ecologie', 'social', 'economie_locale'].forEach(k => {
     const vad = vadCap[k] || 0;
-    let vit = Math.round(vad * ratio * (APERCU_PREUVE_POIDS[k] || 1));
-    vit = Math.max(0, Math.min(vad, vit));
+    let vit = Math.round(vad * ratio * (APERCU_PREUVE_POIDS[k] || 1)) + (bonus[k] || 0);
+    vit = Math.max(0, Math.min(vad, vit)); // la preuve ne dépasse jamais la promesse
     out[k] = { vad: vad, vit: vit };
   });
   return out;
@@ -7092,7 +7128,15 @@ function apercuRender() {
   set('apercu-cran-cta',   el => { el.textContent = cran.cta + ' →'; el.setAttribute('onclick', cran.onclick); });
 }
 
-// Onglet Impact : carte « État d'impact » détaillée (promesse vs preuve + triptyque par capital).
+// Stade de croissance d'une plante selon le % de preuve.
+function funPlantStage(pct) {
+  if (pct >= 80) return '🌳';
+  if (pct >= 45) return '🌿';
+  if (pct >= 15) return '🌱';
+  return '🌰';
+}
+
+// Onglet Impact : le « jardin vivant » — 3 plantes qui poussent (promesse → preuve) + équivalences.
 function impactRenderEtat() {
   const box = document.getElementById('ici-mesure-impact');
   if (!box) return;
@@ -7102,48 +7146,153 @@ function impactRenderEtat() {
   const META = (typeof ICI_LIVRE_META !== 'undefined') ? ICI_LIVRE_META : { ecologie:{label:'Écologie',ic:'🌿',col:'#2e9960'}, social:{label:'Social',ic:'🤝',col:'#3a6e8c'}, economie_locale:{label:'Éco. locale',ic:'♻️',col:'#c8732a'} };
   const paire = apercuCapitauxPaire();
   let lowLabel = null, lowVal = null;
-  const rows = ['ecologie', 'social', 'economie_locale'].map(k => {
+
+  const HT = 132; // hauteur du bac de culture (px)
+  const plants = ['ecologie', 'social', 'economie_locale'].map(k => {
     const m = META[k] || { label: k, ic: '◆', col: '#4a8c5c' };
-    const vad = (paire[k] || {}).vad || 0;
-    const vit = hasV ? ((paire[k] || {}).vit || 0) : 0;
+    const vad = (paire[k] || {}).vad || 0;            // promesse
+    const vit = hasV ? ((paire[k] || {}).vit || 0) : 0; // preuve
     const low = hasV && vad < PLANCHER;
     if (low && (lowVal === null || vad < lowVal)) { lowLabel = m.label; lowVal = vad; }
-    const ecart = hasV ? Math.max(0, vad - vit) : 0;
-    return '<div style="margin-bottom:.85rem">'
-      + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.35rem">'
-        + '<span style="font-size:.75rem;font-weight:700;color:' + m.col + '">' + m.ic + ' ' + m.label + '</span>'
-        + '<span style="font-family:\'Satoshi\',sans-serif;line-height:1"><span style="font-size:1.05rem;font-weight:800;color:' + m.col + '">' + (hasV ? vit : '—') + '</span><span style="font-size:.66rem;font-weight:700;color:' + (low ? '#b84e35' : 'var(--moss)') + ';opacity:.65"> / ' + (hasV ? vad : '—') + ' promis</span></span>'
+    const stage = funPlantStage(hasV ? vit : 0);
+    const proPx = Math.round(HT * vad / 100);
+    const prePx = Math.round(HT * vit / 100);
+    const planchPx = Math.round(HT * PLANCHER / 100);
+    return '<div style="flex:1;min-width:96px;text-align:center">'
+      + '<div style="position:relative;height:' + HT + 'px;width:64px;margin:0 auto .55rem;border-radius:12px 12px 6px 6px;background:rgba(46,102,66,.05);border:1px solid rgba(46,102,66,.1);overflow:hidden">'
+        + '<div style="position:absolute;left:0;right:0;bottom:0;height:' + proPx + 'px;background:' + m.col + ';opacity:.13"></div>'
+        + '<div style="position:absolute;left:0;right:0;bottom:0;height:' + prePx + 'px;background:linear-gradient(0deg,' + m.col + ',' + m.col + 'aa);transition:height .7s cubic-bezier(.34,1.3,.5,1)"></div>'
+        + '<div style="position:absolute;left:0;right:0;bottom:' + planchPx + 'px;height:0;border-top:1.5px dashed rgba(46,102,66,.4)"></div>'
+        + '<div style="position:absolute;left:50%;transform:translateX(-50%);bottom:' + (prePx - 4) + 'px;font-size:1.5rem;transition:bottom .7s cubic-bezier(.34,1.3,.5,1);filter:drop-shadow(0 2px 3px rgba(0,0,0,.12))">' + stage + '</div>'
       + '</div>'
-      + '<div style="position:relative;height:12px;background:rgba(46,102,66,.07);border-radius:100px">'
-        + '<div style="position:absolute;left:0;top:0;height:100%;width:' + (hasV ? vad : 0) + '%;background:' + m.col + ';opacity:.25;border-radius:100px;transition:width .6s ease"></div>'
-        + '<div style="position:absolute;left:0;top:0;height:100%;width:' + vit + '%;background:' + m.col + ';border-radius:100px;transition:width .6s ease"></div>'
-        + '<div style="position:absolute;left:' + PLANCHER + '%;top:-3px;bottom:-3px;width:2px;background:rgba(46,102,66,.45)"></div>'
-      + '</div>'
-      + (hasV && ecart > 0 ? '<div style="font-size:.58rem;color:var(--moss);opacity:.6;margin-top:.2rem">reste ' + ecart + ' pts à prouver</div>' : '')
+      + '<div style="font-size:.68rem;font-weight:700;color:' + m.col + '">' + m.ic + ' ' + m.label + '</div>'
+      + '<div style="font-family:\'Satoshi\',sans-serif;line-height:1;margin-top:.15rem"><span style="font-size:1.05rem;font-weight:800;color:' + m.col + '">' + (hasV ? vit : '—') + '</span><span style="font-size:.6rem;font-weight:700;color:' + (low ? '#b84e35' : 'var(--moss)') + ';opacity:.6"> / ' + (hasV ? vad : '—') + '</span></div>'
     + '</div>';
   }).join('');
+
+  const T = (typeof funTotals === 'function') ? funTotals() : {};
+  const eqv = [];
+  FUN_ACTIONS.forEach(a => { if (T[a.id]) eqv.push('<span style="display:inline-flex;align-items:center;gap:.3rem;background:rgba(46,102,66,.06);border-radius:100px;padding:.25rem .6rem;font-size:.66rem;color:var(--ink)">' + a.ic + ' <b>' + a.q(T[a.id]) + '</b></span>'); });
+  const equivBlock = eqv.length
+    ? '<div style="margin-top:1rem;padding-top:.9rem;border-top:1px solid rgba(46,102,66,.1)"><div style="font-size:.6rem;font-weight:700;color:var(--moss);opacity:.6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem">Ce que ça représente</div><div style="display:flex;flex-wrap:wrap;gap:.4rem">' + eqv.join('') + '</div></div>'
+    : '<div style="margin-top:1rem;padding-top:.9rem;border-top:1px solid rgba(46,102,66,.1);font-size:.66rem;color:var(--moss);opacity:.6">Saisis une action ci-dessous pour faire pousser ton jardin 🌱</div>';
+
   const alerte = lowLabel !== null
-    ? '<div style="background:rgba(200,115,42,.08);border:1px solid rgba(200,115,42,.3);border-radius:var(--r);padding:.7rem .85rem;font-size:.68rem;color:#9a4a1a;line-height:1.5;margin-top:.6rem">⚠️ <b>' + lowLabel + ' sous le plancher (' + lowVal + ' / ' + PLANCHER + ').</b> Aucun capital élevé ne rachète un capital faible : le passage à l\'étape suivante est bloqué tant que ce capital reste sous le seuil.</div>'
+    ? '<div style="background:rgba(200,115,42,.08);border:1px solid rgba(200,115,42,.3);border-radius:var(--r);padding:.7rem .85rem;font-size:.68rem;color:#9a4a1a;line-height:1.5;margin-top:.7rem">⚠️ <b>' + lowLabel + ' a besoin d\'attention (' + lowVal + ' / ' + PLANCHER + ').</b> Un capital ne rachète pas l\'autre : fais grandir cette plante pour débloquer la suite.</div>'
     : '';
-  const num = (val, col, sub) => '<div style="min-width:120px">'
-    + '<div style="font-family:\'Satoshi\',sans-serif;font-weight:900;color:var(--ink);line-height:1"><span style="font-size:2.4rem;color:' + col + '">' + val + '</span><span style="font-size:.9rem;font-weight:700;opacity:.4">/100</span></div>'
-    + '<div style="font-size:.6rem;color:var(--moss);opacity:.6;margin-top:.15rem">' + sub + '</div></div>';
+
   box.innerHTML = ''
     + '<div class="dash-card" style="margin-bottom:1rem;padding:1.3rem 1.4rem">'
-      + '<div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">'
-        + '<div style="font-size:.84rem;font-weight:700;color:var(--ink)">🌍 État d\'impact · promesse vs preuve</div>'
-        + '<div style="font-size:.66rem;color:var(--moss);opacity:.7">On n\'agrège que des sous-scores 0–100, jamais d\'unités brutes, jamais de monétisation.</div>'
-      + '</div>'
       + '<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.1rem">'
-        + '<div><div style="font-size:.72rem;font-weight:700;color:var(--forest);margin-bottom:.15rem">Vadance <span style="opacity:.6;font-weight:500">· la promesse</span></div>' + num(hasV ? imp.vadance : '—', 'var(--ink)', 'Impact projeté') + '</div>'
-        + '<div style="text-align:center;flex:1;min-width:110px"><div style="font-family:\'Satoshi\',sans-serif;font-size:1.4rem;font-weight:800;color:var(--ink)">' + (hasV ? imp.taux + ' %' : '—') + '</div><div style="height:2px;background:linear-gradient(90deg,rgba(46,102,66,.15),var(--forest));margin:.3rem auto;max-width:120px;position:relative"><span style="position:absolute;right:-1px;top:-4px;color:var(--forest);font-size:.7rem">▸</span></div><div style="font-size:.55rem;font-weight:700;color:var(--moss);opacity:.6;text-transform:uppercase;letter-spacing:.1em">Taux de tenue</div></div>'
-        + '<div style="text-align:right"><div style="font-size:.72rem;font-weight:700;color:#0d2b22;margin-bottom:.15rem">Vadité <span style="opacity:.6;font-weight:500">· la preuve</span></div>' + num(hasV ? imp.vadite : '—', 'var(--forest)', 'Impact vérifié · reçu par le Semeur') + '</div>'
+        + '<div><div style="font-size:.82rem;font-weight:800;color:var(--ink)">🌱 Le jardin de ton impact</div><div style="font-size:.66rem;color:var(--moss);opacity:.7;margin-top:.15rem">La silhouette claire, c\'est ta promesse. La plante pleine, c\'est ce que tu as déjà prouvé.</div></div>'
+        + '<div style="text-align:right;flex-shrink:0"><div style="font-family:\'Satoshi\',sans-serif;font-size:1.5rem;font-weight:900;color:var(--forest);line-height:1">' + (hasV ? imp.taux + ' %' : '—') + '</div><div style="font-size:.55rem;font-weight:700;color:var(--moss);opacity:.6;text-transform:uppercase;letter-spacing:.08em">prouvé sur promis</div></div>'
       + '</div>'
-      + '<div style="height:1px;background:rgba(46,102,66,.1);margin:0 0 1rem"></div>'
-      + '<div style="display:flex;align-items:baseline;gap:.5rem;margin-bottom:.8rem"><span style="font-size:.74rem;font-weight:800;color:var(--ink)">Le triptyque</span><span style="font-size:.62rem;color:var(--moss);opacity:.6;font-style:italic">— barre claire = promesse · barre pleine = preuve · plancher 40</span></div>'
-      + rows
+      + '<div style="display:flex;gap:.6rem;align-items:flex-end;justify-content:center">' + plants + '</div>'
+      + equivBlock
       + alerte
     + '</div>';
+}
+
+/* ── Saisie en 1 geste : grosses cartes « J'ai fait ça » ── */
+function funSaisieRender() {
+  const box = document.getElementById('ici-saisie');
+  if (!box) return;
+  const cards = FUN_ACTIONS.map(a =>
+    '<button onclick="funPick(\'' + a.id + '\')" id="funcard-' + a.id + '" style="background:white;border:1.5px solid rgba(46,102,66,.15);border-radius:var(--r-lg);padding:.9rem .7rem;cursor:pointer;font-family:inherit;text-align:center;transition:all .15s" onmouseover="this.style.borderColor=\'var(--fern)\';this.style.boxShadow=\'0 4px 14px rgba(46,102,66,.12)\'" onmouseout="this.style.borderColor=\'rgba(46,102,66,.15)\';this.style.boxShadow=\'\'">'
+    + '<div style="font-size:1.7rem;line-height:1;margin-bottom:.35rem">' + a.ic + '</div>'
+    + '<div style="font-size:.72rem;font-weight:700;color:var(--ink)">' + a.label + '</div>'
+    + '<div style="font-size:.58rem;color:var(--moss);opacity:.6">en ' + a.unit + '</div>'
+    + '</button>').join('');
+  box.innerHTML = ''
+    + '<div class="dash-card" style="margin-bottom:1rem;padding:1.2rem 1.3rem">'
+      + '<div style="font-size:.82rem;font-weight:800;color:var(--ink);margin-bottom:.2rem">⚡ J\'ai fait ça aujourd\'hui</div>'
+      + '<div style="font-size:.66rem;color:var(--moss);opacity:.7;margin-bottom:.9rem">Un geste, un nombre. Deva transforme ça en impact, ta plante pousse. 🌿</div>'
+      + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem">' + cards + '</div>'
+      + '<div id="fun-input-zone" style="display:none;margin-top:.9rem;background:rgba(46,102,66,.04);border:1px solid rgba(46,102,66,.12);border-radius:var(--r);padding:.8rem .9rem"></div>'
+    + '</div>';
+}
+
+function funPick(id) {
+  const a = FUN_ACTIONS.find(x => x.id === id);
+  const zone = document.getElementById('fun-input-zone');
+  if (!a || !zone) return;
+  zone.style.display = 'block';
+  zone.innerHTML = ''
+    + '<div style="display:flex;align-items:center;gap:.7rem;flex-wrap:wrap">'
+      + '<span style="font-size:1.4rem">' + a.ic + '</span>'
+      + '<span style="font-size:.78rem;font-weight:700;color:var(--ink)">' + a.label + '</span>'
+      + '<span style="font-size:.7rem;color:var(--moss)">combien de <b>' + a.unit + '</b> ?</span>'
+      + '<input id="fun-qty" type="number" min="1" value="1" style="width:90px;padding:.45rem .6rem;border:1px solid rgba(46,102,66,.2);border-radius:8px;font-family:inherit;font-size:.8rem" onkeydown="if(event.key===\'Enter\')funValider(\'' + a.id + '\')">'
+      + '<button onclick="funValider(\'' + a.id + '\')" style="background:var(--forest);border:none;border-radius:100px;padding:.45rem 1.1rem;font-size:.72rem;font-weight:700;color:white;cursor:pointer;font-family:inherit">✅ Valider</button>'
+    + '</div>'
+    + '<div id="fun-preview" style="font-size:.66rem;color:var(--fern);font-weight:600;margin-top:.5rem">= ' + a.q(1) + '</div>';
+  const qty = document.getElementById('fun-qty');
+  if (qty) { qty.focus(); qty.select(); qty.oninput = () => { const p = document.getElementById('fun-preview'); if (p) p.textContent = '= ' + a.q(Math.max(0, parseFloat(qty.value) || 0)); }; }
+}
+
+function funValider(id) {
+  const a = FUN_ACTIONS.find(x => x.id === id);
+  if (!a) return;
+  const qtyEl = document.getElementById('fun-qty');
+  const qty = Math.max(1, Math.round(parseFloat(qtyEl && qtyEl.value) || 1));
+  window._funLog = window._funLog || [];
+  window._funLog.push({ id: id, qty: qty });
+  if (typeof funGlobalScore === 'function') window._evadProvenActions = funGlobalScore();
+  const zone = document.getElementById('fun-input-zone');
+  if (zone) zone.style.display = 'none';
+  if (typeof impactRenderEtat === 'function') impactRenderEtat();
+  if (typeof updateApercuFromQuetes === 'function') updateApercuFromQuetes();
+  funCelebrate('+' + a.gain + ' 🌱', a.q(qty));
+  funCheckBadges(id);
+  if (typeof mmBubble === 'function') mmBubble('🌿 Bravo ! ' + a.q(qty) + ' — ta plante a poussé.');
+}
+
+function funCelebrate(gainTxt, equivTxt) {
+  const host = document.getElementById('ici-mesure-impact');
+  if (!host) return;
+  host.style.position = host.style.position || 'relative';
+  const f = document.createElement('div');
+  f.innerHTML = '<div style="font-family:Satoshi,sans-serif;font-weight:900;font-size:1.3rem;color:#018262">' + gainTxt + '</div><div style="font-size:.68rem;color:var(--fern);font-weight:600">' + equivTxt + '</div>';
+  f.style.cssText = 'position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:30;text-align:center;pointer-events:none;text-shadow:0 2px 8px rgba(255,255,255,.9);animation:vadFloat 1.4s ease-out forwards';
+  host.appendChild(f);
+  setTimeout(() => f.remove(), 1400);
+  ['🌱','✨','🌿','💚','🍃','✨'].forEach((e, i) => {
+    const ang = (i / 6) * Math.PI * 2;
+    const s = document.createElement('div');
+    s.textContent = e;
+    s.style.cssText = 'position:absolute;top:26px;left:50%;z-index:29;font-size:1.1rem;pointer-events:none;transform:translate(-50%,0);transition:transform .9s cubic-bezier(.2,.8,.2,1),opacity .9s ease-out';
+    host.appendChild(s);
+    requestAnimationFrame(() => { s.style.transform = 'translate(calc(-50% + ' + Math.round(Math.cos(ang) * 90) + 'px), ' + Math.round(-30 - Math.abs(Math.sin(ang)) * 60) + 'px)'; s.style.opacity = '0'; });
+    setTimeout(() => s.remove(), 920);
+  });
+}
+
+const FUN_BADGES = [
+  { id: 'first',    test: (T) => Object.keys(T).length >= 1, ic: '🌟', label: 'Premier impact prouvé !' },
+  { id: 'compost50',test: (T) => (T.composte || 0) >= 50,    ic: '♻️', label: '50 kg compostés' },
+  { id: 'repare10', test: (T) => (T.repare || 0) >= 10,      ic: '🔧', label: '10 objets réparés' },
+  { id: 'forme10',  test: (T) => (T.forme || 0) >= 10,       ic: '🎓', label: '10 personnes formées' },
+  { id: 'jardinier',test: (T) => (T.plante || 0) >= 20,      ic: '🌳', label: 'Jardinier·ère confirmé·e' },
+];
+function funCheckBadges() {
+  const T = funTotals();
+  window._funBadges = window._funBadges || {};
+  FUN_BADGES.forEach(b => {
+    if (!window._funBadges[b.id] && b.test(T)) {
+      window._funBadges[b.id] = true;
+      funBadgeToast(b.ic, b.label);
+    }
+  });
+}
+function funBadgeToast(ic, label) {
+  let host = document.getElementById('fun-badge-toast');
+  if (!host) { host = document.createElement('div'); host.id = 'fun-badge-toast'; host.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:100000;display:flex;flex-direction:column;gap:.5rem;align-items:center;pointer-events:none'; document.body.appendChild(host); }
+  const t = document.createElement('div');
+  t.style.cssText = 'background:white;border:1.5px solid var(--fern);border-radius:100px;padding:.6rem 1.1rem;box-shadow:0 8px 28px rgba(46,102,66,.22);font-family:Satoshi,sans-serif;font-weight:700;font-size:.82rem;color:var(--ink);display:flex;align-items:center;gap:.5rem;opacity:0;transform:translateY(10px);transition:all .3s';
+  t.innerHTML = '<span style="font-size:1.2rem">' + ic + '</span> Badge débloqué · ' + label;
+  host.appendChild(t);
+  requestAnimationFrame(() => { t.style.opacity = '1'; t.style.transform = 'translateY(0)'; });
+  setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(10px)'; setTimeout(() => t.remove(), 350); }, 3200);
 }
 
 /* Reflète Vadance / Vadité / taux dans le bandeau « Mon lieu » (aperçu Pilote). */
