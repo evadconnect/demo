@@ -9555,6 +9555,104 @@ function creerDocs(input) {
   cData.docs = cData.docs || [];
   files.forEach(f => cData.docs.push(f.name));
   renderStep();
+  // Pré-remplissage : tente d'extraire les infos du 1er PDF/txt déposé.
+  const doc = files.find(f => /\.(pdf|txt)$/i.test(f.name) || f.type === 'application/pdf' || f.type === 'text/plain');
+  if (doc && typeof creerExtractFromDoc === 'function') creerExtractFromDoc(doc);
+}
+
+/* ─── Pré-remplissage de la fiche à partir d'un document (PDF/texte) via Deva ─── */
+function _creerHintSay(html){
+  const t = document.getElementById('deva-fiche-hint-txt');
+  const tip = document.getElementById('deva-fiche-hint');
+  if (t) t.innerHTML = html;
+  if (tip) tip.style.display = 'block';
+}
+
+function loadPdfJs(){
+  if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+  if (window._pdfjsLoading) return window._pdfjsLoading;
+  window._pdfjsLoading = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.onload = () => { try { window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; } catch(e){} resolve(window.pdfjsLib); };
+    s.onerror = () => reject(new Error('pdf.js indisponible'));
+    document.head.appendChild(s);
+  });
+  return window._pdfjsLoading;
+}
+
+async function creerReadPdfText(file){
+  const pdfjs = await loadPdfJs();
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjs.getDocument({ data: buf }).promise;
+  let text = '';
+  const maxPages = Math.min(pdf.numPages, 12);
+  for (let i = 1; i <= maxPages; i++){
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    text += content.items.map(it => it.str).join(' ') + '\n';
+    if (text.length > 6000) break;
+  }
+  return text.slice(0, 6000);
+}
+
+function creerReadTextFile(file){
+  return new Promise((resolve) => {
+    const r = new FileReader();
+    r.onload = e => resolve(String(e.target.result || '').slice(0, 6000));
+    r.onerror = () => resolve('');
+    r.readAsText(file);
+  });
+}
+
+async function creerExtractFromDoc(file){
+  if (typeof DEVA_API_URL === 'undefined' || !DEVA_API_URL) return;
+  const name = (file.name || '').toLowerCase();
+  const isPdf = name.endsWith('.pdf') || file.type === 'application/pdf';
+  const isTxt = name.endsWith('.txt') || file.type === 'text/plain';
+  if (!isPdf && !isTxt) return;
+  _creerHintSay('📄 Je lis ton document…');
+  let text = '';
+  try { text = isPdf ? await creerReadPdfText(file) : await creerReadTextFile(file); } catch(e){ text = ''; }
+  if (!text || text.trim().length < 30){
+    _creerHintSay("Hmm, je n'ai pas réussi à lire ce document (un scan ?). Remplis à la main, je t'aide 🙂");
+    return;
+  }
+  const prompt = "Voici le texte d'un document qui décrit un lieu. Extrais ses informations et réponds UNIQUEMENT par un objet JSON valide (aucun texte avant/après, pas de balise code), avec ces clés (valeur \"\" si absente) : nom, type, ville, description, annee, surface, statut. Pour \"type\" choisis EXACTEMENT l'un de : ferme, jardin, fablab, repair, ressourcerie, tiers, cafe, epicerie, coworking, incubateur, ecolieu, habitat, ecole, autre. Garde \"description\" en 1 à 2 phrases.\n\nTEXTE:\n" + text;
+  try {
+    const r = await fetch(DEVA_API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ messages:[{ role:'user', content: prompt }] }) });
+    const d = await r.json();
+    const reply = (d && d.reply) || '';
+    const jsonStr = (reply.match(/\{[\s\S]*\}/) || [reply])[0];
+    creerApplyExtracted(JSON.parse(jsonStr));
+  } catch(e){
+    _creerHintSay("Je n'ai pas réussi à analyser ce document. Remplis à la main, je suis là 🙂");
+  }
+}
+
+function creerApplyExtracted(data){
+  if (!data || typeof data !== 'object') return;
+  let n = 0;
+  const set = (k, v) => { if (v != null && String(v).trim() !== ''){ cData[k] = String(v).trim(); n++; } };
+  set('nom', data.nom);
+  set('localisation', data.ville);
+  set('desc', data.description);
+  set('annee', data.annee);
+  set('surface', data.surface);
+  if (data.type && typeof TYPES_LIEU !== 'undefined'){
+    const t = TYPES_LIEU.find(x => x.id === String(data.type).toLowerCase());
+    if (t){ cData.type = t.id; cData.icon = t.ic; n++; }
+  }
+  if (data.statut && typeof STATUTS !== 'undefined'){
+    const sv = String(data.statut).toLowerCase();
+    const found = STATUTS.find(([v,l]) => v === sv || l.toLowerCase().includes(sv));
+    if (found){ cData.statut = found[0]; n++; }
+  }
+  renderStep();
+  if (typeof mmCenter === 'function') mmCenter();
+  _creerHintSay(n > 0
+    ? "✅ J'ai lu ton document et pré-rempli <b>" + n + " champ" + (n>1?'s':'') + "</b> 🌱 vérifie et ajuste."
+    : "J'ai lu ton document mais peu d'infos exploitables. Remplis à la main, je t'aide 🙂");
 }
 
 function ficheAddBesoin() {
