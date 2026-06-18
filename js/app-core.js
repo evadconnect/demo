@@ -6944,10 +6944,13 @@ function evadImpactData() {
   if (!vadance && typeof cData !== 'undefined' && cData && cData.type && typeof computeVadance === 'function') {
     vadance = computeVadance(cData);
   }
-  // Preuve : base + bonus des quêtes validées, et/ou score des actions terrain certifiées.
-  let vadite = (typeof evadLieuScoreData === 'function') ? (evadLieuScoreData().score || 0) : 0;
-  if (typeof window !== 'undefined' && typeof window._evadProvenActions === 'number') {
-    vadite = Math.max(vadite, window._evadProvenActions);
+  // Preuve = moyenne des preuves par capital (quêtes validées + actions du jardin).
+  let vadite = 0;
+  if (typeof apercuCapitauxPaire === 'function') {
+    const p = apercuCapitauxPaire();
+    vadite = Math.round(((p.ecologie.vit || 0) + (p.social.vit || 0) + (p.economie_locale.vit || 0)) / 3);
+  } else if (typeof evadLieuScoreData === 'function') {
+    vadite = evadLieuScoreData().score || 0;
   }
   // La preuve ne dépasse pas la promesse : le taux de tenue est plafonné à 100 %.
   if (vadance > 0) vadite = Math.min(vadite, vadance);
@@ -7022,16 +7025,28 @@ function apercuCapitauxScores() {
 // locale plus lentement. La preuve ne dépasse jamais la promesse du capital.
 const APERCU_PREUVE_POIDS = { ecologie: 1.18, social: 1.0, economie_locale: 0.72 };
 function apercuCapitauxPaire() {
-  const imp = (typeof evadImpactData === 'function') ? evadImpactData() : { vadance: 0, vadite: 0 };
-  const vadCap = apercuCapitauxScores();
-  const ratio = imp.vadance > 0 ? (imp.vadite / imp.vadance) : 0;
-  const bonus = (typeof funCapBonus === 'function') ? funCapBonus() : { ecologie:0, social:0, economie_locale:0 };
+  // Promesse = 100 par capital (le plein potentiel). Preuve = preuve des quêtes
+  // validées (répartie selon la couverture du capital) + actions du jardin.
+  const L = (typeof myLieuData !== 'undefined' && myLieuData && myLieuData.nom) ? myLieuData : (typeof cData !== 'undefined' ? cData : {});
+  const sols = (L && L.solutions) || [];
+  const covered = { ecologie: 0, social: 0, economie_locale: 0 };
+  const total = { ecologie: 0, social: 0, economie_locale: 0 };
+  const seen = {};
+  if (typeof ICI_CATALOG !== 'undefined') ICI_CATALOG.forEach(i => total[i.livre] = (total[i.livre] || 0) + 1);
+  if (typeof iciPourSolution === 'function') sols.forEach(sn => (iciPourSolution(sn) || []).forEach(i => { if (!seen[i.id]) { seen[i.id] = 1; covered[i.livre] = (covered[i.livre] || 0) + 1; } }));
+  const questGlobal = (typeof evadLieuScoreData === 'function') ? (evadLieuScoreData().score || 0) : 0; // 10..100 (quêtes validées)
+  const fun = (typeof funCapBonus === 'function') ? funCapBonus() : { ecologie: 0, social: 0, economie_locale: 0 };
+  const share = {}; let maxShare = 0;
+  ['ecologie', 'social', 'economie_locale'].forEach(k => {
+    const r = total[k] ? covered[k] / total[k] : 0;
+    share[k] = r * (APERCU_PREUVE_POIDS[k] || 1);
+    if (share[k] > maxShare) maxShare = share[k];
+  });
   const out = {};
   ['ecologie', 'social', 'economie_locale'].forEach(k => {
-    const vad = vadCap[k] || 0;
-    let vit = Math.round(vad * ratio * (APERCU_PREUVE_POIDS[k] || 1)) + (bonus[k] || 0);
-    vit = Math.max(0, Math.min(vad, vit)); // la preuve ne dépasse jamais la promesse
-    out[k] = { vad: vad, vit: vit };
+    const qPart = maxShare > 0 ? Math.round(questGlobal * (share[k] / maxShare)) : 0; // preuve des quêtes, par couverture
+    const vit = Math.max(0, Math.min(100, qPart + (fun[k] || 0)));                    // + actions du jardin
+    out[k] = { vad: 100, vit: vit };
   });
   return out;
 }
@@ -7072,42 +7087,45 @@ function apercuRender() {
   // Triptyque : 3 capitaux, jamais compensés (plancher)
   const PLANCHER = (typeof ICI_PLANCHER !== 'undefined') ? ICI_PLANCHER : 40;
   const META = (typeof ICI_LIVRE_META !== 'undefined') ? ICI_LIVRE_META : { ecologie:{label:'Écologie',ic:'🌿',col:'#2e9960'}, social:{label:'Social',ic:'🤝',col:'#3a6e8c'}, economie_locale:{label:'Éco. locale',ic:'♻️',col:'#c8732a'} };
-  const scores = apercuCapitauxScores();
-  const ratio = imp.vadance > 0 ? (imp.vadite / imp.vadance) : 0; // part déjà prouvée
-  let lowLabel = null, lowVal = null;
+  const paire = apercuCapitauxPaire();
+  const KS = ['ecologie', 'social', 'economie_locale'];
+  const vits = KS.map(k => (paire[k] || {}).vit || 0);
+  const maxVit = Math.max.apply(null, vits), minVit = Math.min.apply(null, vits);
+  // Alerte plancher : un capital en retard sous le seuil alors qu'un autre progresse.
+  let alertCap = null;
+  if (hasV && maxVit >= PLANCHER && minVit < PLANCHER) {
+    const k = KS[vits.indexOf(minVit)];
+    alertCap = { key: k, label: (META[k] || {}).label || k, val: minVit };
+  }
   const trip = document.getElementById('apercu-triptyque');
   if (trip) {
-    // Légende : barre claire = promesse (Vadance), barre pleine = preuve (Vadité).
     const legende = '<div style="display:flex;gap:1rem;align-items:center;margin-bottom:.6rem;font-size:.58rem;color:var(--moss);opacity:.75">'
-      + '<span style="display:inline-flex;align-items:center;gap:.3rem"><span style="width:14px;height:8px;border-radius:100px;background:rgba(46,102,66,.22);display:inline-block"></span> promesse (Vadance)</span>'
+      + '<span style="display:inline-flex;align-items:center;gap:.3rem"><span style="width:14px;height:8px;border-radius:100px;background:rgba(46,102,66,.22);display:inline-block"></span> promesse (sur 100)</span>'
       + '<span style="display:inline-flex;align-items:center;gap:.3rem"><span style="width:14px;height:8px;border-radius:100px;background:var(--forest);display:inline-block"></span> preuve (Vadité)</span>'
       + '</div>';
-    const paire = apercuCapitauxPaire();
-    trip.innerHTML = legende + ['ecologie', 'social', 'economie_locale'].map(k => {
+    trip.innerHTML = legende + KS.map(k => {
       const m = META[k] || { label: k, ic: '◆', col: '#4a8c5c' };
-      const vad = (paire[k] || {}).vad || 0;       // promesse
       const vit = hasV ? ((paire[k] || {}).vit || 0) : 0; // preuve (variable par capital)
-      const low = hasV && vad < PLANCHER;
-      if (low && (lowVal === null || vad < lowVal)) { lowLabel = m.label; lowVal = vad; }
+      const low = alertCap && alertCap.key === k;
       return '<div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.65rem">'
         + '<div style="width:108px;flex-shrink:0;font-size:.72rem;font-weight:600;color:var(--ink)">' + m.ic + ' ' + m.label + '</div>'
         + '<div style="flex:1;position:relative;height:11px;background:rgba(46,102,66,.07);border-radius:100px">'
-          + '<div style="position:absolute;left:0;top:0;height:100%;width:' + (hasV ? vad : 0) + '%;background:' + m.col + ';opacity:.25;border-radius:100px;transition:width .6s ease"></div>'
-          + '<div style="position:absolute;left:0;top:0;height:100%;width:' + vit + '%;background:' + m.col + ';border-radius:100px;transition:width .6s ease"></div>'
+          + '<div style="position:absolute;left:0;top:0;height:100%;width:100%;background:' + m.col + ';opacity:.18;border-radius:100px"></div>'
+          + '<div style="position:absolute;left:0;top:0;height:100%;width:' + vit + '%;background:' + (low ? '#b84e35' : m.col) + ';border-radius:100px;transition:width .6s ease"></div>'
           + '<div style="position:absolute;left:' + PLANCHER + '%;top:-3px;bottom:-3px;width:2px;background:rgba(46,102,66,.45)"></div>'
         + '</div>'
         + '<div style="width:54px;text-align:right;font-family:\'Satoshi\',sans-serif;line-height:1">'
-          + '<span style="font-size:1rem;font-weight:800;color:' + m.col + '">' + (hasV ? vit : '—') + '</span>'
-          + '<span style="font-size:.62rem;font-weight:700;color:' + (low ? '#b84e35' : 'var(--moss)') + ';opacity:' + (low ? '1' : '.55') + '"> / ' + (hasV ? vad : '—') + '</span>'
+          + '<span style="font-size:1rem;font-weight:800;color:' + (low ? '#b84e35' : m.col) + '">' + (hasV ? vit : '—') + '</span>'
+          + '<span style="font-size:.62rem;font-weight:700;color:var(--moss);opacity:.5"> / 100</span>'
         + '</div>'
       + '</div>';
     }).join('');
   }
   const alertBox = document.getElementById('apercu-plancher-alert');
   if (alertBox) {
-    if (lowLabel !== null) {
+    if (alertCap) {
       alertBox.style.display = 'block';
-      alertBox.innerHTML = '⚠️ <b>' + lowLabel + ' sous le plancher (' + lowVal + ' / ' + PLANCHER + ').</b> Aucun capital élevé ne rachète un capital faible : tant qu\'il reste sous le seuil, le passage à l\'étape suivante est bloqué.';
+      alertBox.innerHTML = '⚠️ <b>' + alertCap.label + ' est en retard (' + alertCap.val + ' / 100, sous le plancher ' + PLANCHER + ').</b> Un capital ne rachète pas l\'autre : fais grandir ce capital pour débloquer la suite.';
     } else {
       alertBox.style.display = 'none';
     }
@@ -7145,15 +7163,21 @@ function impactRenderEtat() {
   const PLANCHER = (typeof ICI_PLANCHER !== 'undefined') ? ICI_PLANCHER : 40;
   const META = (typeof ICI_LIVRE_META !== 'undefined') ? ICI_LIVRE_META : { ecologie:{label:'Écologie',ic:'🌿',col:'#2e9960'}, social:{label:'Social',ic:'🤝',col:'#3a6e8c'}, economie_locale:{label:'Éco. locale',ic:'♻️',col:'#c8732a'} };
   const paire = apercuCapitauxPaire();
-  let lowLabel = null, lowVal = null;
+  const KS = ['ecologie', 'social', 'economie_locale'];
+  const vits = KS.map(k => (paire[k] || {}).vit || 0);
+  const maxVit = Math.max.apply(null, vits), minVit = Math.min.apply(null, vits);
+  let alertCap = null;
+  if (hasV && maxVit >= PLANCHER && minVit < PLANCHER) {
+    const lk = KS[vits.indexOf(minVit)];
+    alertCap = { key: lk, label: (META[lk] || {}).label || lk, val: minVit };
+  }
 
   const HT = 132; // hauteur du bac de culture (px)
-  const plants = ['ecologie', 'social', 'economie_locale'].map(k => {
+  const plants = KS.map(k => {
     const m = META[k] || { label: k, ic: '◆', col: '#4a8c5c' };
-    const vad = (paire[k] || {}).vad || 0;            // promesse
+    const vad = 100;                                   // promesse = plein potentiel
     const vit = hasV ? ((paire[k] || {}).vit || 0) : 0; // preuve
-    const low = hasV && vad < PLANCHER;
-    if (low && (lowVal === null || vad < lowVal)) { lowLabel = m.label; lowVal = vad; }
+    const low = alertCap && alertCap.key === k;
     const stage = funPlantStage(hasV ? vit : 0);
     const proPx = Math.round(HT * vad / 100);
     const prePx = Math.round(HT * vit / 100);
@@ -7177,8 +7201,8 @@ function impactRenderEtat() {
     ? '<div style="margin-top:1rem;padding-top:.9rem;border-top:1px solid rgba(46,102,66,.1)"><div style="font-size:.6rem;font-weight:700;color:var(--moss);opacity:.6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem">Ce que ça représente</div><div style="display:flex;flex-wrap:wrap;gap:.4rem">' + eqv.join('') + '</div></div>'
     : '<div style="margin-top:1rem;padding-top:.9rem;border-top:1px solid rgba(46,102,66,.1);font-size:.66rem;color:var(--moss);opacity:.6">Saisis une action ci-dessous pour faire pousser ton jardin 🌱</div>';
 
-  const alerte = lowLabel !== null
-    ? '<div style="background:rgba(200,115,42,.08);border:1px solid rgba(200,115,42,.3);border-radius:var(--r);padding:.7rem .85rem;font-size:.68rem;color:#9a4a1a;line-height:1.5;margin-top:.7rem">⚠️ <b>' + lowLabel + ' a besoin d\'attention (' + lowVal + ' / ' + PLANCHER + ').</b> Un capital ne rachète pas l\'autre : fais grandir cette plante pour débloquer la suite.</div>'
+  const alerte = alertCap
+    ? '<div style="background:rgba(200,115,42,.08);border:1px solid rgba(200,115,42,.3);border-radius:var(--r);padding:.7rem .85rem;font-size:.68rem;color:#9a4a1a;line-height:1.5;margin-top:.7rem">⚠️ <b>' + alertCap.label + ' a besoin d\'attention (' + alertCap.val + ' / 100, sous le plancher ' + PLANCHER + ').</b> Un capital ne rachète pas l\'autre : fais grandir cette plante pour débloquer la suite.</div>'
     : '';
 
   box.innerHTML = ''
