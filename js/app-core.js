@@ -6955,6 +6955,85 @@ function evadImpactData() {
   return { vadance: vadance, vadite: vadite, taux: taux };
 }
 
+/* ─── APERÇU : « où en est mon lieu, et quel est le prochain cran ? » ─── */
+
+// Couverture par capital : nb d'ICI distincts portés par les solutions du lieu.
+function apercuCapitaux() {
+  const L = (typeof myLieuData !== 'undefined' && myLieuData && myLieuData.nom) ? myLieuData : (typeof cData !== 'undefined' ? cData : {});
+  const sols = (L && L.solutions) || [];
+  const cnt = { ecologie: 0, social: 0, economie_locale: 0 };
+  const seen = {};
+  if (typeof iciPourSolution === 'function') {
+    sols.forEach(sn => (iciPourSolution(sn) || []).forEach(ici => {
+      const k = ici.id;
+      if (!seen[k]) { seen[k] = 1; cnt[ici.livre] = (cnt[ici.livre] || 0) + 1; }
+    }));
+  }
+  return cnt;
+}
+
+// Le prochain cran : un seul objectif clair, choisi selon l'état du lieu.
+function apercuNextCran() {
+  const imp = (typeof evadImpactData === 'function') ? evadImpactData() : { vadance: 0, vadite: 0, taux: 0 };
+  const v = imp.vadance, vit = imp.vadite, taux = imp.taux;
+  const goFiche  = "piloteTab('fiche',document.getElementById('ptab-fiche'))";
+  const goQuetes = "piloteTab('quetes',document.getElementById('ptab-quetes'))";
+  const goImpact = "piloteTab('dossiers',document.getElementById('ptab-dossiers'))";
+  if (v <= 0)   return { icon:'✦', title:'Crée ton lieu', why:'Compose ta fiche : Deva génère ta Vadance à partir de tes solutions.', from:0, to:10, val:0, unit:'Vadance', cta:'Créer mon lieu', onclick:"showScreen('creer')" };
+  if (v < 38)   return { icon:'🌱', title:'Déclare plus d\'impact', why:'Ajoute des solutions et des espaces : chacune porte de vrais ICI qui font monter ta Vadance.', from:10, to:38, val:v, unit:'Vadance', cta:'Enrichir ma fiche', onclick:goFiche };
+  if (v < 65)   return { icon:'✨', title:'Vise le palier « Prêt à publier »', why:'Quelques solutions à fort impact de plus et ton lieu devient convaincant pour la communauté.', from:38, to:65, val:v, unit:'Vadance', cta:'Enrichir ma fiche', onclick:goFiche };
+  if (vit <= 10) return { icon:'✅', title:'Transforme ta promesse en preuve', why:'Ta Vadance est solide. Valide ta première quête pour faire décoller ta Vadité (l\'impact prouvé).', from:0, to:25, val:vit, unit:'Vadité', cta:'Aller aux quêtes', onclick:goQuetes };
+  if (taux < 50) return { icon:'⚖️', title:'Atteins 50% de taux de tenue', why:'C\'est le seuil qui rend ton lieu éligible aux financements Semeur. Continue à certifier tes actions.', from:0, to:50, val:taux, unit:'% de tenue', cta:'Saisir une action', onclick:goImpact };
+  if (taux < 80) return { icon:'📣', title:'Attire des financeurs', why:'Tu es éligible au financement Semeur. Publie au réseau pour gagner en visibilité.', from:50, to:80, val:taux, unit:'% de tenue', cta:'Publier au réseau', onclick:"evadPublishLieuToReseau()" };
+  return { icon:'🚀', title:'Élève ton impact', why:'Lieu à fort taux de tenue : fais auditer tes preuves pour viser la certification maximale.', from:80, to:100, val:taux, unit:'% de tenue', cta:'Voir mon impact', onclick:goImpact };
+}
+
+// Remplit la partie « état » + « prochain cran » de l'aperçu.
+function apercuRender() {
+  const imp = (typeof evadImpactData === 'function') ? evadImpactData() : { vadance: 0, vadite: 0, taux: 0 };
+  const L = (typeof myLieuData !== 'undefined' && myLieuData && myLieuData.nom) ? myLieuData : (typeof cData !== 'undefined' ? cData : {});
+  const nomEl = document.getElementById('apercu-lieu-nom');
+  if (nomEl) nomEl.textContent = (L && L.nom) ? L.nom : 'mon lieu';
+  // Palier
+  const palEl = document.getElementById('apercu-palier');
+  if (palEl) {
+    const p = (typeof creerVadancePalier === 'function') ? creerVadancePalier(imp.vadance) : null;
+    palEl.textContent = imp.vadance > 0 ? (p ? p.label : '🌿 Lieu esquissé') : '✦ À composer';
+  }
+  // Capitaux
+  const capBox = document.getElementById('apercu-capitaux');
+  if (capBox) {
+    const cnt = apercuCapitaux();
+    const META = (typeof ICI_LIVRE_META !== 'undefined') ? ICI_LIVRE_META : { ecologie:{label:'Écologie',ic:'🌿'}, social:{label:'Social',ic:'🤝'}, economie_locale:{label:'Économie locale',ic:'♻️'} };
+    const cols = { ecologie:'#7ab840', social:'#6aa0bc', economie_locale:'#e8a55a' };
+    capBox.innerHTML = ['ecologie','social','economie_locale'].map(k => {
+      const n = cnt[k] || 0, pct = Math.min(100, n * 50); // 2 ICI / capital = 100%
+      const m = META[k] || { label:k, ic:'◆' };
+      return '<div style="background:rgba(255,255,255,.08);border-radius:10px;padding:.45rem .6rem">'
+        + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem">'
+          + '<span style="font-size:.56rem;color:rgba(255,255,255,.7)">' + m.ic + ' ' + m.label + '</span>'
+          + '<span style="font-size:.6rem;font-weight:800;color:white">' + n + '</span>'
+        + '</div>'
+        + '<div style="height:4px;border-radius:100px;background:rgba(255,255,255,.12);overflow:hidden"><div style="height:100%;width:' + pct + '%;border-radius:100px;background:' + cols[k] + '"></div></div>'
+      + '</div>';
+    }).join('');
+  }
+  // Prochain cran
+  const cran = apercuNextCran();
+  const set = (id, fn) => { const el = document.getElementById(id); if (el) fn(el); };
+  set('apercu-cran-icon',  el => el.textContent = cran.icon);
+  set('apercu-cran-title', el => el.textContent = cran.title);
+  set('apercu-cran-why',   el => el.textContent = cran.why);
+  set('apercu-cran-from',  el => el.textContent = cran.unit + ' ' + cran.val);
+  set('apercu-cran-to',    el => el.textContent = 'objectif ' + cran.to);
+  set('apercu-cran-bar',   el => {
+    const span = cran.to - cran.from;
+    const pct = span > 0 ? Math.max(0, Math.min(100, Math.round((cran.val - cran.from) / span * 100))) : 0;
+    el.style.width = pct + '%';
+  });
+  set('apercu-cran-cta',   el => { el.textContent = cran.cta + ' →'; el.setAttribute('onclick', cran.onclick); });
+}
+
 /* Reflète Vadance / Vadité / taux dans le bandeau « Mon lieu » (aperçu Pilote). */
 function evadReflectImpact() {
   const d = evadImpactData();
@@ -7005,6 +7084,8 @@ function updateApercuFromQuetes() {
   if (typeof evadReflectImpact === 'function') evadReflectImpact();
   const wallet = document.getElementById('apercu-graines-wallet');
   if (wallet) wallet.textContent = d.graines.toLocaleString('fr');
+  // Aperçu : nom, palier, capitaux, prochain cran
+  if (typeof apercuRender === 'function') apercuRender();
   evadSyncMyLieuOnMap();
 }
 

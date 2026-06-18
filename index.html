@@ -12,7 +12,7 @@
         crossorigin=""
     />
         
-<link rel="stylesheet" href="css/styles.css?v=26">
+<link rel="stylesheet" href="css/styles.css?v=27">
 </head>
 <body>
 
@@ -111,7 +111,7 @@
 </div>
 
 
-<script src="js/splash-onboarding.js?v=26"></script>
+<script src="js/splash-onboarding.js?v=27"></script>
 
 <div class="app">
 
@@ -894,138 +894,89 @@
   <div class="pilote-panel active" id="pilote-panel-apercu">
     <div class="dashboard">
 
-      <!-- HERO Vadance -->
-      <div style="background:linear-gradient(135deg,var(--forest),#1a4a35);border-radius:var(--r-lg);padding:1.4rem 1.5rem;margin-bottom:1rem;display:flex;align-items:center;gap:1.4rem">
-        <div style="position:relative;width:88px;height:88px;flex-shrink:0">
-          <svg width="88" height="88" viewBox="0 0 88 88" style="transform:rotate(-90deg)">
-            <circle cx="44" cy="44" r="36" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="7"/>
-            <circle id="regen-arc" cx="44" cy="44" r="36" fill="none" stroke="#7ab840" stroke-width="7" stroke-linecap="round" stroke-dasharray="226.2" stroke-dashoffset="226.2" style="transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)"/>
-          </svg>
-          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px">
-            <span id="apercu-regen-val" style="font-family:'Satoshi', sans-serif;font-size:1.65rem;font-weight:900;color:white;line-height:1">—</span>
-            <span style="font-size:.48rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.12em">VADANCE</span>
-          </div>
-        </div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:.55rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.14em;margin-bottom:.2rem">Mon lieu</div>
-          <div style="font-family:'Satoshi', sans-serif;font-size:1rem;font-weight:700;color:white;margin-bottom:.1rem">Vadance <span style="font-weight:500;font-size:.72rem;color:rgba(255,255,255,.55)">(promesse)</span></div>
-          <div style="font-size:.58rem;color:rgba(255,255,255,.55);margin-bottom:.5rem">Score d’impact projeté · sur 100</div>
-          <div style="display:flex;gap:.45rem;flex-wrap:wrap;margin-bottom:.5rem">
-            <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:.3rem .6rem;display:flex;flex-direction:column;line-height:1.15">
-              <span style="font-size:.5rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em">✅ Vadité <span style="opacity:.7">(preuve)</span></span>
-              <span style="font-size:.85rem;font-weight:800;color:white"><span id="apercu-vadite-val">—</span><span style="font-size:.55rem;font-weight:500;opacity:.5">/100</span></span>
-            </div>
-            <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:.3rem .6rem;display:flex;flex-direction:column;line-height:1.15">
-              <span style="font-size:.5rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em">⚖️ Taux de tenue</span>
-              <span style="font-size:.85rem;font-weight:800;color:white" id="apercu-taux-val">—</span>
-            </div>
-          </div>
-          <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.2rem">
-            <button onclick="piloteTab('dossiers',document.getElementById('ptab-dossiers'))" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:100px;padding:.4rem 1rem;font-size:.68rem;font-weight:600;color:white;cursor:pointer">📊 Voir mon impact →</button>
-            <button onclick="evadPublishLieuToReseau()" style="background:var(--cream);border:none;border-radius:100px;padding:.4rem 1rem;font-size:.68rem;font-weight:700;color:var(--forest);cursor:pointer">📣 Publier au réseau →</button>
-          </div>
-        </div>
+      <!-- LA QUESTION -->
+      <div style="margin-bottom:.9rem">
+        <div style="font-family:'Satoshi', sans-serif;font-size:1.2rem;font-weight:800;color:var(--ink);line-height:1.2">Où en est <span id="apercu-lieu-nom">mon lieu</span> ?</div>
+        <div style="font-size:.72rem;color:var(--moss);opacity:.7;margin-top:.15rem">Ton impact en un coup d'œil, et le prochain cran à franchir.</div>
       </div>
 
-      <!-- parcours VADE -->
-      <div id="regen-parcours" style="background:white;border:1px solid rgba(46,102,66,.12);border-radius:var(--r-lg);padding:1.3rem 1.4rem 1.5rem;margin-bottom:.9rem">
-        <div style="margin-bottom:.4rem">
-          <div style="font-family:'Satoshi', sans-serif;font-size:.95rem;font-weight:800;color:var(--ink)">🔄 Boucle VADE</div>
-          <div style="font-size:.63rem;color:var(--moss);opacity:.65;margin-top:.15rem;line-height:1.4">Valoriser → Activer → Développer → Élever : le parcours de ton lieu, un cran plus haut à chaque tour. Clique une étape, puis coche les tâches à faire</div>
-        </div>
-
-        <!-- ░░ BOUCLE ░░ -->
-        <div style="display:flex;justify-content:center">
-          <div style="position:relative;width:300px;height:300px;margin:.4rem 0 .2rem">
-
-            <svg width="300" height="300" viewBox="0 0 300 300" style="position:absolute;inset:0;pointer-events:none">
-              <circle cx="150" cy="150" r="115" fill="none" stroke="rgba(46,102,66,.18)" stroke-width="1.5"/>
-              <g fill="var(--sage)">
-                <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(231.3 68.7) rotate(45)"/>
-                <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(231.3 231.3) rotate(135)"/>
-                <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(68.7 231.3) rotate(225)"/>
-                <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(68.7 68.7) rotate(315)"/>
-              </g>
+      <!-- ÉTAT DU LIEU -->
+      <div style="background:linear-gradient(135deg,var(--forest),#1a4a35);border-radius:var(--r-lg);padding:1.3rem 1.4rem;margin-bottom:.9rem">
+        <div style="display:flex;align-items:center;gap:1.3rem;flex-wrap:wrap">
+          <div style="position:relative;width:88px;height:88px;flex-shrink:0">
+            <svg width="88" height="88" viewBox="0 0 88 88" style="transform:rotate(-90deg)">
+              <circle cx="44" cy="44" r="36" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="7"/>
+              <circle id="regen-arc" cx="44" cy="44" r="36" fill="none" stroke="#7ab840" stroke-width="7" stroke-linecap="round" stroke-dasharray="226.2" stroke-dashoffset="226.2" style="transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)"/>
             </svg>
-
-            <!-- Centre : Vadance -->
-            <div style="position:absolute;left:150px;top:150px;transform:translate(-50%,-50%);width:152px;height:152px;border-radius:50%;background:white;border:1px solid rgba(46,102,66,.1);box-shadow:0 2px 14px rgba(46,102,66,.07);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
-              <div style="font-size:.5rem;color:var(--sage);text-transform:uppercase;letter-spacing:.16em;font-weight:700">Vadance</div>
-              <div id="regen-center-score" style="font-family:'Satoshi', sans-serif;font-size:1.5rem;font-weight:900;color:#018262;line-height:1;margin:.2rem 0 .05rem">10<span style="font-size:.62rem;font-weight:700;opacity:.45">/100</span></div>
-              <div id="regen-center-sub" style="font-size:.6rem;color:var(--moss);opacity:.65">🌱 à venir</div>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px">
+              <span id="apercu-regen-val" style="font-family:'Satoshi', sans-serif;font-size:1.65rem;font-weight:900;color:white;line-height:1">—</span>
+              <span style="font-size:.46rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.12em">VADANCE</span>
             </div>
-
-            <!-- Nœuds VADE (positionnés sur l'anneau) -->
-            <!-- V Valoriser (haut) -->
-            <div onclick="regenSelect(0)" style="position:absolute;left:150px;top:35px;transform:translate(-50%,-22px);text-align:center;cursor:pointer">
-              <div id="rn-circ-0" style="width:44px;height:44px;border-radius:50%;background:white;border:2.5px solid #018262;color:#018262;display:flex;align-items:center;justify-content:center;font-family:'Satoshi', sans-serif;font-weight:900;font-size:1.05rem;margin:0 auto;transition:all .2s">V</div>
-              <div id="rn-lbl-0" style="font-size:.62rem;color:var(--moss);font-weight:600;margin-top:.3rem">Valoriser</div>
+          </div>
+          <div style="flex:1;min-width:170px">
+            <span id="apercu-palier" style="display:inline-block;font-size:.62rem;font-weight:700;color:#0d2b22;background:var(--cream);border-radius:100px;padding:.2rem .65rem;margin-bottom:.55rem">🌿 Lieu esquissé</span>
+            <div style="display:flex;gap:.45rem;flex-wrap:wrap">
+              <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:.32rem .6rem;flex:1;min-width:74px">
+                <div style="font-size:.5rem;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.07em">✅ Vadité <span style="opacity:.7">preuve</span></div>
+                <div style="font-size:.92rem;font-weight:800;color:white"><span id="apercu-vadite-val">—</span><span style="font-size:.52rem;font-weight:500;opacity:.5">/100</span></div>
+              </div>
+              <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:.32rem .6rem;flex:1;min-width:74px">
+                <div style="font-size:.5rem;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.07em">⚖️ Taux de tenue</div>
+                <div style="font-size:.92rem;font-weight:800;color:white" id="apercu-taux-val">—</div>
+              </div>
+              <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:.32rem .6rem;flex:1;min-width:74px">
+                <div style="font-size:.5rem;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.07em">🌱 Graines</div>
+                <div style="font-size:.92rem;font-weight:800;color:var(--amber-soft)" id="apercu-graines-wallet">0</div>
+              </div>
             </div>
-            <!-- A Activer (droite) -->
-            <div onclick="regenSelect(1)" style="position:absolute;left:265px;top:150px;transform:translate(-50%,-22px);text-align:center;cursor:pointer">
-              <div id="rn-circ-1" style="width:44px;height:44px;border-radius:50%;background:white;border:2.5px solid #2d6a9f;color:#2d6a9f;display:flex;align-items:center;justify-content:center;font-family:'Satoshi', sans-serif;font-weight:900;font-size:1.05rem;margin:0 auto;transition:all .2s">A</div>
-              <div id="rn-lbl-1" style="font-size:.62rem;color:var(--moss);font-weight:600;margin-top:.3rem">Activer</div>
-            </div>
-            <!-- D Développer (bas) -->
-            <div onclick="regenSelect(2)" style="position:absolute;left:150px;top:265px;transform:translate(-50%,-22px);text-align:center;cursor:pointer">
-              <div id="rn-circ-2" style="width:44px;height:44px;border-radius:50%;background:white;border:2.5px solid #c8732a;color:#c8732a;display:flex;align-items:center;justify-content:center;font-family:'Satoshi', sans-serif;font-weight:900;font-size:1.05rem;margin:0 auto;transition:all .2s">D</div>
-              <div id="rn-lbl-2" style="font-size:.62rem;color:var(--moss);font-weight:600;margin-top:.3rem">Développer</div>
-            </div>
-            <!-- E Élever (gauche) -->
-            <div onclick="regenSelect(3)" style="position:absolute;left:35px;top:150px;transform:translate(-50%,-22px);text-align:center;cursor:pointer">
-              <div id="rn-circ-3" style="width:44px;height:44px;border-radius:50%;background:white;border:2.5px solid #6b5b95;color:#6b5b95;display:flex;align-items:center;justify-content:center;font-family:'Satoshi', sans-serif;font-weight:900;font-size:1.05rem;margin:0 auto;transition:all .2s">E</div>
-              <div id="rn-lbl-3" style="font-size:.62rem;color:var(--moss);font-weight:600;margin-top:.3rem">Élever</div>
-            </div>
-
           </div>
         </div>
-
-        <!-- ░░ DÉTAIL DE L'ÉTAPE SÉLECTIONNÉE ░░ -->
-        <div id="regen-detail" style="border-top:1px solid rgba(46,102,66,.1);margin-top:.4rem;padding-top:1.2rem"></div>
-
+        <div id="apercu-capitaux" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.85rem"></div>
       </div>
 
-      <!-- 3 TUILES D'ACTION -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:.9rem">
-
-        <div style="background:white;border:1px solid rgba(46,102,66,.12);border-radius:var(--r-lg);padding:1.1rem;cursor:pointer;transition:box-shadow .15s" onclick="piloteTab('quetes',document.getElementById('ptab-quetes'))" onmouseover="this.style.boxShadow='0 4px 14px rgba(46,102,66,.12)'" onmouseout="this.style.boxShadow=''">
-          <div style="font-size:1.6rem;margin-bottom:.5rem">⚡</div>
-          <div style="font-size:.8rem;font-weight:700;color:var(--ink);margin-bottom:.25rem">Quêtes</div>
-          <div style="font-size:.65rem;color:var(--moss);opacity:.65;line-height:1.4">Mobilise des Bâtisseurs autour d'actions concrètes pour ton lieu.</div>
-          <div style="margin-top:.7rem;font-size:.62rem;font-weight:600;color:var(--fern)">Voir les quêtes →</div>
-        </div>
-
-        <div style="background:white;border:1px solid rgba(46,102,66,.12);border-radius:var(--r-lg);padding:1.1rem;cursor:pointer;transition:box-shadow .15s" onclick="piloteTab('dossiers',document.getElementById('ptab-dossiers'))" onmouseover="this.style.boxShadow='0 4px 14px rgba(46,102,66,.12)'" onmouseout="this.style.boxShadow=''">
-          <div style="font-size:1.6rem;margin-bottom:.5rem">📊</div>
-          <div style="font-size:.8rem;font-weight:700;color:var(--ink);margin-bottom:.25rem">Impact & Dossiers</div>
-          <div style="font-size:.65rem;color:var(--moss);opacity:.65;line-height:1.4">Saisis une action → traduite automatiquement dans tous tes rapports.</div>
-          <div style="margin-top:.7rem;font-size:.62rem;font-weight:600;color:var(--fern)">Saisir une action →</div>
-        </div>
-
-        <div style="background:white;border:1px solid rgba(46,102,66,.12);border-radius:var(--r-lg);padding:1.1rem;cursor:pointer;transition:box-shadow .15s" onclick="piloteTab('marketplace',document.getElementById('ptab-marketplace'))" onmouseover="this.style.boxShadow='0 4px 14px rgba(46,102,66,.12)'" onmouseout="this.style.boxShadow=''">
-          <div style="font-size:1.6rem;margin-bottom:.5rem">🛖</div>
-          <div style="font-size:.8rem;font-weight:700;color:var(--ink);margin-bottom:.25rem">Marketplace</div>
-          <div style="font-size:.65rem;color:var(--moss);opacity:.65;line-height:1.4">Propose ou trouve des ressources, compétences et services entre lieux.</div>
-          <div style="margin-top:.7rem;font-size:.62rem;font-weight:600;color:var(--fern)">Accéder →</div>
-        </div>
-
-      </div>
-
-      <!-- Wallet graines + Fiche -->
-      <div style="display:grid;grid-template-columns:1fr 2fr;gap:.8rem">
-        <div style="background:linear-gradient(135deg,#1a2a18,#0e1f14);border:1px solid rgba(200,115,42,.2);border-radius:var(--r-lg);padding:1.1rem 1.2rem;position:relative;overflow:hidden">
-          <div style="position:absolute;bottom:-12px;right:-12px;width:70px;height:70px;background:radial-gradient(circle,rgba(200,115,42,.25),transparent);border-radius:50%;pointer-events:none"></div>
-          <div style="font-size:.53rem;color:var(--sage);text-transform:uppercase;letter-spacing:.15em;opacity:.7;margin-bottom:.35rem">🌱 Wallet graines</div>
-          <div id="apercu-graines-wallet" style="font-family:'Satoshi', sans-serif;font-size:2rem;font-weight:900;color:var(--amber-soft);line-height:1;margin-bottom:.15rem;transition:color .2s">0</div>
-          <div style="font-size:.6rem;color:var(--sage);opacity:.55">graines disponibles</div>
-        </div>
-        <div style="background:rgba(46,102,66,.04);border:1.5px dashed rgba(46,102,66,.2);border-radius:var(--r-lg);padding:1.1rem;display:flex;align-items:center;gap:1rem;cursor:pointer" onclick="piloteTab('fiche',document.getElementById('ptab-fiche'))">
-          <div style="font-size:2rem">✏️</div>
-          <div>
-            <div style="font-size:.8rem;font-weight:700;color:var(--ink);margin-bottom:.2rem">Compléter la fiche lieu</div>
-            <div style="font-size:.65rem;color:var(--moss);opacity:.65;line-height:1.4">Nom, type, surface, fonctions… plus ta fiche est complète, plus ta Vadance est précise.</div>
-            <div style="margin-top:.5rem;font-size:.62rem;font-weight:600;color:var(--fern)">Compléter →</div>
+      <!-- PROCHAIN CRAN -->
+      <div style="background:linear-gradient(135deg,#ffffff,#fbf7ee);border:1.5px solid rgba(200,115,42,.3);border-radius:var(--r-lg);padding:1.2rem 1.3rem;margin-bottom:.9rem">
+        <div style="font-size:.6rem;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.6rem">🎯 Ton prochain cran</div>
+        <div style="display:flex;align-items:flex-start;gap:.85rem">
+          <div id="apercu-cran-icon" style="font-size:1.9rem;line-height:1.1;flex-shrink:0">✅</div>
+          <div style="flex:1;min-width:0">
+            <div id="apercu-cran-title" style="font-family:'Satoshi', sans-serif;font-size:1.05rem;font-weight:800;color:var(--ink);line-height:1.2">—</div>
+            <div id="apercu-cran-why" style="font-size:.72rem;color:var(--moss);opacity:.82;line-height:1.45;margin-top:.3rem">—</div>
           </div>
+        </div>
+        <div style="margin:.95rem 0 .2rem">
+          <div style="display:flex;justify-content:space-between;font-size:.6rem;color:var(--moss);opacity:.7;margin-bottom:.3rem">
+            <span id="apercu-cran-from">—</span><span id="apercu-cran-to">—</span>
+          </div>
+          <div style="height:8px;border-radius:100px;background:rgba(200,115,42,.12);overflow:hidden">
+            <div id="apercu-cran-bar" style="height:100%;width:0%;border-radius:100px;background:linear-gradient(90deg,var(--amber),#e8a55a);transition:width .8s cubic-bezier(.4,0,.2,1)"></div>
+          </div>
+        </div>
+        <button id="apercu-cran-cta" onclick="" style="margin-top:.75rem;background:var(--forest);border:none;border-radius:100px;padding:.55rem 1.3rem;font-size:.72rem;font-weight:700;color:white;cursor:pointer">—</button>
+      </div>
+
+      <!-- RACCOURCIS -->
+      <div style="font-size:.6rem;font-weight:700;color:var(--moss);opacity:.55;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem">Raccourcis</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem">
+        <div style="background:white;border:1px solid rgba(46,102,66,.12);border-radius:var(--r-lg);padding:.9rem .8rem;cursor:pointer;transition:box-shadow .15s" onclick="piloteTab('quetes',document.getElementById('ptab-quetes'))" onmouseover="this.style.boxShadow='0 4px 14px rgba(46,102,66,.12)'" onmouseout="this.style.boxShadow=''">
+          <div style="font-size:1.5rem;margin-bottom:.4rem">⚡</div>
+          <div style="font-size:.74rem;font-weight:700;color:var(--ink)">Quêtes</div>
+          <div style="font-size:.6rem;color:var(--moss);opacity:.6;line-height:1.35;margin-top:.15rem">Mobiliser des Bâtisseurs</div>
+        </div>
+        <div style="background:white;border:1px solid rgba(46,102,66,.12);border-radius:var(--r-lg);padding:.9rem .8rem;cursor:pointer;transition:box-shadow .15s" onclick="piloteTab('dossiers',document.getElementById('ptab-dossiers'))" onmouseover="this.style.boxShadow='0 4px 14px rgba(46,102,66,.12)'" onmouseout="this.style.boxShadow=''">
+          <div style="font-size:1.5rem;margin-bottom:.4rem">📊</div>
+          <div style="font-size:.74rem;font-weight:700;color:var(--ink)">Impact</div>
+          <div style="font-size:.6rem;color:var(--moss);opacity:.6;line-height:1.35;margin-top:.15rem">Certifier mes actions</div>
+        </div>
+        <div style="background:white;border:1px solid rgba(46,102,66,.12);border-radius:var(--r-lg);padding:.9rem .8rem;cursor:pointer;transition:box-shadow .15s" onclick="evadPublishLieuToReseau()" onmouseover="this.style.boxShadow='0 4px 14px rgba(46,102,66,.12)'" onmouseout="this.style.boxShadow=''">
+          <div style="font-size:1.5rem;margin-bottom:.4rem">📣</div>
+          <div style="font-size:.74rem;font-weight:700;color:var(--ink)">Réseau</div>
+          <div style="font-size:.6rem;color:var(--moss);opacity:.6;line-height:1.35;margin-top:.15rem">Publier mon lieu</div>
+        </div>
+        <div style="background:white;border:1px solid rgba(46,102,66,.12);border-radius:var(--r-lg);padding:.9rem .8rem;cursor:pointer;transition:box-shadow .15s" onclick="piloteTab('fiche',document.getElementById('ptab-fiche'))" onmouseover="this.style.boxShadow='0 4px 14px rgba(46,102,66,.12)'" onmouseout="this.style.boxShadow=''">
+          <div style="font-size:1.5rem;margin-bottom:.4rem">✏️</div>
+          <div style="font-size:.74rem;font-weight:700;color:var(--ink)">Fiche lieu</div>
+          <div style="font-size:.6rem;color:var(--moss);opacity:.6;line-height:1.35;margin-top:.15rem">Compléter / enrichir</div>
         </div>
       </div>
 
@@ -1594,7 +1545,7 @@
   </div>
 </div>
 
-<script src="js/data-nextcloud.js?v=26"></script>
+<script src="js/data-nextcloud.js?v=27"></script>
 
 <!-- ═══ ÉCRAN : RÉSEAU (réseau social solarpunk) ═══ -->
 <div class="screen" id="screen-reseau">
@@ -1775,9 +1726,9 @@
   </div>
 </div>
 
-<script src="js/data-reseau.js?v=26"></script>
+<script src="js/data-reseau.js?v=27"></script>
 
-<script src="js/regen-loop.js?v=26"></script>
+<script src="js/regen-loop.js?v=27"></script>
 
 <!-- Modale ajout/édition offre Pilote -->
 <div id="pmkt-modal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(14,26,18,0.75);backdrop-filter:blur(6px);align-items:center;justify-content:center">
@@ -2523,7 +2474,7 @@
 
 
 
-<script src="js/app-core.js?v=26"></script>
+<script src="js/app-core.js?v=27"></script>
 
 <script
   src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -2582,9 +2533,9 @@
   </div>
 </div>
 
-<script src="js/deva.js?v=26"></script>
+<script src="js/deva.js?v=27"></script>
 
-<script src="js/nav-mobile.js?v=26"></script>
+<script src="js/nav-mobile.js?v=27"></script>
 
 <!-- ── Modal : Choisir ton profil ── -->
 <div id="auth-profil-modal" style="display:none;position:fixed;inset:0;z-index:10001;background:rgba(14,26,18,.6);backdrop-filter:blur(6px);align-items:center;justify-content:center">
@@ -2627,7 +2578,7 @@
 </div>
 
 
-<script src="js/auth.js?v=26"></script>
+<script src="js/auth.js?v=27"></script>
 
 <!-- Espace modal, placé au niveau body pour rester accessible depuis tous les contextes -->
 <div id="espace-modal">
@@ -2725,14 +2676,14 @@
     </div>
   </div>
 </div>
-<script src="js/espace-modal.js?v=26"></script>
+<script src="js/espace-modal.js?v=27"></script>
 
 <!-- ═══════════════════════════════════════════════════════
      COUCHE DE CONVERGENCE, PERMA-COMPTABILITÉ EVAD
      Saisie unique → traduction multi-cadres institutionnels
      ═══════════════════════════════════════════════════════ -->
-<script src="js/quetes.js?v=26"></script>
-<script src="js/ici.js?v=26"></script>
+<script src="js/quetes.js?v=27"></script>
+<script src="js/ici.js?v=27"></script>
 
 <!-- ─── MODAL CONTRIBUER ─── -->
 <div id="contrib-modal" style="display:none;position:fixed;inset:0;z-index:10002;background:rgba(14,26,18,.65);backdrop-filter:blur(7px);align-items:flex-end;justify-content:center;overflow:hidden">
@@ -2896,7 +2847,7 @@
   </div>
 </div>
 
-<script src="js/contribution.js?v=26"></script>
+<script src="js/contribution.js?v=27"></script>
 
 <!-- Modal détail solution (créer lieu step 4) -->
 <div id="creer-sol-detail-modal" style="display:none;position:fixed;inset:0;z-index:10010;background:rgba(13,43,34,.6);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)creerCloseSolDetail()">
@@ -2909,7 +2860,7 @@
   </div>
 </div>
 
-<script src="js/fil-rouge-feedback.js?v=26"></script>
+<script src="js/fil-rouge-feedback.js?v=27"></script>
 
 </body>
 </html>
