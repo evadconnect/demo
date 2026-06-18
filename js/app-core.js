@@ -861,7 +861,7 @@ function lieuRenderHero() {
   if (heroNom) heroNom.textContent = nom;
 
   const heroSub = document.getElementById('lieu-hero-sub');
-  if (heroSub) heroSub.textContent = loc || 'Lieu EVAD · Prototype';
+  if (heroSub) heroSub.textContent = loc || '';
 
   const heroBadges = document.getElementById('lieu-hero-badges');
   if (heroBadges) {
@@ -873,29 +873,40 @@ function lieuRenderHero() {
     `;
   }
 
-  // Bandeau Vadance + dimensions (rempli pour un lieu existant, sinon « à certifier »)
+  // Bandeau Vadance (promesse) + Vadité (preuve) + dimensions
   const heroStats = document.getElementById('lieu-hero-stats');
   if (heroStats) {
-    const score = (typeof cData.score === 'number') ? cData.score : null;
-    const trim  = cData.scoreTrim || '';
+    const imp = (typeof evadImpactData === 'function') ? evadImpactData()
+              : { vadance: (typeof cData.score === 'number' ? cData.score : 0), vadite: 0, taux: 0 };
+    const hasV = imp.vadance > 0;
     const dims  = (cData.dims && cData.dims.length) ? cData.dims : [
       {l:'Environnement',v:0,c:'#82b894'},{l:'Social',v:0,c:'#6aa0bc'},
       {l:'Éco. locale',v:0,c:'#e8a55a'}
     ];
     const dimCols = ['#82b894','#6aa0bc','#e8a55a','#a99cd0'];
     const dimGrad = ['linear-gradient(90deg,#4a8c5c,#82b894)','linear-gradient(90deg,#3a6e8c,#6aa0bc)','linear-gradient(90deg,#c8732a,#e8a55a)','linear-gradient(90deg,#7a6ea8,#a99cd0)'];
+    const nDim = Math.min(4, dims.length) || 3;
     heroStats.innerHTML = `
-      <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(74,140,92,0.3);border-radius:var(--r-lg);padding:.7rem .9rem;text-align:center">
-        <div style="font-family:'Satoshi', sans-serif;font-size:1.8rem;font-weight:900;color:var(--sun);line-height:1">${score!=null?score:'0'}</div>
-        <div style="font-size:.55rem;color:var(--sage);text-transform:uppercase;letter-spacing:.1em;margin-top:.15rem">Vadance</div>
-        <div style="font-size:.6rem;color:rgba(255,255,255,.45);margin-top:.1rem">${score!=null?(trim?'tendance '+trim:'sur 100'):'à certifier'}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+        <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(74,140,92,0.3);border-radius:var(--r-lg);padding:.7rem .9rem;text-align:center">
+          <div style="font-family:'Satoshi', sans-serif;font-size:1.8rem;font-weight:900;color:var(--sun);line-height:1">${hasV?imp.vadance:'0'}</div>
+          <div style="font-size:.55rem;color:var(--sage);text-transform:uppercase;letter-spacing:.1em;margin-top:.15rem">Vadance <span style="opacity:.6">(promesse)</span></div>
+          <div style="font-size:.6rem;color:rgba(255,255,255,.45);margin-top:.1rem">${hasV?'sur 100':'à certifier'}</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(122,184,64,0.3);border-radius:var(--r-lg);padding:.7rem .9rem;text-align:center">
+          <div style="font-family:'Satoshi', sans-serif;font-size:1.8rem;font-weight:900;color:var(--fern);line-height:1">${hasV?imp.vadite:'0'}</div>
+          <div style="font-size:.55rem;color:var(--sage);text-transform:uppercase;letter-spacing:.1em;margin-top:.15rem">Vadité <span style="opacity:.6">(preuve)</span></div>
+          <div style="font-size:.6rem;color:rgba(255,255,255,.45);margin-top:.1rem">${hasV?'⚖️ taux de tenue '+imp.taux+'%':'à prouver'}</div>
+        </div>
       </div>
-      ${dims.slice(0,4).map((d,i)=>`
-      <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:var(--r-lg);padding:.6rem .8rem">
-        <div style="font-size:.55rem;color:var(--sage);opacity:.65;text-transform:uppercase;letter-spacing:.09em;margin-bottom:.4rem">${d.l}</div>
-        <div style="height:3px;background:rgba(255,255,255,0.1);border-radius:100px;overflow:hidden;margin-bottom:.25rem"><div style="width:${d.v}%;height:100%;background:${dimGrad[i]};border-radius:100px"></div></div>
-        <div style="font-family:'Satoshi', sans-serif;font-size:1rem;font-weight:700;color:${dimCols[i]}">${d.v}</div>
-      </div>`).join('')}
+      <div style="display:grid;grid-template-columns:repeat(${nDim},1fr);gap:.6rem">
+        ${dims.slice(0,4).map((d,i)=>`
+        <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:var(--r-lg);padding:.6rem .8rem">
+          <div style="font-size:.55rem;color:var(--sage);opacity:.65;text-transform:uppercase;letter-spacing:.09em;margin-bottom:.4rem">${d.l}</div>
+          <div style="height:3px;background:rgba(255,255,255,0.1);border-radius:100px;overflow:hidden;margin-bottom:.25rem"><div style="width:${d.v}%;height:100%;background:${dimGrad[i]};border-radius:100px"></div></div>
+          <div style="font-family:'Satoshi', sans-serif;font-size:1rem;font-weight:700;color:${dimCols[i]}">${d.v}</div>
+        </div>`).join('')}
+      </div>
     `;
   }
 }
@@ -5428,9 +5439,7 @@ function mapShowNewLieu() {
   const PHASE_LABELS = { ideation:'Idéation', conception:'Conception', construction:'Construction', actif:'Actif', expansion:'Expansion' };
   const phaseLabel = PHASE_LABELS[phase] || phase;
 
-  const _sd = (typeof evadLieuScoreData === 'function') ? evadLieuScoreData() : { score: 10, nbValidees: 0 };
-  const scoreVal = _sd.score;
-  const scoreBarW = _sd.score + '%';
+  const _imp = (typeof evadImpactData === 'function') ? evadImpactData() : { vadance: 0, vadite: 0, taux: 0 };
 
   // Build quêtes from solutions
   const quetes = solutions.map(nom => {
@@ -5462,19 +5471,25 @@ function mapShowNewLieu() {
         ${desc ? `<div style="position:relative;margin-top:.85rem;font-size:.7rem;color:rgba(255,255,255,0.65);line-height:1.5">${desc.length > 120 ? desc.slice(0,120) + '…' : desc}</div>` : ''}
       </div>
 
-      <!-- Vadance -->
+      <!-- Vadance (promesse) + Vadité (preuve) -->
       <div style="margin:.85rem .85rem .2rem;background:white;border:1px solid rgba(46,102,66,.12);border-radius:var(--r-lg);padding:.75rem 1rem">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem">
-          <span style="font-size:.65rem;font-weight:700;color:var(--ink)">Vadance</span>
-          <span style="font-size:1.3rem;font-weight:900;color:var(--amber)">${scoreVal}</span>
+          <span style="font-size:.65rem;font-weight:700;color:var(--ink)">Vadance <span style="font-weight:500;opacity:.55">(promesse)</span></span>
+          <span style="font-size:1.3rem;font-weight:900;color:var(--amber)">${_imp.vadance}</span>
         </div>
         <div class="score-bar-bg" style="height:6px;border-radius:3px;background:rgba(46,102,66,.1)">
-          <div style="height:6px;border-radius:3px;width:${scoreBarW};background:linear-gradient(90deg,var(--fern),var(--amber));transition:width .6s ease"></div>
+          <div style="height:6px;border-radius:3px;width:${_imp.vadance}%;background:linear-gradient(90deg,var(--fern),var(--amber));transition:width .6s ease"></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:.55rem;padding-top:.5rem;border-top:1px solid rgba(46,102,66,.08)">
+          <span style="font-size:.65rem;font-weight:700;color:var(--ink)">✅ Vadité <span style="font-weight:500;opacity:.55">(preuve)</span></span>
+          <span style="font-size:1.1rem;font-weight:900;color:var(--fern)">${_imp.vadite}</span>
+        </div>
+        <div class="score-bar-bg" style="height:6px;border-radius:3px;background:rgba(46,102,66,.1);margin-top:.3rem">
+          <div style="height:6px;border-radius:3px;width:${_imp.vadite}%;background:linear-gradient(90deg,#2e6b3e,var(--fern));transition:width .6s ease"></div>
         </div>
         <div style="display:flex;justify-content:space-between;margin-top:.45rem">
-          <span style="font-size:.58rem;color:var(--moss);opacity:.7">${solutions.length} solution${solutions.length !== 1 ? 's' : ''}</span>
-          <span style="font-size:.58rem;color:var(--moss);opacity:.7">${espaces.length} espace${espaces.length !== 1 ? 's' : ''}</span>
-          ${statut ? `<span style="font-size:.58rem;color:var(--fern);font-weight:600">${statut}</span>` : ''}
+          <span style="font-size:.58rem;color:var(--moss);opacity:.7">${solutions.length} solution${solutions.length !== 1 ? 's' : ''} · ${espaces.length} espace${espaces.length !== 1 ? 's' : ''}${statut ? ' · ' + statut : ''}</span>
+          <span style="font-size:.58rem;color:var(--fern);font-weight:700">⚖️ Taux de tenue ${_imp.taux}%</span>
         </div>
       </div>
 
