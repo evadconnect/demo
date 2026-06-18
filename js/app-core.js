@@ -7371,6 +7371,8 @@ function updateApercuFromQuetes() {
   if (wallet) wallet.textContent = d.graines.toLocaleString('fr');
   // Aperçu : nom, palier, capitaux, prochain cran
   if (typeof apercuRender === 'function') apercuRender();
+  // Onglet Impact : le jardin pousse avec les preuves des quêtes validées.
+  if (typeof impactRenderEtat === 'function') impactRenderEtat();
   evadSyncMyLieuOnMap();
 }
 
