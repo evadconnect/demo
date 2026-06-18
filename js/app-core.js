@@ -3950,7 +3950,7 @@ function creerUpdateHint(silent){
   } else {
     txt.innerHTML = (cStep === 3 && cData._solsReady)
       ? "Voici les solutions repérées, et sous chacune ses <b>ICI</b> 🌱 : l'impact que ton lieu va mesurer."
-      : "Besoin d'aide pour remplir la fiche, je suis là 🌱";
+      : "Besoin d'aide pour remplir la fiche ? Je suis là :)";
     if (tip && cStep === 3) tip.style.display = 'block';
   }
 }
