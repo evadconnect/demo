@@ -6895,7 +6895,7 @@ function piloteTab(tab, btn) {
   const panel = document.getElementById('pilote-panel-' + tab);
   if (panel) panel.classList.add('active');
   if (tab === 'marketplace') setTimeout(pmktRenderOffers, 50);
-  if (tab === 'dossiers')   { setTimeout(initDossiers, 50); setTimeout(() => { if (typeof impactRenderEtat === 'function') impactRenderEtat(); if (typeof funSaisieRender === 'function') funSaisieRender(); if (typeof iciRenderExports === 'function') iciRenderExports(); }, 50); }
+  if (tab === 'dossiers')   { setTimeout(initDossiers, 50); setTimeout(() => { if (typeof impactRenderEtat === 'function') impactRenderEtat(); var _sb = document.getElementById('ici-saisie'); if (_sb) _sb.innerHTML = ''; if (typeof iciRenderExports === 'function') iciRenderExports(); }, 50); }
   if (tab === 'quetes')     { if (typeof syncPiloteQuetesFromLieu === 'function') syncPiloteQuetesFromLieu(); setTimeout(renderPiloteQuetes, 50); }
   if (tab === 'fiche')      {
     // Reflète le lieu créé : identité + espaces + carte mentale
@@ -7199,7 +7199,7 @@ function impactRenderEtat() {
   FUN_ACTIONS.forEach(a => { if (T[a.id]) eqv.push('<span style="display:inline-flex;align-items:center;gap:.3rem;background:rgba(46,102,66,.06);border-radius:100px;padding:.25rem .6rem;font-size:.66rem;color:var(--ink)">' + a.ic + ' <b>' + a.q(T[a.id]) + '</b></span>'); });
   const equivBlock = eqv.length
     ? '<div style="margin-top:1rem;padding-top:.9rem;border-top:1px solid rgba(46,102,66,.1)"><div style="font-size:.6rem;font-weight:700;color:var(--moss);opacity:.6;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem">Ce que ça représente</div><div style="display:flex;flex-wrap:wrap;gap:.4rem">' + eqv.join('') + '</div></div>'
-    : '<div style="margin-top:1rem;padding-top:.9rem;border-top:1px solid rgba(46,102,66,.1);font-size:.66rem;color:var(--moss);opacity:.6">Saisis une action ci-dessous pour faire pousser ton jardin 🌱</div>';
+    : '<div style="margin-top:1rem;padding-top:.9rem;border-top:1px solid rgba(46,102,66,.1);font-size:.66rem;color:var(--moss);opacity:.6">🌿 Ton jardin grandit avec les preuves de tes quêtes validées. Valide une quête pour le faire pousser.</div>';
 
   const alerte = alertCap
     ? '<div style="background:rgba(200,115,42,.08);border:1px solid rgba(200,115,42,.3);border-radius:var(--r);padding:.7rem .85rem;font-size:.68rem;color:#9a4a1a;line-height:1.5;margin-top:.7rem">⚠️ <b>' + alertCap.label + ' a besoin d\'attention (' + alertCap.val + ' / 100, sous le plancher ' + PLANCHER + ').</b> Un capital ne rachète pas l\'autre : fais grandir cette plante pour débloquer la suite.</div>'
