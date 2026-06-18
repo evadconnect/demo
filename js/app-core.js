@@ -6895,7 +6895,7 @@ function piloteTab(tab, btn) {
   const panel = document.getElementById('pilote-panel-' + tab);
   if (panel) panel.classList.add('active');
   if (tab === 'marketplace') setTimeout(pmktRenderOffers, 50);
-  if (tab === 'dossiers')   { setTimeout(initDossiers, 50); if (typeof iciRenderMesureImpact === 'function') setTimeout(() => { iciRenderMesureImpact(); iciRenderSaisie(); iciRenderExports(); }, 50); }
+  if (tab === 'dossiers')   { setTimeout(initDossiers, 50); setTimeout(() => { if (typeof impactRenderEtat === 'function') impactRenderEtat(); if (typeof iciRenderSaisie === 'function') iciRenderSaisie(); if (typeof iciRenderExports === 'function') iciRenderExports(); }, 50); }
   if (tab === 'quetes')     { if (typeof syncPiloteQuetesFromLieu === 'function') syncPiloteQuetesFromLieu(); setTimeout(renderPiloteQuetes, 50); }
   if (tab === 'fiche')      {
     // Reflète le lieu créé : identité + espaces + carte mentale
@@ -6982,6 +6982,24 @@ function apercuCapitauxScores() {
   return out;
 }
 
+// Promesse (Vadance) + preuve (Vadité) PAR capital. La part prouvée varie d'un
+// capital à l'autre : l'écologie se prouve plus vite (mesures CO₂…), l'économie
+// locale plus lentement. La preuve ne dépasse jamais la promesse du capital.
+const APERCU_PREUVE_POIDS = { ecologie: 1.18, social: 1.0, economie_locale: 0.72 };
+function apercuCapitauxPaire() {
+  const imp = (typeof evadImpactData === 'function') ? evadImpactData() : { vadance: 0, vadite: 0 };
+  const vadCap = apercuCapitauxScores();
+  const ratio = imp.vadance > 0 ? (imp.vadite / imp.vadance) : 0;
+  const out = {};
+  ['ecologie', 'social', 'economie_locale'].forEach(k => {
+    const vad = vadCap[k] || 0;
+    let vit = Math.round(vad * ratio * (APERCU_PREUVE_POIDS[k] || 1));
+    vit = Math.max(0, Math.min(vad, vit));
+    out[k] = { vad: vad, vit: vit };
+  });
+  return out;
+}
+
 // Le prochain cran : un seul objectif clair, choisi selon l'état du lieu.
 function apercuNextCran() {
   const imp = (typeof evadImpactData === 'function') ? evadImpactData() : { vadance: 0, vadite: 0, taux: 0 };
@@ -7028,10 +7046,11 @@ function apercuRender() {
       + '<span style="display:inline-flex;align-items:center;gap:.3rem"><span style="width:14px;height:8px;border-radius:100px;background:rgba(46,102,66,.22);display:inline-block"></span> promesse (Vadance)</span>'
       + '<span style="display:inline-flex;align-items:center;gap:.3rem"><span style="width:14px;height:8px;border-radius:100px;background:var(--forest);display:inline-block"></span> preuve (Vadité)</span>'
       + '</div>';
+    const paire = apercuCapitauxPaire();
     trip.innerHTML = legende + ['ecologie', 'social', 'economie_locale'].map(k => {
       const m = META[k] || { label: k, ic: '◆', col: '#4a8c5c' };
-      const vad = scores[k] || 0;                  // promesse
-      const vit = hasV ? Math.round(vad * ratio) : 0; // preuve
+      const vad = (paire[k] || {}).vad || 0;       // promesse
+      const vit = hasV ? ((paire[k] || {}).vit || 0) : 0; // preuve (variable par capital)
       const low = hasV && vad < PLANCHER;
       if (low && (lowVal === null || vad < lowVal)) { lowLabel = m.label; lowVal = vad; }
       return '<div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.65rem">'
@@ -7071,6 +7090,60 @@ function apercuRender() {
     el.style.width = pct + '%';
   });
   set('apercu-cran-cta',   el => { el.textContent = cran.cta + ' →'; el.setAttribute('onclick', cran.onclick); });
+}
+
+// Onglet Impact : carte « État d'impact » détaillée (promesse vs preuve + triptyque par capital).
+function impactRenderEtat() {
+  const box = document.getElementById('ici-mesure-impact');
+  if (!box) return;
+  const imp = (typeof evadImpactData === 'function') ? evadImpactData() : { vadance: 0, vadite: 0, taux: 0 };
+  const hasV = imp.vadance > 0;
+  const PLANCHER = (typeof ICI_PLANCHER !== 'undefined') ? ICI_PLANCHER : 40;
+  const META = (typeof ICI_LIVRE_META !== 'undefined') ? ICI_LIVRE_META : { ecologie:{label:'Écologie',ic:'🌿',col:'#2e9960'}, social:{label:'Social',ic:'🤝',col:'#3a6e8c'}, economie_locale:{label:'Éco. locale',ic:'♻️',col:'#c8732a'} };
+  const paire = apercuCapitauxPaire();
+  let lowLabel = null, lowVal = null;
+  const rows = ['ecologie', 'social', 'economie_locale'].map(k => {
+    const m = META[k] || { label: k, ic: '◆', col: '#4a8c5c' };
+    const vad = (paire[k] || {}).vad || 0;
+    const vit = hasV ? ((paire[k] || {}).vit || 0) : 0;
+    const low = hasV && vad < PLANCHER;
+    if (low && (lowVal === null || vad < lowVal)) { lowLabel = m.label; lowVal = vad; }
+    const ecart = hasV ? Math.max(0, vad - vit) : 0;
+    return '<div style="margin-bottom:.85rem">'
+      + '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.35rem">'
+        + '<span style="font-size:.75rem;font-weight:700;color:' + m.col + '">' + m.ic + ' ' + m.label + '</span>'
+        + '<span style="font-family:\'Satoshi\',sans-serif;line-height:1"><span style="font-size:1.05rem;font-weight:800;color:' + m.col + '">' + (hasV ? vit : '—') + '</span><span style="font-size:.66rem;font-weight:700;color:' + (low ? '#b84e35' : 'var(--moss)') + ';opacity:.65"> / ' + (hasV ? vad : '—') + ' promis</span></span>'
+      + '</div>'
+      + '<div style="position:relative;height:12px;background:rgba(46,102,66,.07);border-radius:100px">'
+        + '<div style="position:absolute;left:0;top:0;height:100%;width:' + (hasV ? vad : 0) + '%;background:' + m.col + ';opacity:.25;border-radius:100px;transition:width .6s ease"></div>'
+        + '<div style="position:absolute;left:0;top:0;height:100%;width:' + vit + '%;background:' + m.col + ';border-radius:100px;transition:width .6s ease"></div>'
+        + '<div style="position:absolute;left:' + PLANCHER + '%;top:-3px;bottom:-3px;width:2px;background:rgba(46,102,66,.45)"></div>'
+      + '</div>'
+      + (hasV && ecart > 0 ? '<div style="font-size:.58rem;color:var(--moss);opacity:.6;margin-top:.2rem">reste ' + ecart + ' pts à prouver</div>' : '')
+    + '</div>';
+  }).join('');
+  const alerte = lowLabel !== null
+    ? '<div style="background:rgba(200,115,42,.08);border:1px solid rgba(200,115,42,.3);border-radius:var(--r);padding:.7rem .85rem;font-size:.68rem;color:#9a4a1a;line-height:1.5;margin-top:.6rem">⚠️ <b>' + lowLabel + ' sous le plancher (' + lowVal + ' / ' + PLANCHER + ').</b> Aucun capital élevé ne rachète un capital faible : le passage à l\'étape suivante est bloqué tant que ce capital reste sous le seuil.</div>'
+    : '';
+  const num = (val, col, sub) => '<div style="min-width:120px">'
+    + '<div style="font-family:\'Satoshi\',sans-serif;font-weight:900;color:var(--ink);line-height:1"><span style="font-size:2.4rem;color:' + col + '">' + val + '</span><span style="font-size:.9rem;font-weight:700;opacity:.4">/100</span></div>'
+    + '<div style="font-size:.6rem;color:var(--moss);opacity:.6;margin-top:.15rem">' + sub + '</div></div>';
+  box.innerHTML = ''
+    + '<div class="dash-card" style="margin-bottom:1rem;padding:1.3rem 1.4rem">'
+      + '<div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">'
+        + '<div style="font-size:.84rem;font-weight:700;color:var(--ink)">🌍 État d\'impact · promesse vs preuve</div>'
+        + '<div style="font-size:.66rem;color:var(--moss);opacity:.7">On n\'agrège que des sous-scores 0–100, jamais d\'unités brutes, jamais de monétisation.</div>'
+      + '</div>'
+      + '<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.1rem">'
+        + '<div><div style="font-size:.72rem;font-weight:700;color:var(--forest);margin-bottom:.15rem">Vadance <span style="opacity:.6;font-weight:500">· la promesse</span></div>' + num(hasV ? imp.vadance : '—', 'var(--ink)', 'Impact projeté') + '</div>'
+        + '<div style="text-align:center;flex:1;min-width:110px"><div style="font-family:\'Satoshi\',sans-serif;font-size:1.4rem;font-weight:800;color:var(--ink)">' + (hasV ? imp.taux + ' %' : '—') + '</div><div style="height:2px;background:linear-gradient(90deg,rgba(46,102,66,.15),var(--forest));margin:.3rem auto;max-width:120px;position:relative"><span style="position:absolute;right:-1px;top:-4px;color:var(--forest);font-size:.7rem">▸</span></div><div style="font-size:.55rem;font-weight:700;color:var(--moss);opacity:.6;text-transform:uppercase;letter-spacing:.1em">Taux de tenue</div></div>'
+        + '<div style="text-align:right"><div style="font-size:.72rem;font-weight:700;color:#0d2b22;margin-bottom:.15rem">Vadité <span style="opacity:.6;font-weight:500">· la preuve</span></div>' + num(hasV ? imp.vadite : '—', 'var(--forest)', 'Impact vérifié · reçu par le Semeur') + '</div>'
+      + '</div>'
+      + '<div style="height:1px;background:rgba(46,102,66,.1);margin:0 0 1rem"></div>'
+      + '<div style="display:flex;align-items:baseline;gap:.5rem;margin-bottom:.8rem"><span style="font-size:.74rem;font-weight:800;color:var(--ink)">Le triptyque</span><span style="font-size:.62rem;color:var(--moss);opacity:.6;font-style:italic">— barre claire = promesse · barre pleine = preuve · plancher 40</span></div>'
+      + rows
+      + alerte
+    + '</div>';
 }
 
 /* Reflète Vadance / Vadité / taux dans le bandeau « Mon lieu » (aperçu Pilote). */
