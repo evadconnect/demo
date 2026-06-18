@@ -6092,11 +6092,60 @@ function qdContactPilote() {
   mmBubble('✉️ Conversation ouverte avec le Pilote' + (q.pilote ? ' (' + String(q.pilote).split('·')[0].trim() + ')' : ''));
 }
 
+// Métadonnées des types de preuve (partagées fiche quête).
+const QD_PREUVE_META = { photo:{ic:'📷',label:'Photo'}, mesure:{ic:'📊',label:'Mesure chiffrée'}, temoignage:{ic:'👥',label:'Témoignage pair'} };
+
+// Preuves déposées par les bâtisseurs sur cette quête (seed démo si absent).
+function qdPreuvesBat(q) {
+  if (!q) return [];
+  if (!q._preuvesBat) {
+    const team = (q.equipe && q.equipe.length) ? q.equipe.slice() : [];
+    const pad = [{ i: 'L', c: '#3a6e8c' }, { i: 'A', c: '#c8732a' }];
+    while (team.length < 2) team.push(pad[team.length % 2]);
+    const NOTES = ['Photo de l\'action réalisée sur le terrain', 'Mesure relevée : conforme à l\'objectif', 'Compte-rendu signé par 2 participants'];
+    const TYPES = ['photo', 'mesure', 'temoignage'];
+    q._preuvesBat = team.slice(0, 2).map((m, i) => ({ bat: m, type: TYPES[i % 3], note: NOTES[i % 3], validated: false }));
+  }
+  return q._preuvesBat;
+}
+
+// Le Bâtisseur dépose une preuve → s'ajoute à la file de validation du Pilote.
 function qdDeposerPreuve() {
   const q = qdQuest(); if (!q) return;
   q.proofSubmitted = true;
-  if (q.etape_actuelle < q.etapes) q.etape_actuelle = Math.max(q.etape_actuelle, 3); // passe en "Réalisation"
+  const list = qdPreuvesBat(q);
+  const me = (q.equipe && q.equipe[0]) || { i: 'M', c: '#4a8c5c' };
+  list.push({ bat: me, type: 'photo', note: 'Preuve déposée à l\'instant', validated: false });
+  if (q.etape_actuelle < q.etapes) q.etape_actuelle = Math.max(q.etape_actuelle, 3);
   mmBubble('📎 Preuve déposée · en attente de validation du Pilote');
+  qdRerender();
+}
+
+// Le Pilote valide une preuve déposée par un bâtisseur → nourrit Vadité + jardin + journal.
+function qdValiderPreuveBat(idx) {
+  const q = qdQuest(); if (!q) return;
+  const list = qdPreuvesBat(q);
+  const p = list[idx]; if (!p || p.validated) return;
+  p.validated = true;
+  const meta = QD_PREUVE_META[p.type] || QD_PREUVE_META.mesure;
+  if (typeof actionsTerrains !== 'undefined') {
+    actionsTerrains.push({ type: 'autre', label: q.titre, val1: '', val2: '', date: new Date().toISOString().split('T')[0], source: 'quete', preuve: { type: p.type, label: meta.label, icon: meta.ic, note: 'Bâtisseur ' + (p.bat.i || '') + ' · ' + p.note } });
+  }
+  const qid = (typeof PILOTE_QUETES_DEMO !== 'undefined') ? (PILOTE_QUETES_DEMO.find(x => x.titre === q.titre) || {}).id : null;
+  if (qid && typeof quetesValidees !== 'undefined') quetesValidees.add(qid);
+  if (typeof updateApercuFromQuetes === 'function') updateApercuFromQuetes();
+  mmBubble('✅ Preuve du Bâtisseur ' + (p.bat.i || '') + ' validée · +Vadité 🌱');
+  if (list.length && list.every(x => x.validated)) q.validated = true;
+  qdRerender();
+}
+
+// Le Pilote valide l'étape en cours → la progression avance.
+function qdValiderEtape() {
+  const q = qdQuest(); if (!q) return;
+  const total = (q.plan && q.plan.length) ? q.plan.length : q.etapes;
+  if ((q.etape_actuelle || 1) > total) { mmBubble('🌳 Toutes les étapes sont franchies !'); return; }
+  q.etape_actuelle = Math.min(total + 1, (q.etape_actuelle || 1) + 1);
+  mmBubble((q.etape_actuelle > total) ? '🌳 Toutes les étapes franchies · quête prête à certifier !' : '✓ Étape ' + (q.etape_actuelle - 1) + ' validée · on avance 🌱');
   qdRerender();
 }
 
@@ -6118,7 +6167,7 @@ function qdToggleMat(i, el) {
   }
   const nb = q.materiel.filter((_, k) => q.materielChecked[k]).length;
   const c = document.getElementById('qd-mat-count');
-  if (c) { c.textContent = nb + '/' + q.materiel.length; c.style.color = (nb === q.materiel.length) ? 'var(--fern)' : 'var(--moss)'; }
+  if (c) { c.textContent = (nb === q.materiel.length) ? '🎉 Tout est prêt' : (nb + '/' + q.materiel.length); c.style.color = (nb === q.materiel.length) ? 'var(--fern)' : 'var(--moss)'; }
 }
 
 function qdPause() {
@@ -6283,8 +6332,8 @@ function renderQueteDetail() {
       const nb = q.materiel.filter((_, i) => checked[i]).length;
       return `<div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-lg);padding:1rem 1.1rem">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem">
-        <div style="font-size:.72rem;font-weight:600;color:var(--ink)">🧰 Matériel nécessaire <span style="font-weight:400;opacity:.5">· depuis la Bibliothèque</span></div>
-        <span id="qd-mat-count" style="font-size:.62rem;font-weight:700;color:${nb===q.materiel.length?'var(--fern)':'var(--moss)'}">${nb}/${q.materiel.length}</span>
+        <div style="font-size:.72rem;font-weight:600;color:var(--ink)">🧰 Le matériel <span style="font-weight:400;opacity:.5">· ce qu'il faut réunir</span></div>
+        <span id="qd-mat-count" style="font-size:.62rem;font-weight:700;color:${nb===q.materiel.length?'var(--fern)':'var(--moss)'}">${nb===q.materiel.length?'🎉 Tout est prêt':nb+'/'+q.materiel.length}</span>
       </div>
       <div style="display:flex;flex-direction:column;gap:.1rem">${q.materiel.map((m, i) => ED
         ? `<div style="display:flex;align-items:center;gap:.6rem;padding:.42rem .2rem;border-bottom:1px solid rgba(46,102,66,.05)"><span style="opacity:.5">🔩</span><span style="font-size:.74rem;color:var(--ink);flex:1">${edArr('materiel', i, m)}</span></div>`
@@ -6294,11 +6343,23 @@ function renderQueteDetail() {
         </label>`).join('')}</div>
     </div>`; })() : ''}
 
-    <!-- Étapes -->
-    <div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-lg);padding:.9rem 1rem">
-      <div style="font-size:.72rem;font-weight:600;color:var(--ink);margin-bottom:.6rem">📋 Progression (étape ${q.etape_actuelle}/${q.etapes})</div>
+    <!-- Les étapes (le plan) -->
+    ${(() => {
+      const total = _stepCount;
+      const fait = Math.max(0, Math.min(total, (q.etape_actuelle || 1) - 1));
+      const pct = total ? Math.round(fait / total * 100) : 0;
+      const complete = (q.etape_actuelle || 1) > total;
+      return `<div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-lg);padding:1rem 1.1rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem">
+        <div style="font-size:.74rem;font-weight:700;color:var(--ink)">🎯 Les étapes <span style="font-weight:400;opacity:.55">· le plan d'action</span></div>
+        <span style="font-size:.68rem;font-weight:800;color:${complete?'var(--fern)':'var(--moss)'}">${fait}/${total} ${complete?'🌳':''}</span>
+      </div>
+      <div style="height:8px;background:rgba(46,102,66,.08);border-radius:100px;overflow:hidden;margin-bottom:.75rem"><div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--fern),#7ab840);border-radius:100px;transition:width .6s cubic-bezier(.34,1.2,.5,1)"></div></div>
       ${steps}
-    </div>
+      ${currentRole === 'pilote' && !complete ? `<button onclick="qdValiderEtape()" style="width:100%;margin-top:.5rem;background:rgba(74,140,92,.1);color:var(--fern);border:1px solid rgba(74,140,92,.3);border-radius:100px;padding:.55rem;font-size:.74rem;font-weight:700;cursor:pointer;font-family:inherit">✓ Valider l'étape en cours →</button>`
+        : (complete ? `<div style="margin-top:.5rem;text-align:center;font-size:.72rem;font-weight:700;color:var(--fern);background:rgba(74,140,92,.08);border-radius:100px;padding:.5rem">🌳 Toutes les étapes franchies !</div>` : '')}
+    </div>`;
+    })()}
 
     <!-- Équipe -->
     ${equipeHtml}
@@ -6436,15 +6497,32 @@ function renderQueteDetail() {
         <button class="btn btn-primary" style="width:100%;font-size:.72rem;background:rgba(240,176,50,.16);color:#a06c00;border:1px solid rgba(240,176,50,.35)" onclick="qdPublierReseau()">📣 Publier dans le réseau →</button>
       </div>
 
-      <!-- Preuves à valider -->
-      <div style="background:rgba(200,115,42,.06);border:1px solid rgba(200,115,42,.25);border-radius:var(--r-lg);padding:.9rem 1rem">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem">
-          <div style="font-size:.68rem;font-weight:600;color:var(--amber)">📸 Preuves à valider</div>
-          <span style="font-size:.62rem;background:rgba(200,115,42,.15);color:var(--amber);padding:.1rem .4rem;border-radius:100px;font-weight:700">0 en attente</span>
-        </div>
-        <div style="font-size:.7rem;color:var(--moss);opacity:.5;margin-bottom:.7rem">Aucune preuve en attente</div>
-        <button class="btn btn-primary" style="width:100%;font-size:.72rem;padding:.5rem" onclick="qdValider()">Valider les preuves →</button>
-      </div>
+      <!-- Preuves déposées par les bâtisseurs (à valider une par une) -->
+      ${(() => {
+        const pvb = qdPreuvesBat(q);
+        const pending = pvb.filter(p => !p.validated).length;
+        const rows = pvb.length ? pvb.map((p, i) => {
+          const meta = QD_PREUVE_META[p.type] || QD_PREUVE_META.mesure;
+          return `<div style="display:flex;align-items:flex-start;gap:.6rem;padding:.55rem 0;border-bottom:1px solid rgba(200,115,42,.12)">
+            <div style="width:26px;height:26px;border-radius:50%;background:${p.bat.c};color:#fff;display:flex;align-items:center;justify-content:center;font-size:.56rem;font-weight:700;flex-shrink:0;margin-top:.1rem">${p.bat.i}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:.68rem;font-weight:700;color:var(--ink)">${meta.ic} ${meta.label}</div>
+              <div style="font-size:.62rem;color:var(--moss);opacity:.85;line-height:1.4">${p.note}</div>
+            </div>
+            ${p.validated
+              ? '<span style="font-size:.6rem;font-weight:700;color:var(--fern);white-space:nowrap;margin-top:.2rem">✓ Validée</span>'
+              : '<button onclick="qdValiderPreuveBat(' + i + ')" style="background:var(--forest);color:#fff;border:none;border-radius:100px;padding:.3rem .7rem;font-size:.62rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;margin-top:.1rem;font-family:inherit">✅ Valider</button>'}
+          </div>`;
+        }).join('') : '<div style="font-size:.7rem;color:var(--moss);opacity:.55">Aucune preuve déposée pour l\'instant. Les bâtisseurs déposeront leurs preuves ici.</div>';
+        return `<div style="background:rgba(200,115,42,.06);border:1px solid rgba(200,115,42,.25);border-radius:var(--r-lg);padding:.9rem 1rem">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
+            <div style="font-size:.68rem;font-weight:700;color:var(--amber)">📥 Preuves des bâtisseurs</div>
+            <span style="font-size:.62rem;background:rgba(200,115,42,.15);color:var(--amber);padding:.1rem .45rem;border-radius:100px;font-weight:700">${pending} en attente</span>
+          </div>
+          <div style="font-size:.62rem;color:var(--moss);opacity:.7;margin-bottom:.55rem">Chaque preuve validée nourrit ta Vadité et fait pousser ton jardin 🌱</div>
+          ${rows}
+        </div>`;
+      })()}
 
       <!-- Bâtisseurs inscrits -->
       <div style="background:white;border:1px solid rgba(46,102,66,.12);border-radius:var(--r-lg);padding:.9rem 1rem">
