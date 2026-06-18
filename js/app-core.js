@@ -6957,19 +6957,29 @@ function evadImpactData() {
 
 /* ─── APERÇU : « où en est mon lieu, et quel est le prochain cran ? » ─── */
 
-// Couverture par capital : nb d'ICI distincts portés par les solutions du lieu.
-function apercuCapitaux() {
+// Score par capital (0–100), dérivé de la couverture ICI des solutions du lieu,
+// mis à l'échelle de la Vadance. Un capital peu couvert tombe sous le plancher.
+function apercuCapitauxScores() {
+  const imp = (typeof evadImpactData === 'function') ? evadImpactData() : { vadance: 0 };
+  const v = imp.vadance || 0;
   const L = (typeof myLieuData !== 'undefined' && myLieuData && myLieuData.nom) ? myLieuData : (typeof cData !== 'undefined' ? cData : {});
   const sols = (L && L.solutions) || [];
-  const cnt = { ecologie: 0, social: 0, economie_locale: 0 };
+  const covered = { ecologie: 0, social: 0, economie_locale: 0 };
   const seen = {};
   if (typeof iciPourSolution === 'function') {
     sols.forEach(sn => (iciPourSolution(sn) || []).forEach(ici => {
-      const k = ici.id;
-      if (!seen[k]) { seen[k] = 1; cnt[ici.livre] = (cnt[ici.livre] || 0) + 1; }
+      if (!seen[ici.id]) { seen[ici.id] = 1; covered[ici.livre] = (covered[ici.livre] || 0) + 1; }
     }));
   }
-  return cnt;
+  const total = { ecologie: 0, social: 0, economie_locale: 0 };
+  if (typeof ICI_CATALOG !== 'undefined') ICI_CATALOG.forEach(ici => total[ici.livre] = (total[ici.livre] || 0) + 1);
+  const out = {};
+  ['ecologie', 'social', 'economie_locale'].forEach(k => {
+    const ratio = total[k] ? covered[k] / total[k] : 0;
+    const w = 0.65 + 0.55 * ratio; // 0 couverture → 0.65·V ; pleine → 1.2·V
+    out[k] = v > 0 ? Math.max(0, Math.min(100, Math.round(v * w))) : 0;
+  });
+  return out;
 }
 
 // Le prochain cran : un seul objectif clair, choisi selon l'état du lieu.
@@ -6988,35 +6998,53 @@ function apercuNextCran() {
   return { icon:'🚀', title:'Élève ton impact', why:'Lieu à fort taux de tenue : fais auditer tes preuves pour viser la certification maximale.', from:80, to:100, val:taux, unit:'% de tenue', cta:'Voir mon impact', onclick:goImpact };
 }
 
-// Remplit la partie « état » + « prochain cran » de l'aperçu.
+// Remplit l'« état du lieu » (comparatif Vadance/Vadité + triptyque) et le « prochain cran ».
 function apercuRender() {
   const imp = (typeof evadImpactData === 'function') ? evadImpactData() : { vadance: 0, vadite: 0, taux: 0 };
+  const hasV = imp.vadance > 0;
   const L = (typeof myLieuData !== 'undefined' && myLieuData && myLieuData.nom) ? myLieuData : (typeof cData !== 'undefined' ? cData : {});
-  const nomEl = document.getElementById('apercu-lieu-nom');
-  if (nomEl) nomEl.textContent = (L && L.nom) ? L.nom : 'mon lieu';
+  const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setTxt('apercu-lieu-nom', (L && L.nom) ? L.nom : 'mon lieu');
+  // Comparatif Vadance (promesse) ↔ Vadité (preuve) + taux de tenue
+  setTxt('apercu-vadance-num', hasV ? imp.vadance : '—');
+  setTxt('apercu-vadite-num', hasV ? imp.vadite : '—');
+  setTxt('apercu-taux-num', hasV ? imp.taux + ' %' : '—');
   // Palier
   const palEl = document.getElementById('apercu-palier');
   if (palEl) {
     const p = (typeof creerVadancePalier === 'function') ? creerVadancePalier(imp.vadance) : null;
-    palEl.textContent = imp.vadance > 0 ? (p ? p.label : '🌿 Lieu esquissé') : '✦ À composer';
+    palEl.textContent = hasV ? (p ? p.label : '🌿 Lieu esquissé') : '✦ À composer';
   }
-  // Capitaux
-  const capBox = document.getElementById('apercu-capitaux');
-  if (capBox) {
-    const cnt = apercuCapitaux();
-    const META = (typeof ICI_LIVRE_META !== 'undefined') ? ICI_LIVRE_META : { ecologie:{label:'Écologie',ic:'🌿'}, social:{label:'Social',ic:'🤝'}, economie_locale:{label:'Économie locale',ic:'♻️'} };
-    const cols = { ecologie:'#7ab840', social:'#6aa0bc', economie_locale:'#e8a55a' };
-    capBox.innerHTML = ['ecologie','social','economie_locale'].map(k => {
-      const n = cnt[k] || 0, pct = Math.min(100, n * 50); // 2 ICI / capital = 100%
-      const m = META[k] || { label:k, ic:'◆' };
-      return '<div style="background:rgba(255,255,255,.08);border-radius:10px;padding:.45rem .6rem">'
-        + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem">'
-          + '<span style="font-size:.56rem;color:rgba(255,255,255,.7)">' + m.ic + ' ' + m.label + '</span>'
-          + '<span style="font-size:.6rem;font-weight:800;color:white">' + n + '</span>'
+  // Triptyque : 3 capitaux, jamais compensés (plancher)
+  const PLANCHER = (typeof ICI_PLANCHER !== 'undefined') ? ICI_PLANCHER : 40;
+  const META = (typeof ICI_LIVRE_META !== 'undefined') ? ICI_LIVRE_META : { ecologie:{label:'Écologie',ic:'🌿',col:'#2e9960'}, social:{label:'Social',ic:'🤝',col:'#3a6e8c'}, economie_locale:{label:'Éco. locale',ic:'♻️',col:'#c8732a'} };
+  const scores = apercuCapitauxScores();
+  let lowLabel = null, lowVal = null;
+  const trip = document.getElementById('apercu-triptyque');
+  if (trip) {
+    trip.innerHTML = ['ecologie', 'social', 'economie_locale'].map(k => {
+      const m = META[k] || { label: k, ic: '◆', col: '#4a8c5c' };
+      const sc = scores[k] || 0;
+      const low = hasV && sc < PLANCHER;
+      if (low && (lowVal === null || sc < lowVal)) { lowLabel = m.label; lowVal = sc; }
+      return '<div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.6rem">'
+        + '<div style="width:108px;flex-shrink:0;font-size:.72rem;font-weight:600;color:var(--ink)">' + m.ic + ' ' + m.label + '</div>'
+        + '<div style="flex:1;position:relative;height:9px;background:rgba(46,102,66,.08);border-radius:100px">'
+          + '<div style="position:absolute;left:0;top:0;height:100%;width:' + (hasV ? sc : 0) + '%;background:' + (low ? '#b84e35' : m.col) + ';border-radius:100px;transition:width .6s ease"></div>'
+          + '<div style="position:absolute;left:' + PLANCHER + '%;top:-3px;bottom:-3px;width:2px;background:rgba(46,102,66,.45)"></div>'
         + '</div>'
-        + '<div style="height:4px;border-radius:100px;background:rgba(255,255,255,.12);overflow:hidden"><div style="height:100%;width:' + pct + '%;border-radius:100px;background:' + cols[k] + '"></div></div>'
+        + '<div style="width:32px;text-align:right;font-family:\'Satoshi\',sans-serif;font-size:1rem;font-weight:800;color:' + (low ? '#b84e35' : 'var(--ink)') + '">' + (hasV ? sc : '—') + '</div>'
       + '</div>';
     }).join('');
+  }
+  const alertBox = document.getElementById('apercu-plancher-alert');
+  if (alertBox) {
+    if (lowLabel !== null) {
+      alertBox.style.display = 'block';
+      alertBox.innerHTML = '⚠️ <b>' + lowLabel + ' sous le plancher (' + lowVal + ' / ' + PLANCHER + ').</b> Aucun capital élevé ne rachète un capital faible : tant qu\'il reste sous le seuil, le passage à l\'étape suivante est bloqué.';
+    } else {
+      alertBox.style.display = 'none';
+    }
   }
   // Prochain cran
   const cran = apercuNextCran();
@@ -7144,6 +7172,10 @@ const VADE_STEPS = [
 ];
 // état des tâches cochées par étape
 const regenTasksDone = VADE_STEPS.map(s => s.taches.map(() => false));
+// Pré-cochées : l'utilisateur a déjà franchi ces étapes en créant son lieu
+// (fiche, repérage de l'impact, choix des solutions) → on lui montre sa progression.
+if (regenTasksDone[0]) regenTasksDone[0] = regenTasksDone[0].map(() => true); // Valoriser (T0, impact, ICI)
+if (regenTasksDone[1]) { regenTasksDone[1][0] = true; regenTasksDone[1][1] = true; } // Activer : solutions + ICI embarqués
 let regenSelected = 0;
 
 function regenSelect(i) {
@@ -7224,17 +7256,16 @@ function regenRenderDetail() {
 }
 
 function regenUpdateCenter() {
-  // Vadance : 10 au départ, +90 répartis sur les tâches cochées du parcours.
+  // Centre = progression du parcours (tâches faites), pas un score Vadance concurrent.
   const total = regenTasksDone.reduce((a, arr) => a + arr.length, 0);
   const done = regenTasksDone.reduce((a, arr) => a + arr.filter(Boolean).length, 0);
-  const score = total ? 10 + Math.round((done / total) * 90) : 10;
   const scoreEl = document.getElementById('regen-center-score');
   const sub = document.getElementById('regen-center-sub');
-  if (scoreEl) scoreEl.innerHTML = score + '<span style="font-size:.62rem;font-weight:700;opacity:.45">/100</span>';
+  if (scoreEl) scoreEl.innerHTML = done + '<span style="font-size:.62rem;font-weight:700;opacity:.45">/' + total + '</span>';
   if (!sub) return;
-  if (done === 0) sub.textContent = '🌱 à venir';
+  if (done === 0) sub.textContent = '🌱 à démarrer';
   else if (done >= total) sub.textContent = '🌳 boucle complète';
-  else sub.textContent = '🌿 ' + done + '/' + total + ' tâches';
+  else sub.textContent = '🌿 en cours';
 }
 
 function regenInit() {

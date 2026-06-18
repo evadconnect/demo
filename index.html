@@ -12,7 +12,7 @@
         crossorigin=""
     />
         
-<link rel="stylesheet" href="css/styles.css?v=27">
+<link rel="stylesheet" href="css/styles.css?v=28">
 </head>
 <body>
 
@@ -111,7 +111,7 @@
 </div>
 
 
-<script src="js/splash-onboarding.js?v=27"></script>
+<script src="js/splash-onboarding.js?v=28"></script>
 
 <div class="app">
 
@@ -901,37 +901,45 @@
       </div>
 
       <!-- ÉTAT DU LIEU -->
-      <div style="background:linear-gradient(135deg,var(--forest),#1a4a35);border-radius:var(--r-lg);padding:1.3rem 1.4rem;margin-bottom:.9rem">
-        <div style="display:flex;align-items:center;gap:1.3rem;flex-wrap:wrap">
-          <div style="position:relative;width:88px;height:88px;flex-shrink:0">
-            <svg width="88" height="88" viewBox="0 0 88 88" style="transform:rotate(-90deg)">
-              <circle cx="44" cy="44" r="36" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="7"/>
-              <circle id="regen-arc" cx="44" cy="44" r="36" fill="none" stroke="#7ab840" stroke-width="7" stroke-linecap="round" stroke-dasharray="226.2" stroke-dashoffset="226.2" style="transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)"/>
-            </svg>
-            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px">
-              <span id="apercu-regen-val" style="font-family:'Satoshi', sans-serif;font-size:1.65rem;font-weight:900;color:white;line-height:1">—</span>
-              <span style="font-size:.46rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.12em">VADANCE</span>
-            </div>
+      <div style="background:white;border:1px solid rgba(46,102,66,.12);border-radius:var(--r-lg);padding:1.4rem 1.5rem;margin-bottom:.9rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.1rem">
+          <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
+            <span style="font-size:.62rem;font-weight:700;color:var(--moss);opacity:.6;text-transform:uppercase;letter-spacing:.14em">État du lieu</span>
+            <span id="apercu-palier" style="font-size:.6rem;font-weight:700;color:var(--forest);background:rgba(1,130,98,.1);border-radius:100px;padding:.15rem .55rem">🌿 Lieu esquissé</span>
           </div>
-          <div style="flex:1;min-width:170px">
-            <span id="apercu-palier" style="display:inline-block;font-size:.62rem;font-weight:700;color:#0d2b22;background:var(--cream);border-radius:100px;padding:.2rem .65rem;margin-bottom:.55rem">🌿 Lieu esquissé</span>
-            <div style="display:flex;gap:.45rem;flex-wrap:wrap">
-              <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:.32rem .6rem;flex:1;min-width:74px">
-                <div style="font-size:.5rem;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.07em">✅ Vadité <span style="opacity:.7">preuve</span></div>
-                <div style="font-size:.92rem;font-weight:800;color:white"><span id="apercu-vadite-val">—</span><span style="font-size:.52rem;font-weight:500;opacity:.5">/100</span></div>
-              </div>
-              <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:.32rem .6rem;flex:1;min-width:74px">
-                <div style="font-size:.5rem;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.07em">⚖️ Taux de tenue</div>
-                <div style="font-size:.92rem;font-weight:800;color:white" id="apercu-taux-val">—</div>
-              </div>
-              <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:.32rem .6rem;flex:1;min-width:74px">
-                <div style="font-size:.5rem;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.07em">🌱 Graines</div>
-                <div style="font-size:.92rem;font-weight:800;color:var(--amber-soft)" id="apercu-graines-wallet">0</div>
-              </div>
+          <span onclick="piloteTab('dossiers',document.getElementById('ptab-dossiers'))" style="font-size:.7rem;font-weight:600;color:var(--forest);cursor:pointer;white-space:nowrap">Voir le détail d'impact →</span>
+        </div>
+
+        <!-- Comparatif promesse ↔ preuve -->
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+          <div style="min-width:140px">
+            <div style="font-size:.74rem;font-weight:700;color:var(--forest);margin-bottom:.1rem">Vadance <span style="opacity:.6;font-weight:500">· la promesse</span></div>
+            <div style="font-family:'Satoshi', sans-serif;font-weight:900;color:var(--ink);line-height:1"><span id="apercu-vadance-num" style="font-size:3rem">—</span><span style="font-size:1rem;font-weight:700;opacity:.4">/100</span></div>
+            <div style="font-size:.62rem;color:var(--moss);opacity:.6;margin-top:.2rem">Impact projeté · ce que tu vises</div>
+          </div>
+          <div style="text-align:center;flex:1;min-width:120px;padding-top:.5rem">
+            <div style="font-family:'Satoshi', sans-serif;font-size:1.5rem;font-weight:800;color:var(--ink);line-height:1" id="apercu-taux-num">—</div>
+            <div style="height:2px;background:linear-gradient(90deg,rgba(46,102,66,.15),var(--forest));margin:.35rem auto .1rem;max-width:140px;position:relative">
+              <span style="position:absolute;right:-1px;top:-4px;color:var(--forest);font-size:.7rem;line-height:1">▸</span>
             </div>
+            <div style="font-size:.56rem;font-weight:700;color:var(--moss);opacity:.6;text-transform:uppercase;letter-spacing:.1em">Taux de tenue</div>
+          </div>
+          <div style="min-width:140px;text-align:right">
+            <div style="font-size:.74rem;font-weight:700;color:#0d2b22;margin-bottom:.1rem">Vadité <span style="opacity:.6;font-weight:500">· la preuve</span></div>
+            <div style="font-family:'Satoshi', sans-serif;font-weight:900;color:var(--ink);line-height:1"><span id="apercu-vadite-num" style="font-size:3rem">—</span><span style="font-size:1rem;font-weight:700;opacity:.4">/100</span></div>
+            <div style="font-size:.62rem;color:var(--moss);opacity:.6;margin-top:.2rem">Impact vérifié · ce que reçoit le Semeur</div>
           </div>
         </div>
-        <div id="apercu-capitaux" style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.85rem"></div>
+
+        <div style="height:1px;background:rgba(46,102,66,.1);margin:1.1rem 0 .9rem"></div>
+
+        <!-- Le triptyque -->
+        <div style="display:flex;align-items:baseline;gap:.5rem;margin-bottom:.7rem">
+          <span style="font-size:.74rem;font-weight:800;color:var(--ink)">Le triptyque</span>
+          <span style="font-size:.64rem;color:var(--moss);opacity:.6;font-style:italic">— trois capitaux, jamais compensés (plancher 40)</span>
+        </div>
+        <div id="apercu-triptyque"></div>
+        <div id="apercu-plancher-alert" style="display:none;background:rgba(200,115,42,.08);border:1px solid rgba(200,115,42,.3);border-radius:var(--r);padding:.7rem .85rem;font-size:.68rem;color:#9a4a1a;line-height:1.5;margin-top:.5rem"></div>
       </div>
 
       <!-- PROCHAIN CRAN -->
@@ -953,6 +961,51 @@
           </div>
         </div>
         <button id="apercu-cran-cta" onclick="" style="margin-top:.75rem;background:var(--forest);border:none;border-radius:100px;padding:.55rem 1.3rem;font-size:.72rem;font-weight:700;color:white;cursor:pointer">—</button>
+      </div>
+
+      <!-- BOUCLE VADE -->
+      <div id="regen-parcours" style="background:white;border:1px solid rgba(46,102,66,.12);border-radius:var(--r-lg);padding:1.3rem 1.4rem 1.5rem;margin-bottom:.9rem">
+        <div style="margin-bottom:.4rem">
+          <div style="font-family:'Satoshi', sans-serif;font-size:.95rem;font-weight:800;color:var(--ink)">🔄 Boucle VADE · ton parcours</div>
+          <div style="font-size:.63rem;color:var(--moss);opacity:.65;margin-top:.15rem;line-height:1.4">Valoriser → Activer → Développer → Élever. Tu as déjà franchi les premières étapes en créant ton lieu ✅ — clique une étape pour voir les tâches restantes.</div>
+        </div>
+
+        <div style="display:flex;justify-content:center">
+          <div style="position:relative;width:300px;height:300px;margin:.4rem 0 .2rem">
+            <svg width="300" height="300" viewBox="0 0 300 300" style="position:absolute;inset:0;pointer-events:none">
+              <circle cx="150" cy="150" r="115" fill="none" stroke="rgba(46,102,66,.18)" stroke-width="1.5"/>
+              <g fill="var(--sage)">
+                <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(231.3 68.7) rotate(45)"/>
+                <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(231.3 231.3) rotate(135)"/>
+                <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(68.7 231.3) rotate(225)"/>
+                <path d="M -5 -4 L 5 0 L -5 4 Z" transform="translate(68.7 68.7) rotate(315)"/>
+              </g>
+            </svg>
+            <div style="position:absolute;left:150px;top:150px;transform:translate(-50%,-50%);width:152px;height:152px;border-radius:50%;background:white;border:1px solid rgba(46,102,66,.1);box-shadow:0 2px 14px rgba(46,102,66,.07);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
+              <div style="font-size:.5rem;color:var(--sage);text-transform:uppercase;letter-spacing:.16em;font-weight:700">Tâches faites</div>
+              <div id="regen-center-score" style="font-family:'Satoshi', sans-serif;font-size:1.5rem;font-weight:900;color:#018262;line-height:1;margin:.2rem 0 .05rem">0<span style="font-size:.62rem;font-weight:700;opacity:.45">/12</span></div>
+              <div id="regen-center-sub" style="font-size:.6rem;color:var(--moss);opacity:.65">🌱 à démarrer</div>
+            </div>
+            <div onclick="regenSelect(0)" style="position:absolute;left:150px;top:35px;transform:translate(-50%,-22px);text-align:center;cursor:pointer">
+              <div id="rn-circ-0" style="width:44px;height:44px;border-radius:50%;background:white;border:2.5px solid #018262;color:#018262;display:flex;align-items:center;justify-content:center;font-family:'Satoshi', sans-serif;font-weight:900;font-size:1.05rem;margin:0 auto;transition:all .2s">V</div>
+              <div id="rn-lbl-0" style="font-size:.62rem;color:var(--moss);font-weight:600;margin-top:.3rem">Valoriser</div>
+            </div>
+            <div onclick="regenSelect(1)" style="position:absolute;left:265px;top:150px;transform:translate(-50%,-22px);text-align:center;cursor:pointer">
+              <div id="rn-circ-1" style="width:44px;height:44px;border-radius:50%;background:white;border:2.5px solid #2d6a9f;color:#2d6a9f;display:flex;align-items:center;justify-content:center;font-family:'Satoshi', sans-serif;font-weight:900;font-size:1.05rem;margin:0 auto;transition:all .2s">A</div>
+              <div id="rn-lbl-1" style="font-size:.62rem;color:var(--moss);font-weight:600;margin-top:.3rem">Activer</div>
+            </div>
+            <div onclick="regenSelect(2)" style="position:absolute;left:150px;top:265px;transform:translate(-50%,-22px);text-align:center;cursor:pointer">
+              <div id="rn-circ-2" style="width:44px;height:44px;border-radius:50%;background:white;border:2.5px solid #c8732a;color:#c8732a;display:flex;align-items:center;justify-content:center;font-family:'Satoshi', sans-serif;font-weight:900;font-size:1.05rem;margin:0 auto;transition:all .2s">D</div>
+              <div id="rn-lbl-2" style="font-size:.62rem;color:var(--moss);font-weight:600;margin-top:.3rem">Développer</div>
+            </div>
+            <div onclick="regenSelect(3)" style="position:absolute;left:35px;top:150px;transform:translate(-50%,-22px);text-align:center;cursor:pointer">
+              <div id="rn-circ-3" style="width:44px;height:44px;border-radius:50%;background:white;border:2.5px solid #6b5b95;color:#6b5b95;display:flex;align-items:center;justify-content:center;font-family:'Satoshi', sans-serif;font-weight:900;font-size:1.05rem;margin:0 auto;transition:all .2s">E</div>
+              <div id="rn-lbl-3" style="font-size:.62rem;color:var(--moss);font-weight:600;margin-top:.3rem">Élever</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="regen-detail" style="border-top:1px solid rgba(46,102,66,.1);margin-top:.4rem;padding-top:1.2rem"></div>
       </div>
 
       <!-- RACCOURCIS -->
@@ -1545,7 +1598,7 @@
   </div>
 </div>
 
-<script src="js/data-nextcloud.js?v=27"></script>
+<script src="js/data-nextcloud.js?v=28"></script>
 
 <!-- ═══ ÉCRAN : RÉSEAU (réseau social solarpunk) ═══ -->
 <div class="screen" id="screen-reseau">
@@ -1726,9 +1779,9 @@
   </div>
 </div>
 
-<script src="js/data-reseau.js?v=27"></script>
+<script src="js/data-reseau.js?v=28"></script>
 
-<script src="js/regen-loop.js?v=27"></script>
+<script src="js/regen-loop.js?v=28"></script>
 
 <!-- Modale ajout/édition offre Pilote -->
 <div id="pmkt-modal" style="display:none;position:fixed;inset:0;z-index:100;background:rgba(14,26,18,0.75);backdrop-filter:blur(6px);align-items:center;justify-content:center">
@@ -2474,7 +2527,7 @@
 
 
 
-<script src="js/app-core.js?v=27"></script>
+<script src="js/app-core.js?v=28"></script>
 
 <script
   src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -2533,9 +2586,9 @@
   </div>
 </div>
 
-<script src="js/deva.js?v=27"></script>
+<script src="js/deva.js?v=28"></script>
 
-<script src="js/nav-mobile.js?v=27"></script>
+<script src="js/nav-mobile.js?v=28"></script>
 
 <!-- ── Modal : Choisir ton profil ── -->
 <div id="auth-profil-modal" style="display:none;position:fixed;inset:0;z-index:10001;background:rgba(14,26,18,.6);backdrop-filter:blur(6px);align-items:center;justify-content:center">
@@ -2578,7 +2631,7 @@
 </div>
 
 
-<script src="js/auth.js?v=27"></script>
+<script src="js/auth.js?v=28"></script>
 
 <!-- Espace modal, placé au niveau body pour rester accessible depuis tous les contextes -->
 <div id="espace-modal">
@@ -2676,14 +2729,14 @@
     </div>
   </div>
 </div>
-<script src="js/espace-modal.js?v=27"></script>
+<script src="js/espace-modal.js?v=28"></script>
 
 <!-- ═══════════════════════════════════════════════════════
      COUCHE DE CONVERGENCE, PERMA-COMPTABILITÉ EVAD
      Saisie unique → traduction multi-cadres institutionnels
      ═══════════════════════════════════════════════════════ -->
-<script src="js/quetes.js?v=27"></script>
-<script src="js/ici.js?v=27"></script>
+<script src="js/quetes.js?v=28"></script>
+<script src="js/ici.js?v=28"></script>
 
 <!-- ─── MODAL CONTRIBUER ─── -->
 <div id="contrib-modal" style="display:none;position:fixed;inset:0;z-index:10002;background:rgba(14,26,18,.65);backdrop-filter:blur(7px);align-items:flex-end;justify-content:center;overflow:hidden">
@@ -2847,7 +2900,7 @@
   </div>
 </div>
 
-<script src="js/contribution.js?v=27"></script>
+<script src="js/contribution.js?v=28"></script>
 
 <!-- Modal détail solution (créer lieu step 4) -->
 <div id="creer-sol-detail-modal" style="display:none;position:fixed;inset:0;z-index:10010;background:rgba(13,43,34,.6);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center;" onclick="if(event.target===this)creerCloseSolDetail()">
@@ -2860,7 +2913,7 @@
   </div>
 </div>
 
-<script src="js/fil-rouge-feedback.js?v=27"></script>
+<script src="js/fil-rouge-feedback.js?v=28"></script>
 
 </body>
 </html>
