@@ -65,8 +65,9 @@ function openQueteModal(qid) {
   +     `<div style="display:flex;gap:.5rem;margin-top:.6rem;flex-wrap:wrap">
             <button onclick="closeQueteModal()" style="background:none;border:1px solid rgba(46,102,66,.25);color:var(--moss);border-radius:100px;padding:.55rem 1rem;font-size:.78rem;font-weight:700;cursor:pointer">Fermer</button>
             <button onclick="publishQueteToReseau('${q.id}')" style="flex:1;min-width:130px;background:rgba(240,176,50,.14);color:#a06c00;border:1px solid rgba(240,176,50,.35);border-radius:100px;padding:.55rem 1rem;font-size:.78rem;font-weight:700;cursor:pointer">📣 Publier au réseau</button>
-            <button onclick="validerQuete('${q.id}');closeQueteModal()" style="flex:1;min-width:130px;background:var(--forest);color:#fff;border:none;border-radius:100px;padding:.55rem 1rem;font-size:.78rem;font-weight:700;cursor:pointer">✅ Valider la preuve</button>
-          </div>`
+            <button onclick="queteOpenPreuve('${q.id}')" style="flex:1;min-width:130px;background:var(--forest);color:#fff;border:none;border-radius:100px;padding:.55rem 1rem;font-size:.78rem;font-weight:700;cursor:pointer">✅ Déposer ma preuve</button>
+          </div>
+          <div id="quete-preuve-zone" style="display:none;margin-top:.85rem"></div>`
   +   '</div>'
   + '</div>';
   w.style.display = 'block';
@@ -75,6 +76,47 @@ function openQueteModal(qid) {
 function closeQueteModal() {
   const w = document.getElementById('quete-modal');
   if (w) w.style.display = 'none';
+}
+
+/* ─── Déposer une preuve sur une quête (photo / mesure / témoignage) ─── */
+const PREUVE_TYPES = [
+  { id: 'photo',      ic: '📷', label: 'Photo' },
+  { id: 'mesure',     ic: '📊', label: 'Mesure chiffrée' },
+  { id: 'temoignage', ic: '👥', label: 'Témoignage pair' },
+];
+function queteOpenPreuve(id) {
+  const zone = document.getElementById('quete-preuve-zone');
+  if (!zone) return;
+  window._quetePreuveType = 'mesure';
+  const chip = t => '<button type="button" data-pt="' + t.id + '" onclick="queteSelectPreuveType(\'' + t.id + '\')" style="border:1.5px solid rgba(46,102,66,.2);background:white;color:var(--moss);border-radius:100px;padding:.4rem .8rem;font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s">' + t.ic + ' ' + t.label + '</button>';
+  zone.style.display = 'block';
+  zone.innerHTML = ''
+    + '<div style="background:rgba(46,102,66,.05);border:1px solid rgba(46,102,66,.14);border-radius:14px;padding:1rem 1.1rem">'
+      + '<div style="font-size:.72rem;font-weight:700;color:var(--ink);margin-bottom:.55rem">Quelle preuve déposes-tu ?</div>'
+      + '<div id="quete-preuve-types" style="display:flex;gap:.45rem;flex-wrap:wrap;margin-bottom:.75rem">' + PREUVE_TYPES.map(chip).join('') + '</div>'
+      + '<textarea id="quete-preuve-note" placeholder="Décris ta preuve : ce que tu as fait, une valeur mesurée, un lien…" style="width:100%;min-height:58px;box-sizing:border-box;padding:.6rem .7rem;border:1px solid rgba(46,102,66,.2);border-radius:10px;font-family:inherit;font-size:.78rem;color:var(--ink);resize:vertical"></textarea>'
+      + '<button onclick="queteSubmitPreuve(\'' + id + '\')" style="width:100%;margin-top:.7rem;background:var(--forest);color:#fff;border:none;border-radius:100px;padding:.6rem 1rem;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit">✅ Enregistrer ma preuve & valider</button>'
+    + '</div>';
+  queteSelectPreuveType('mesure');
+  const ta = document.getElementById('quete-preuve-note'); if (ta) ta.focus();
+}
+function queteSelectPreuveType(t) {
+  window._quetePreuveType = t;
+  const box = document.getElementById('quete-preuve-types');
+  if (!box) return;
+  box.querySelectorAll('[data-pt]').forEach(b => {
+    const on = b.getAttribute('data-pt') === t;
+    b.style.background = on ? 'var(--forest)' : 'white';
+    b.style.color = on ? '#fff' : 'var(--moss)';
+    b.style.borderColor = on ? 'var(--forest)' : 'rgba(46,102,66,.2)';
+  });
+}
+function queteSubmitPreuve(id) {
+  const t = PREUVE_TYPES.find(x => x.id === (window._quetePreuveType || 'mesure')) || PREUVE_TYPES[1];
+  const note = ((document.getElementById('quete-preuve-note') || {}).value || '').trim();
+  window._pendingPreuve = { type: t.id, label: t.label, icon: t.ic, note: note };
+  validerQuete(id);
+  closeQueteModal();
 }
 
 // Ouvre la quête Pilote dans la fiche quête standard (même présentation que les autres rôles).
@@ -307,13 +349,26 @@ function validerQuete(id) {
   const quete = PILOTE_QUETES_DEMO.find(q => q.id === id);
   if (!quete || quetesValidees.has(id)) return;
 
+  // Preuve déposée par le Pilote (type + note), consommée une fois.
+  const pv = window._pendingPreuve || null;
+  window._pendingPreuve = null;
+
   // Gain visible : points REGEN + graines de la quête
   const _pts = (String(quete.impact || '').match(/(\d+)\s*pts?/i) || [])[1] || 5;
-  if (typeof mmBubble === 'function') mmBubble(`✓ Preuve validée · +${_pts} pts Vadance · +${quete.graines || 0} graines 🌱`);
+  if (typeof mmBubble === 'function') mmBubble(`✓ Preuve déposée · +${_pts} pts Vadité · +${quete.graines || 0} graines 🌱`);
 
   const type = detectConvType(quete.titre, quete.impact);
   if (!type) {
-    mmBubble('✅ Quête validée, sans équivalent direct dans la matrice de convergence');
+    // Pas d'équivalent dans la matrice : on enregistre quand même la preuve au journal.
+    actionsTerrains.push({
+      type: 'autre',
+      label: quete.titre,
+      val1: '', val2: '',
+      date: new Date().toISOString().split('T')[0],
+      source: 'quete',
+      quete_id: id,
+      preuve: pv
+    });
     quetesValidees.add(id);
     renderPiloteQuetes();
     return;
@@ -331,7 +386,8 @@ function validerQuete(id) {
     date: new Date().toISOString().split('T')[0],
     convergence: conv,
     source: 'quete',
-    quete_id: id
+    quete_id: id,
+    preuve: pv
   });
 
   quetesValidees.add(id);
@@ -913,12 +969,18 @@ function renderJournal() {
         ).join('')
       : '';
 
+    const pvIcon = a.preuve && a.preuve.icon ? a.preuve.icon : icon;
+    const valTxt = (a.val1 !== '' && a.val1 != null) ? ' · ' + a.val1 + ' ' + u1 : '';
+    const pvLine = a.preuve
+      ? `<div style="font-size:.66rem;color:var(--forest);font-weight:600;margin-top:.15rem">${a.preuve.icon} ${a.preuve.label}${a.preuve.note ? ' · <span style="font-weight:400;color:var(--moss);font-style:italic">'+a.preuve.note+'</span>' : ''}</div>`
+      : '';
     return `
       <div class="pc-entry">
-        <div class="pc-entry-icon">${icon}</div>
+        <div class="pc-entry-icon">${pvIcon}</div>
         <div class="pc-entry-body">
           <div class="pc-entry-label">${a.label}</div>
-          <div class="pc-entry-meta">${date}${src} · ${a.val1} ${u1}</div>
+          <div class="pc-entry-meta">${date}${src}${valTxt}</div>
+          ${pvLine}
           <div class="conv-badge-row" style="margin:0">${badges}</div>
         </div>
         <button class="pc-entry-del" onclick="supprimerAction(${realIdx})" title="Supprimer">✕</button>
