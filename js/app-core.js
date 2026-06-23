@@ -3671,6 +3671,7 @@ function semGeoShowDrop(features){
 
 function semGeoSelect(label){
   semFicheData.localisation=label;
+  if (typeof semUpdatePotentiel === 'function') semUpdatePotentiel();
   const inp=document.getElementById('sem-loc-inp');
   if(inp) inp.value=label;
   const drop=document.getElementById('sem-loc-drop');
@@ -8253,10 +8254,100 @@ let batFicheStep = 0;
 let batQueteFilter = 'matched';
 let batFicheData = { prenom:'', nom:'', ville:'', lat:null, lng:null, dispo:[], rayon:20, bio:'', avatar:'', cover:'', email:'', tel:'', web:'', skills:[], skillLevels:{}, axe:'', contrib:'', motivation:'', mode:'', engagement:'', wantLearn:[], valeurs:[], valeurAutre:'', moteur:'', apporte:[], cherche:[], lieuType:[] };
 
+/* ─── Gamification : Potentiel bâtisseur vivant pendant la création de la fiche ───
+   Score de COMPLÉTUDE du profil, pas de quantité : chaque section remplie rapporte
+   un montant fixe, quel que soit le nombre d'items. Déclarer 1 compétence vaut
+   autant que 5 — équitable pour tous les profils. ── */
+const BAT_POT_PALIERS = [
+  { min: 85, label: '🚀 Profil complet' },
+  { min: 60, label: '✨ Prêt à publier' },
+  { min: 35, label: '🌿 Bien avancé' },
+  { min: 12, label: '🌱 Profil esquissé' },
+];
+let batLastPotentiel = 0;
+
+function computeBatPotentiel(d) {
+  d = d || {};
+  let v = 0;
+  // Étape 1 · Identité — présence d'une info, pas sa longueur.
+  if (d.prenom && d.nom) v += 8;
+  if (d.ville) v += 8;
+  if (d.bio && String(d.bio).trim().length > 15) v += 9;
+  if ((d.dispo || []).length) v += 8;
+  if ((d.valeurs || []).length || (d.valeurAutre || '').trim()) v += 8;
+  if ((d.lieuType || []).length) v += 8;
+
+  // Étape 2 · Compétences — présence uniquement (équitable quel que soit le nombre).
+  const skills = d.skills || [];
+  if (skills.length) {
+    v += 14;
+    if (skills.every(id => (d.skillLevels || {})[id])) v += 7; // niveaux renseignés
+  }
+  if ((d.apporte || []).length) v += 5;
+  if ((d.cherche || []).length) v += 5;
+
+  // Étape 3 · Engagement.
+  if (d.contrib) v += 5;
+  if (d.mode) v += 5;
+  if (d.engagement) v += 5;
+  if (d.motivation && String(d.motivation).trim().length > 15) v += 5;
+
+  return Math.min(100, Math.round(v));
+}
+function batPotentiel() { return computeBatPotentiel(batFicheData); }
+const batPotentielPalier = (s) => BAT_POT_PALIERS.find(p => s >= p.min) || null;
+
+function batUpdatePotentiel(silent) {
+  const v = batPotentiel();
+  const bar = document.getElementById('bat-pot-bar');
+  if (!bar) { batLastPotentiel = v; return; }
+  bar.style.width = v + '%';
+  const valEl = document.getElementById('bat-pot-val'); if (valEl) valEl.textContent = v;
+  const p = batPotentielPalier(v);
+  const palEl = document.getElementById('bat-pot-palier'); if (palEl) palEl.textContent = p ? p.label : '';
+  if (!silent) {
+    const delta = v - batLastPotentiel;
+    if (delta > 0) batPotFloat('+' + delta);
+    const prevP = batPotentielPalier(batLastPotentiel);
+    if (p && (!prevP || p.min > prevP.min)) batPotCelebrate(p.label);
+  }
+  batLastPotentiel = v;
+}
+
+function batPotFloat(txt) {
+  const g = document.getElementById('bat-pot'); if (!g) return;
+  const f = document.createElement('div');
+  f.textContent = txt + ' 🔨';
+  f.style.cssText = 'position:absolute;top:44px;left:50%;transform:translateX(-50%);z-index:26;font-family:Satoshi,sans-serif;font-weight:900;font-size:.92rem;color:#c8732a;pointer-events:none;text-shadow:0 2px 6px rgba(255,255,255,.8);animation:vadFloat 1s ease-out forwards';
+  g.parentElement.appendChild(f);
+  setTimeout(() => f.remove(), 1000);
+  g.style.animation = 'none'; void g.offsetWidth; g.style.animation = 'vadPop .42s ease';
+}
+
+function batPotCelebrate(label) {
+  const g = document.getElementById('bat-pot'); if (!g) return;
+  const host = g.parentElement;
+  ['✨','🌿','💚','✨','🔨'].forEach((e, i) => {
+    const ang = (i / 5) * Math.PI * 2;
+    const s = document.createElement('div');
+    s.textContent = e;
+    s.style.cssText = 'position:absolute;top:26px;left:50%;z-index:27;font-size:1.15rem;pointer-events:none;transform:translate(-50%,0);transition:transform .85s cubic-bezier(.2,.8,.2,1),opacity .85s ease-out';
+    host.appendChild(s);
+    requestAnimationFrame(() => { s.style.transform = 'translate(calc(-50% + ' + Math.round(Math.cos(ang) * 72) + 'px), ' + Math.round(-32 - Math.abs(Math.sin(ang)) * 46) + 'px)'; s.style.opacity = '0'; });
+    setTimeout(() => s.remove(), 880);
+  });
+  const t = document.createElement('div');
+  t.textContent = 'Palier atteint · ' + label;
+  t.style.cssText = 'position:absolute;top:52px;left:50%;transform:translateX(-50%);z-index:28;background:#c8732a;color:#fff;font-family:Satoshi,sans-serif;font-weight:800;font-size:.7rem;padding:.4rem .85rem;border-radius:100px;box-shadow:0 10px 24px -6px rgba(200,115,42,.6);white-space:nowrap;pointer-events:none;animation:vadFloat 1.7s ease-out forwards';
+  host.appendChild(t);
+  setTimeout(() => t.remove(), 1700);
+}
+
 function initFicheBat() {
   batFicheStep = 0;
   batQueteFilter = 'matched';
   batFicheData._quetesReady = false;
+  batLastPotentiel = 0;
   batFicheRenderStep();
   batTreeInit();
 }
@@ -8381,7 +8472,7 @@ function batFicheRenderStep() {
         ${[['ponctuel','⚡','Ponctuel'],['recurrent','🔄','Récurrent'],['immersif','🏕','Immersif']].map(([id,ic,l])=>`<button class="type-btn${batFicheData.engagement===id?' sel':''}" onclick="batFicheData.engagement='${id}';this.closest('div').querySelectorAll('.type-btn').forEach(b=>b.classList.remove('sel'));this.classList.add('sel');batTreeFinal()"><div style="font-size:1.1rem;margin-bottom:.15rem">${ic}</div><div>${l}</div></button>`).join('')}
       </div>
       <label class="creer-lbl">Pourquoi tu contribues</label>
-      <textarea class="creer-inp" style="height:65px;resize:none" oninput="batFicheData.motivation=this.value">${batFicheData.motivation}</textarea>`;
+      <textarea class="creer-inp" style="height:65px;resize:none" oninput="batFicheData.motivation=this.value;batUpdatePotentiel(true)">${batFicheData.motivation}</textarea>`;
     batTreeFinal();
   } else {
     /* ── Étape 4 · Matching ── */
@@ -8461,6 +8552,8 @@ function batFicheRenderStep() {
     `;
     batMatchViz();
   }
+
+  if (typeof batUpdatePotentiel === 'function') batUpdatePotentiel();
 }
 
 function batSkillToggle(id, btn) {
@@ -8871,6 +8964,7 @@ function batTreeUpdate() {
   const el = document.getElementById('btn-center');
   if (el) el.innerHTML = batCenterHtml();
   if (batFicheStep === 0) batTreeUpdateStep1();
+  if (typeof batUpdatePotentiel === 'function') batUpdatePotentiel(true); // saisie texte : maj silencieuse
 }
 
 function batTreeGrowSkills() {
@@ -8955,6 +9049,7 @@ function batTreeGrowSkills() {
 }
 
 function batTreeFinal() {
+  if (typeof batUpdatePotentiel === 'function') batUpdatePotentiel();
   // Redessine la base (valeurs, lieux, dispos) + nettoie
   batTreeUpdateStep1();
   document.querySelectorAll('[id^="btn-sk-"],[id^="btn-sat-"],[id^="btn-deva-"]').forEach(e=>e.remove());
@@ -9204,8 +9299,88 @@ const SEM_IMPACT_BY_TYPE = {
 let semFicheStep = 0;
 let semFicheData = { nom:'', localisation:'', type:'Fondation', secteur:'ESS', zone:'Nouvelle-Aquitaine', typeFinancement:'', axes:[], reporting:'CSRD', freq:'Trimestriel', kpis:'CO₂ évité, personnes formées, Vadance', selectedKpis:[], selectedCadres:[], selectedCadreItems:{}, selectedODD:[] };
 
+/* ─── Gamification : Portée d'impact vivante pendant la création de la fiche financeur ───
+   Score de COMPLÉTUDE du profil, pas de quantité : chaque section remplie rapporte un
+   montant fixe. Compléter la fiche compte, pas en mettre plus que les autres. Miroir de
+   la « Vadance projetée » (Pilote) et du « Potentiel bâtisseur » (Bâtisseur). ── */
+const SEM_POT_PALIERS = [
+  { min: 85, label: '🚀 Profil complet' },
+  { min: 60, label: '✨ Prêt à publier' },
+  { min: 35, label: '🌟 Bien avancé' },
+  { min: 12, label: '✦ Profil esquissé' },
+];
+let semLastPortee = 0;
+
+function computeSemPortee(d) {
+  d = d || {};
+  let v = 0;
+  // Étape 1 · Organisation.
+  if (d.nom) v += 14;
+  if (d.localisation) v += 12;
+  if (d.typeFinancement) v += 8;
+
+  // Étape 2 · Impacts — présence d'un choix, pas la quantité (équitable).
+  if ((d.axes || []).length) v += 18;
+  if ((d.selectedCadres || []).length) v += 14;
+  if ((d.selectedODD || []).length) v += 14;
+
+  // Étape 3 · Projets à financer — avoir parcouru le matching de Deva.
+  if (d._projetsReady) v += 20;
+
+  return Math.min(100, Math.round(v));
+}
+function semPortee() { return computeSemPortee(semFicheData); }
+const semPorteePalier = (s) => SEM_POT_PALIERS.find(p => s >= p.min) || null;
+
+function semUpdatePotentiel(silent) {
+  const v = semPortee();
+  const bar = document.getElementById('sem-pot-bar');
+  if (!bar) { semLastPortee = v; return; }
+  bar.style.width = v + '%';
+  const valEl = document.getElementById('sem-pot-val'); if (valEl) valEl.textContent = v;
+  const p = semPorteePalier(v);
+  const palEl = document.getElementById('sem-pot-palier'); if (palEl) palEl.textContent = p ? p.label : '';
+  if (!silent) {
+    const delta = v - semLastPortee;
+    if (delta > 0) semPotFloat('+' + delta);
+    const prevP = semPorteePalier(semLastPortee);
+    if (p && (!prevP || p.min > prevP.min)) semPotCelebrate(p.label);
+  }
+  semLastPortee = v;
+}
+
+function semPotFloat(txt) {
+  const g = document.getElementById('sem-pot'); if (!g) return;
+  const f = document.createElement('div');
+  f.textContent = txt + ' ✦';
+  f.style.cssText = 'position:absolute;top:44px;left:50%;transform:translateX(-50%);z-index:26;font-family:Satoshi,sans-serif;font-weight:900;font-size:.92rem;color:#3a6e8c;pointer-events:none;text-shadow:0 2px 6px rgba(255,255,255,.85);animation:vadFloat 1s ease-out forwards';
+  g.parentElement.appendChild(f);
+  setTimeout(() => f.remove(), 1000);
+  g.style.animation = 'none'; void g.offsetWidth; g.style.animation = 'vadPop .42s ease';
+}
+
+function semPotCelebrate(label) {
+  const g = document.getElementById('sem-pot'); if (!g) return;
+  const host = g.parentElement;
+  ['✨','🌟','💧','✨','✦'].forEach((e, i) => {
+    const ang = (i / 5) * Math.PI * 2;
+    const s = document.createElement('div');
+    s.textContent = e;
+    s.style.cssText = 'position:absolute;top:26px;left:50%;z-index:27;font-size:1.15rem;pointer-events:none;transform:translate(-50%,0);transition:transform .85s cubic-bezier(.2,.8,.2,1),opacity .85s ease-out';
+    host.appendChild(s);
+    requestAnimationFrame(() => { s.style.transform = 'translate(calc(-50% + ' + Math.round(Math.cos(ang) * 72) + 'px), ' + Math.round(-32 - Math.abs(Math.sin(ang)) * 46) + 'px)'; s.style.opacity = '0'; });
+    setTimeout(() => s.remove(), 880);
+  });
+  const t = document.createElement('div');
+  t.textContent = 'Palier atteint · ' + label;
+  t.style.cssText = 'position:absolute;top:52px;left:50%;transform:translateX(-50%);z-index:28;background:#3a6e8c;color:#fff;font-family:Satoshi,sans-serif;font-weight:800;font-size:.7rem;padding:.4rem .85rem;border-radius:100px;box-shadow:0 10px 24px -6px rgba(58,110,140,.6);white-space:nowrap;pointer-events:none;animation:vadFloat 1.7s ease-out forwards';
+  host.appendChild(t);
+  setTimeout(() => t.remove(), 1700);
+}
+
 function initFicheSem() {
   semFicheStep = 0;
+  semLastPortee = 0;
   semFicheData._projetsReady = false;
   semFicheData._finances = [];
   semFicheData._financedQuetes = [];
@@ -9235,7 +9410,7 @@ function semFicheRenderStep() {
   if (semFicheStep === 0) {
     c.innerHTML = `
       <label class="creer-lbl">Nom de l'organisation</label>
-      <input class="creer-inp" placeholder="Ex : Fondation Territoires Vivants" value="${semFicheData.nom}" oninput="semFicheData.nom=this.value;semStarUpdateCenter()">
+      <input class="creer-inp" placeholder="Ex : Fondation Territoires Vivants" value="${semFicheData.nom}" oninput="semFicheData.nom=this.value;semStarUpdateCenter();semUpdatePotentiel(true)">
       <label class="creer-lbl">Localisation</label>
       <div style="position:relative" id="sem-loc-wrap">
         <input class="creer-inp" type="text" id="sem-loc-inp" placeholder="Tapez une adresse, ville…"
@@ -9255,7 +9430,7 @@ function semFicheRenderStep() {
       </div>
       <label class="creer-lbl">Mode de financement</label>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem">
-        ${[['Numéraire','💰'],['Mécénat','🎁'],['Nature','🌿'],['Subvention','📋']].map(([t,ic])=>`<button class="type-btn${semFicheData.typeFinancement===t?' sel':''}" onclick="semFicheData.typeFinancement='${t}';this.closest('div').querySelectorAll('.type-btn').forEach(b=>b.classList.remove('sel'));this.classList.add('sel');semStarLights()"><div style="font-size:1rem;margin-bottom:.15rem">${ic}</div><div style="font-size:.68rem">${t}</div></button>`).join('')}
+        ${[['Numéraire','💰'],['Mécénat','🎁'],['Nature','🌿'],['Subvention','📋']].map(([t,ic])=>`<button class="type-btn${semFicheData.typeFinancement===t?' sel':''}" onclick="semFicheData.typeFinancement='${t}';this.closest('div').querySelectorAll('.type-btn').forEach(b=>b.classList.remove('sel'));this.classList.add('sel');semStarLights();semUpdatePotentiel()"><div style="font-size:1rem;margin-bottom:.15rem">${ic}</div><div style="font-size:.68rem">${t}</div></button>`).join('')}
       </div>`;
     semStarBubble('Définissez votre organisation, les étoiles s\'allumeront selon votre zone d\'action…');
   } else if (semFicheStep === 1) {
@@ -9393,6 +9568,8 @@ function semFicheRenderStep() {
     semStarFinal();
     semStarProjets(projets);   // affiche aussi les projets dans la constellation
   }
+
+  if (typeof semUpdatePotentiel === 'function') semUpdatePotentiel();
 }
 
 // Construit la liste des projets (lieux de la démo) à financer, classés par
