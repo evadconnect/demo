@@ -33,9 +33,9 @@ const ICI_PREUVE_META = {
 };
 const ICI_PREUVE_ORDRE = ['declaratif', 'documentaire', 'pairs', 'audit'];
 
-// Plancher par capital (pas de compensation entre capitaux) — configurable.
+// Plancher par capital (pas de compensation entre capitaux), configurable.
 const ICI_PLANCHER = 40;
-// Poids des 3 livres dans le score global (Σ = 1) — configurable.
+// Poids des 3 livres dans le score global (Σ = 1), configurable.
 const ICI_POIDS_LIVRE = { ecologie: 1 / 3, social: 1 / 3, economie_locale: 1 / 3 };
 
 /* ── Catalogue des ICI (seed ≥ 6, 2 par livre).
@@ -272,7 +272,7 @@ let iciMesuresStore = ICI_MESURES_DEMO.map((m) => ({ ...m }));
 function iciMesuresActives() { return iciMesuresStore; }
 function iciSetMode(mode) { window._iciMode = mode; iciRenderMesureImpact(); }
 
-const iciFmtScore = (v) => (v == null ? '—' : Math.round(v));
+const iciFmtScore = (v) => (v == null ? '-' : Math.round(v));
 
 // Triptyque + global + Vadance/Vadité distinctes + taux de tenue + alerte plancher.
 function iciRenderMesureImpact() {
@@ -312,12 +312,12 @@ function iciRenderMesureImpact() {
         </div>
         <div style="display:flex;gap:.35rem;flex-shrink:0">${tab('vadance', 'Vadance')}${tab('vadite', 'Vadité')}</div>
       </div>
-      ${b.alertePlancher ? `<div style="display:flex;align-items:center;gap:.5rem;background:rgba(184,78,53,.08);border:1px solid rgba(184,78,53,.25);border-radius:var(--r);padding:.6rem .85rem;margin-bottom:.8rem;font-size:.7rem;color:var(--terracotta);font-weight:600">⚠ Un capital est sous le plancher (${iciFmtScore(b.minCapital)}/${b.plancher}) — score global à interpréter avec prudence. Pas de compensation entre capitaux.</div>` : ''}
+      ${b.alertePlancher ? `<div style="display:flex;align-items:center;gap:.5rem;background:rgba(184,78,53,.08);border:1px solid rgba(184,78,53,.25);border-radius:var(--r);padding:.6rem .85rem;margin-bottom:.8rem;font-size:.7rem;color:var(--terracotta);font-weight:600">⚠ Un capital est sous le plancher (${iciFmtScore(b.minCapital)}/${b.plancher}), score global à interpréter avec prudence. Pas de compensation entre capitaux.</div>` : ''}
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin-bottom:.9rem">${triptyque}</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem">
         ${globalBox('#018262', 'Vadance · promesse', iciFmtScore(b.vadanceGlobal) + '<span style="font-size:.65rem;opacity:.4">/100</span>', 'score global projeté')}
         ${globalBox('#3a6e8c', 'Vadité · preuve', iciFmtScore(b.vaditeGlobal) + '<span style="font-size:.65rem;opacity:.4">/100</span>', 'global prouvé · décoté preuve')}
-        ${globalBox('#c8732a', 'Taux de tenue', (b.tauxDeTenue == null ? '—' : Math.round(b.tauxDeTenue) + '%'), 'Vadité / Vadance')}
+        ${globalBox('#c8732a', 'Taux de tenue', (b.tauxDeTenue == null ? '-' : Math.round(b.tauxDeTenue) + '%'), 'Vadité / Vadance')}
       </div>
     </div>`;
 }
@@ -374,16 +374,16 @@ function iciRenderSaisie() {
     const ssVit = ssPrv == null ? null : ssPrv * coef;
     const inp = (champ, val, ph) => `<input type="number" inputmode="decimal" value="${val == null ? '' : val}" placeholder="${ph}" oninput="iciSetValeur('${ici.id}','${champ}',this.value)" style="width:74px;box-sizing:border-box;padding:.35rem .5rem;border:1.5px solid rgba(46,102,66,.2);border-radius:8px;font-size:.72rem;outline:none;font-family:inherit;background:#f6faf7">`;
     const sel = `<select onchange="iciSetValeur('${ici.id}','niveauPreuve',this.value)" style="padding:.35rem .4rem;border:1.5px solid rgba(46,102,66,.2);border-radius:8px;font-size:.68rem;background:#f6faf7;font-family:inherit;max-width:120px">
-        <option value="">— preuve —</option>
+        <option value="">- preuve -</option>
         ${ICI_PREUVE_ORDRE.map((p) => `<option value="${p}" ${m.niveauPreuve === p ? 'selected' : ''}>${ICI_PREUVE_META[p].ic} ${ICI_PREUVE_META[p].label}</option>`).join('')}
       </select>`;
     return `<div style="display:grid;grid-template-columns:minmax(0,1.5fr) auto auto auto;gap:.55rem;align-items:center;padding:.6rem .3rem;border-bottom:1px solid rgba(46,102,66,.07)">
       <div style="min-width:0">
         <div style="font-size:.74rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${meta.ic} ${ici.nom}</div>
-        <div style="font-size:.6rem;color:var(--moss);opacity:.65">${meta.label} · ${ici.unite} · sous-score ${ssVad == null ? '—' : Math.round(ssVad)} → preuve ${ssVit == null ? '—' : Math.round(ssVit)}</div>
+        <div style="font-size:.6rem;color:var(--moss);opacity:.65">${meta.label} · ${ici.unite} · sous-score ${ssVad == null ? '-' : Math.round(ssVad)} → preuve ${ssVit == null ? '-' : Math.round(ssVit)}</div>
       </div>
-      <div style="text-align:center"><div style="font-size:.52rem;color:var(--forest);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.18rem">Projetée</div>${inp('valeurProjetee', m.valeurProjetee, '—')}</div>
-      <div style="text-align:center"><div style="font-size:.52rem;color:var(--sky);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.18rem">Prouvée</div>${inp('valeurProuvee', m.valeurProuvee, '—')}</div>
+      <div style="text-align:center"><div style="font-size:.52rem;color:var(--forest);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.18rem">Projetée</div>${inp('valeurProjetee', m.valeurProjetee, '-')}</div>
+      <div style="text-align:center"><div style="font-size:.52rem;color:var(--sky);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.18rem">Prouvée</div>${inp('valeurProuvee', m.valeurProuvee, '-')}</div>
       <div style="text-align:center"><div style="font-size:.52rem;color:var(--moss);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.18rem">Niveau</div>${sel}</div>
     </div>`;
   }).join('');
@@ -398,7 +398,7 @@ function iciRenderSaisie() {
   box.innerHTML = `<div class="dash-card" style="margin-bottom:1rem">
     <div style="margin-bottom:.5rem">
       <div style="font-size:.82rem;font-weight:700;color:var(--ink)">📝 Mes ICI · saisie</div>
-      <div style="font-size:.64rem;color:var(--moss);opacity:.7;margin-top:.1rem">${sols ? icis.length + ' ICI portés par tes solutions déclarées' : 'Aucune solution déclarée — voici les ICI du référentiel (démo)'}. Saisis une fois : valeur <strong style="color:var(--forest)">projetée</strong> (→ Vadance), puis <strong style="color:var(--sky)">prouvée</strong> + niveau de preuve (→ Vadité).</div>
+      <div style="font-size:.64rem;color:var(--moss);opacity:.7;margin-top:.1rem">${sols ? icis.length + ' ICI portés par tes solutions déclarées' : 'Aucune solution déclarée, voici les ICI du référentiel (démo)'}. Saisis une fois : valeur <strong style="color:var(--forest)">projetée</strong> (→ Vadance), puis <strong style="color:var(--sky)">prouvée</strong> + niveau de preuve (→ Vadité).</div>
     </div>
     ${devaNote}
     ${rows}
@@ -449,9 +449,9 @@ function iciRenderExports() {
   const rows = ICI_CATALOG.map((ici) => {
     const meta = ICI_LIVRE_META[ici.livre];
     const ex = ICI_EXPORTS[ici.id] || { odd: [], esrs: [], vsme: [] };
-    const odd = ex.odd.map((n) => { const m = oddMeta[n] || { c: '#3f7e44' }; return chip('ODD ' + n, m.c); }).join('') || '—';
-    const esrs = ex.esrs.map((e) => chip('ESRS ' + e + (esrsLbl[e] ? ' · ' + esrsLbl[e] : ''), '#3a6e8c')).join('') || '—';
-    const vsme = ex.vsme.map((v) => chip(v, '#c8732a')).join('') || '—';
+    const odd = ex.odd.map((n) => { const m = oddMeta[n] || { c: '#3f7e44' }; return chip('ODD ' + n, m.c); }).join('') || '-';
+    const esrs = ex.esrs.map((e) => chip('ESRS ' + e + (esrsLbl[e] ? ' · ' + esrsLbl[e] : ''), '#3a6e8c')).join('') || '-';
+    const vsme = ex.vsme.map((v) => chip(v, '#c8732a')).join('') || '-';
     return `<tr style="border-bottom:1px solid rgba(46,102,66,.07)">
       <td style="padding:.5rem .4rem;font-size:.72rem;font-weight:600;color:var(--ink);white-space:nowrap">${meta.ic} ${ici.nom}</td>
       <td style="padding:.45rem .4rem">${odd}</td>

@@ -231,7 +231,7 @@ function reseauPublish(){
   const role = (typeof currentRole !== 'undefined' && currentRole) ? currentRole : 'pilote';
   const isQuete = reseauFormType === 'quete';
   const post = {
-    profile: role, author: 'Toi', lieu: lieu || '—', time: 'à l\'instant',
+    profile: role, author: 'Toi', lieu: lieu || '-', time: 'à l\'instant',
     type: isQuete ? 'quete' : 'rencontre', regen: reseauFormRegen,
     text: message || titre,
     cta: isQuete ? 'Rejoindre la quête' : 'Proposer un créneau',

@@ -937,9 +937,9 @@ function lieuRenderPresentation() {
   ).join('');
 
   const infos = [
-    ['Surface', cData.surface || '—'],
-    ['Fondé en', cData.annee || '—'],
-    ['Statut', cData.statut ? STATUTS_MAP[cData.statut]||cData.statut : '—'],
+    ['Surface', cData.surface || '-'],
+    ['Fondé en', cData.annee || '-'],
+    ['Statut', cData.statut ? STATUTS_MAP[cData.statut]||cData.statut : '-'],
   ];
 
   const contactLinks = [
@@ -1123,7 +1123,7 @@ function lieuRenderEspaces() {
     const col  = meta.c  || '#4a8c5c';
     const bg   = meta.bg || 'rgba(74,140,92,0.08)';
     const ic   = meta.ic || '📦';
-    const typeLabel = meta.l || esp.eid || '—';
+    const typeLabel = meta.l || esp.eid || '-';
 
     // Fonctions
     const fnChips = (esp.fonctions || []).map((fid, i) => {
@@ -1346,11 +1346,11 @@ function renderLieuFluxTable() {
   espaces.forEach(esp => {
     (esp.inputs  || []).forEach(fid => {
       if (!inputMap.has(fid))  inputMap.set(fid, new Set());
-      inputMap.get(fid).add(esp.nom || '—');
+      inputMap.get(fid).add(esp.nom || '-');
     });
     (esp.outputs || []).forEach(fid => {
       if (!outputMap.has(fid)) outputMap.set(fid, new Set());
-      outputMap.get(fid).add(esp.nom || '—');
+      outputMap.get(fid).add(esp.nom || '-');
     });
   });
 
@@ -2218,7 +2218,7 @@ const MAP_SEMEURS = [
     graines_engages:48000, graines_retournes:31000, contrats_actifs:3, score_impact:86,
     focus:['Transition énergétique','ESS','Alimentation durable'], esrs:['E1','E5','S3'],
     lieux_finances:['Darwin Écosystème','La Halle des Douves','Le Garage Moderne'],
-    prochain_jalon:"Comité d'engagement Néo Terra — mars 2026",
+    prochain_jalon:"Comité d'engagement Néo Terra, mars 2026",
     contact:'Direction Transition écologique'
   },
   {
@@ -2228,7 +2228,7 @@ const MAP_SEMEURS = [
     graines_engages:32000, graines_retournes:18500, contrats_actifs:3, score_impact:79,
     focus:['Tiers-lieux','Biodiversité','Résilience territoriale'], esrs:['E4','S3'],
     lieux_finances:['Le Jardin de ta Sœur','La Maison Écocitoyenne',"Les Vivres de l'Art"],
-    prochain_jalon:'Validation du budget participatif — avril 2026',
+    prochain_jalon:'Validation du budget participatif, avril 2026',
     contact:'Service Nature & Transitions'
   },
   {
@@ -2238,7 +2238,7 @@ const MAP_SEMEURS = [
     graines_engages:27000, graines_retournes:15000, contrats_actifs:2, score_impact:83,
     focus:['Énergie','Économie circulaire','Climat'], esrs:['E1','E5'],
     lieux_finances:['Darwin Écosystème','Supercoop'],
-    prochain_jalon:'Audit énergétique des lieux financés — Q2 2026',
+    prochain_jalon:'Audit énergétique des lieux financés, Q2 2026',
     contact:'Pôle Économie circulaire'
   },
   {
@@ -2248,7 +2248,7 @@ const MAP_SEMEURS = [
     graines_engages:21000, graines_retournes:13200, contrats_actifs:2, score_impact:80,
     focus:['ESS','Emploi','Inclusion'], esrs:['S1','S3'],
     lieux_finances:['Supercoop','Le Garage Moderne'],
-    prochain_jalon:'Renouvellement des garanties — juin 2026',
+    prochain_jalon:'Renouvellement des garanties, juin 2026',
     contact:'Chargé·e de financement ESS'
   },
   {
@@ -2258,7 +2258,7 @@ const MAP_SEMEURS = [
     graines_engages:18000, graines_retournes:9000, contrats_actifs:2, score_impact:77,
     focus:['Entreprise à mission','Lien social','Climat'], esrs:['E1','S3'],
     lieux_finances:['Darwin Écosystème',"Les Vivres de l'Art"],
-    prochain_jalon:"Revue d'impact annuelle — Q1 2026",
+    prochain_jalon:"Revue d'impact annuelle, Q1 2026",
     contact:'MAIF Impact'
   },
   {
@@ -2268,7 +2268,7 @@ const MAP_SEMEURS = [
     graines_engages:14000, graines_retournes:7600, contrats_actifs:2, score_impact:81,
     focus:['Biodiversité','Agriculture bio','Reforestation'], esrs:['E4','E3'],
     lieux_finances:['Le Jardin de ta Sœur','Supercoop'],
-    prochain_jalon:'Sélection appel à projets biodiversité — mai 2026',
+    prochain_jalon:'Sélection appel à projets biodiversité, mai 2026',
     contact:'Déléguée générale'
   }
 ];
@@ -2368,7 +2368,7 @@ const MAP_SEMEURS = [
   {kwh:'7 200',  co2:'12 t', pers:'3 100',  dechets:'22 t', emplois:'18',  fin:'150 k€'},
   {kwh:'11 000', co2:'9 t',  pers:'14 000', dechets:'2 t',  emplois:'9',   fin:'public'},
   {kwh:'5 800',  co2:'15 t', pers:'1 600',  dechets:'6 t',  emplois:'8',   fin:'900 k€'},
-  {kwh:'—',      co2:'3 t',  pers:'2 000',  dechets:'5 t',  emplois:'3',   fin:'60 k€'}
+  {kwh:'-',      co2:'3 t',  pers:'2 000',  dechets:'5 t',  emplois:'3',   fin:'60 k€'}
 ].forEach((im, i) => { if (MAP_PLACES[i] && MAP_PLACES[i].fiche) MAP_PLACES[i].fiche.impact = im; });
 
 // Remplit l'onglet « Impact » de la modale lieu depuis cData (KPIs + score détaillé).
@@ -2399,7 +2399,7 @@ function lieuRenderImpact() {
     const grad = ['linear-gradient(90deg,#4a8c5c,#82b894)','linear-gradient(90deg,#3a6e8c,#6aa0bc)','linear-gradient(90deg,#c8732a,#e8a55a)','linear-gradient(90deg,#7a6ea8,#a09ad8)'];
     scoreEl.innerHTML = `
       <div style="font-size:.58rem;color:var(--sage);text-transform:uppercase;letter-spacing:.12em;opacity:.7;margin-bottom:.5rem">Vadance globale</div>
-      <div style="font-family:'Satoshi', sans-serif;font-size:2.4rem;font-weight:900;color:var(--sun);line-height:1;margin-bottom:.2rem">${score!=null?score:'—'}</div>
+      <div style="font-family:'Satoshi', sans-serif;font-size:2.4rem;font-weight:900;color:var(--sun);line-height:1;margin-bottom:.2rem">${score!=null?score:'-'}</div>
       <div style="font-size:.65rem;color:rgba(255,255,255,.4);margin-bottom:1rem">${score!=null?(cData.scoreTrim?'tendance '+cData.scoreTrim+' ce trimestre':'sur 100'):'à certifier'}</div>
       <div style="display:flex;flex-direction:column;gap:.45rem">
         ${dims.slice(0,4).map((d,i)=>`
@@ -4043,7 +4043,7 @@ function renderStep(){
       </div>
       <label class="creer-lbl">Statut juridique</label>
       <select class="creer-inp" onchange="cData.statut=this.value" style="cursor:pointer">
-        <option value="">— Choisir —</option>
+        <option value="">Choisir</option>
         ${STATUTS.map(([v,l])=>`<option value="${v}" ${cData.statut===v?'selected':''}>${l}</option>`).join('')}
       </select>
       <label class="creer-lbl" style="margin-top:.6rem">Contact</label>
@@ -5137,11 +5137,11 @@ function renderFluxTable() {
   espaces.forEach(esp => {
     (esp.inputs  || []).forEach(fid => {
       if (!inputMap.has(fid))  inputMap.set(fid, new Set());
-      inputMap.get(fid).add(esp.nom || '—');
+      inputMap.get(fid).add(esp.nom || '-');
     });
     (esp.outputs || []).forEach(fid => {
       if (!outputMap.has(fid)) outputMap.set(fid, new Set());
-      outputMap.get(fid).add(esp.nom || '—');
+      outputMap.get(fid).add(esp.nom || '-');
     });
   });
 
@@ -5180,7 +5180,7 @@ const ESRS_DATA=[
   {code:'ESRS S1',name:'Effectifs, propres salariés',sub:'Conditions travail, formation, diversité',pct:34,status:'nok',evad:'S1 Formation',evad_lieux:0},
   {code:'ESRS S2',name:'Travailleurs chaîne de valeur',sub:'Conditions travail fournisseurs',pct:61,status:'ok',evad:'S2 Chaîne valeur',evad_lieux:2},
   {code:'ESRS S3',name:'Communautés affectées',sub:'Impact local, droits humains, engagement',pct:78,status:'ok',evad:'S3 Communauté',evad_lieux:3},
-  {code:'ESRS S4',name:'Consommateurs & clients',sub:'Sécurité produits, vie privée',pct:55,status:'warn',evad:'—',evad_lieux:0},
+  {code:'ESRS S4',name:'Consommateurs & clients',sub:'Sécurité produits, vie privée',pct:55,status:'warn',evad:'-',evad_lieux:0},
   {code:'ESRS G1',name:'Conduite des affaires',sub:'Éthique, anti-corruption',pct:88,status:'ok',evad:'G1 Gouvernance',evad_lieux:2},
 ];
 
@@ -5643,7 +5643,7 @@ function mapShowNewLieu() {
    Une source unique de vérité ; la pastille « ? » se pose sur n'importe quel
    terme et ouvre une bulle « phrase simple + exemple concret ». ── */
 const EVAD_GLOSSARY = {
-  vadance: { ic: '🌱', term: 'Vadance (promesse)', short: "L'impact que ton lieu vise — une note sur 100.", ex: 'Plus tu déclares de solutions à fort impact, plus elle monte.' },
+  vadance: { ic: '🌱', term: 'Vadance (promesse)', short: "L'impact que ton lieu vise, une note sur 100.", ex: 'Plus tu déclares de solutions à fort impact, plus elle monte.' },
   vadite:  { ic: '✅', term: 'Vadité (preuve)', short: 'La part de cette promesse déjà prouvée par des documents.', ex: 'Chaque preuve déposée (facture, photo, mesure) fait monter la Vadité.' },
   taux:    { ic: '⚖️', term: 'Taux de tenue', short: 'Vadité ÷ Vadance : à quel point tu tiens tes promesses.', ex: '100 % = tout ce que tu promets est déjà prouvé.' },
   ici:     { ic: '📈', term: 'ICI · Indicateurs de Changement d’Impact', short: 'Les effets concrets et mesurables de ton lieu.', ex: 'Ex. 900 kg CO₂ évités/an · 12 personnes formées · 500 m² renaturés.' },
@@ -5948,11 +5948,11 @@ function batReflectProfile() {
   const ag = document.getElementById('bat-apercu-graines');
   if (ag) ag.textContent = graines;
   const ags = document.getElementById('bat-apercu-graines-sub');
-  if (ags) ags.textContent = has ? 'bonus profil' : '—';
+  if (ags) ags.textContent = has ? 'bonus profil' : '-';
   const kg = document.getElementById('bat-kpi-graines');
   if (kg) kg.textContent = graines;
   const kc = document.getElementById('bat-kpi-comp');
-  if (kc) kc.textContent = nbComp || '—';
+  if (kc) kc.textContent = nbComp || '-';
 }
 
 // Solde de graines du bâtisseur, dérivé du profil :
@@ -5971,7 +5971,7 @@ function batRenderCompetences() {
   const list = document.getElementById('bat-comp-list');
   const skills = (fd && fd.skills) ? fd.skills.map(id => BAT_SKILLS.find(s => s.id === id)).filter(Boolean) : [];
   const active = document.getElementById('bat-comp-active');
-  if (active) active.textContent = skills.length || '—';
+  if (active) active.textContent = skills.length || '-';
   const mult = document.getElementById('bat-comp-mult');
   if (mult) mult.textContent = '×' + (1 + skills.length * 0.2).toFixed(1);
   if (!list) return;
@@ -6429,7 +6429,7 @@ function renderQueteDetail() {
     <!-- Description -->
     <div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-lg);padding:1rem 1.1rem">
       <div style="font-size:.72rem;font-weight:600;color:var(--ink);margin-bottom:.5rem">📝 Description</div>
-      <p style="font-size:.8rem;color:var(--moss);line-height:1.6;margin:0">${edLight('desc', q.desc || '—')}</p>
+      <p style="font-size:.8rem;color:var(--moss);line-height:1.6;margin:0">${edLight('desc', q.desc || '-')}</p>
     </div>
 
     <!-- Dates -->
@@ -7082,7 +7082,7 @@ function evadReflectLieuInDashboard() {
     const detail = d.localisation || lieuType || '';
     sub.textContent = d.nom + (detail ? ' · ' + detail : '');
   } else {
-    sub.textContent = 'Mon lieu · —';
+    sub.textContent = 'Mon lieu · -';
   }
 }
 
@@ -7274,9 +7274,9 @@ function apercuRender() {
   const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   setTxt('apercu-lieu-nom', (L && L.nom) ? L.nom : 'mon lieu');
   // Comparatif Vadance (promesse) ↔ Vadité (preuve) + taux de tenue
-  setTxt('apercu-vadance-num', hasV ? imp.vadance : '—');
-  setTxt('apercu-vadite-num', hasV ? imp.vadite : '—');
-  setTxt('apercu-taux-num', hasV ? imp.taux + ' %' : '—');
+  setTxt('apercu-vadance-num', hasV ? imp.vadance : '-');
+  setTxt('apercu-vadite-num', hasV ? imp.vadite : '-');
+  setTxt('apercu-taux-num', hasV ? imp.taux + ' %' : '-');
   // Palier
   const palEl = document.getElementById('apercu-palier');
   if (palEl) {
@@ -7314,7 +7314,7 @@ function apercuRender() {
           + '<div style="position:absolute;left:' + PLANCHER + '%;top:-3px;bottom:-3px;width:2px;background:rgba(46,102,66,.45)"></div>'
         + '</div>'
         + '<div style="width:54px;text-align:right;font-family:\'Satoshi\',sans-serif;line-height:1">'
-          + '<span style="font-size:1rem;font-weight:800;color:' + (low ? '#b84e35' : m.col) + '">' + (hasV ? vit : '—') + '</span>'
+          + '<span style="font-size:1rem;font-weight:800;color:' + (low ? '#b84e35' : m.col) + '">' + (hasV ? vit : '-') + '</span>'
           + '<span style="font-size:.62rem;font-weight:700;color:var(--moss);opacity:.5"> / 100</span>'
         + '</div>'
       + '</div>';
@@ -7353,7 +7353,7 @@ function funPlantStage(pct) {
   return '🌰';
 }
 
-// Onglet Impact : le « jardin vivant » — 3 plantes qui poussent (promesse → preuve) + équivalences.
+// Onglet Impact : le « jardin vivant », 3 plantes qui poussent (promesse → preuve) + équivalences.
 function impactRenderEtat() {
   const box = document.getElementById('ici-mesure-impact');
   if (!box) return;
@@ -7389,7 +7389,7 @@ function impactRenderEtat() {
         + '<div style="position:absolute;left:50%;transform:translateX(-50%);bottom:' + (prePx - 4) + 'px;font-size:1.5rem;transition:bottom .7s cubic-bezier(.34,1.3,.5,1);filter:drop-shadow(0 2px 3px rgba(0,0,0,.12))">' + stage + '</div>'
       + '</div>'
       + '<div style="font-size:.68rem;font-weight:700;color:' + m.col + '">' + m.ic + ' ' + m.label + '</div>'
-      + '<div style="font-family:\'Satoshi\',sans-serif;line-height:1;margin-top:.15rem"><span style="font-size:1.05rem;font-weight:800;color:' + m.col + '">' + (hasV ? vit : '—') + '</span><span style="font-size:.6rem;font-weight:700;color:' + (low ? '#b84e35' : 'var(--moss)') + ';opacity:.6"> / ' + (hasV ? vad : '—') + '</span></div>'
+      + '<div style="font-family:\'Satoshi\',sans-serif;line-height:1;margin-top:.15rem"><span style="font-size:1.05rem;font-weight:800;color:' + m.col + '">' + (hasV ? vit : '-') + '</span><span style="font-size:.6rem;font-weight:700;color:' + (low ? '#b84e35' : 'var(--moss)') + ';opacity:.6"> / ' + (hasV ? vad : '-') + '</span></div>'
     + '</div>';
   }).join('');
 
@@ -7408,7 +7408,7 @@ function impactRenderEtat() {
     + '<div class="dash-card" style="margin-bottom:1rem;padding:1.3rem 1.4rem">'
       + '<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.1rem">'
         + '<div><div style="font-size:.82rem;font-weight:800;color:var(--ink)">🌱 Le jardin de ton impact</div><div style="font-size:.66rem;color:var(--moss);opacity:.7;margin-top:.15rem">La silhouette claire, c\'est ta promesse. La plante pleine, c\'est ce que tu as déjà prouvé.</div></div>'
-        + '<div style="text-align:right;flex-shrink:0"><div style="font-family:\'Satoshi\',sans-serif;font-size:1.5rem;font-weight:900;color:var(--forest);line-height:1">' + (hasV ? imp.taux + ' %' : '—') + '</div><div style="font-size:.55rem;font-weight:700;color:var(--moss);opacity:.6;text-transform:uppercase;letter-spacing:.08em">prouvé sur promis</div></div>'
+        + '<div style="text-align:right;flex-shrink:0"><div style="font-family:\'Satoshi\',sans-serif;font-size:1.5rem;font-weight:900;color:var(--forest);line-height:1">' + (hasV ? imp.taux + ' %' : '-') + '</div><div style="font-size:.55rem;font-weight:700;color:var(--moss);opacity:.6;text-transform:uppercase;letter-spacing:.08em">prouvé sur promis</div></div>'
       + '</div>'
       + '<div style="display:flex;gap:.6rem;align-items:flex-end;justify-content:center">' + plants + '</div>'
       + equivBlock
@@ -7467,7 +7467,7 @@ function funValider(id) {
   if (typeof updateApercuFromQuetes === 'function') updateApercuFromQuetes();
   funCelebrate('+' + a.gain + ' 🌱', a.q(qty));
   funCheckBadges(id);
-  if (typeof mmBubble === 'function') mmBubble('🌿 Bravo ! ' + a.q(qty) + ' — ta plante a poussé.');
+  if (typeof mmBubble === 'function') mmBubble('🌿 Bravo ! ' + a.q(qty) + ', ta plante a poussé.');
 }
 
 function funCelebrate(gainTxt, equivTxt) {
@@ -7522,13 +7522,13 @@ function funBadgeToast(ic, label) {
 function evadReflectImpact() {
   const d = evadImpactData();
   const val = document.getElementById('apercu-regen-val');
-  if (val) val.textContent = d.vadance > 0 ? d.vadance : '—';
+  if (val) val.textContent = d.vadance > 0 ? d.vadance : '-';
   const arc = document.getElementById('regen-arc');
   if (arc) arc.style.strokeDashoffset = String(226.2 * (1 - d.vadance / 100));
   const vit = document.getElementById('apercu-vadite-val');
-  if (vit) vit.textContent = d.vadance > 0 ? d.vadite : '—';
+  if (vit) vit.textContent = d.vadance > 0 ? d.vadite : '-';
   const tx = document.getElementById('apercu-taux-val');
-  if (tx) tx.textContent = d.vadance > 0 ? d.taux + '%' : '—';
+  if (tx) tx.textContent = d.vadance > 0 ? d.taux + '%' : '-';
 }
 
 // Marqueur Leaflet du lieu créé par l'utilisateur (pour MAJ live du popup)
@@ -7782,7 +7782,7 @@ function semReflectProfile() {
   const ts = document.getElementById('sem-topbar-sub'); if (ts) ts.textContent = has ? ((sd.type || 'Financeur') + (sd.zone ? ' · ' + sd.zone : '') + ' · profil complété ✓') : 'Semeur · Configure ton profil';
   const hl = document.getElementById('sem-hero-label'); if (hl) hl.textContent = has ? (name + ' · ' + (sd.type || 'Financeur')) : 'Mon organisation · Score RSE Global';
   const hi = document.getElementById('sem-hero-intro'); if (hi) hi.textContent = has ? ('Finance des lieux à impact' + (sd.zone ? ' alignés ' + sd.zone : '') + '.' + (esrs ? ' ' + esrs + ' cadre(s) ESRS ciblé(s).' : '')) : 'Configure ton profil RSE pour commencer';
-  const ke = document.getElementById('sem-kpi-esrs'); if (ke) ke.textContent = esrs || '—';
+  const ke = document.getElementById('sem-kpi-esrs'); if (ke) ke.textContent = esrs || '-';
   const pf = document.getElementById('sem-portefeuille-list');
   if (pf && has) pf.innerHTML = '<div style="padding:1rem;text-align:center;font-size:.72rem;color:var(--moss);opacity:.6">Aucun lieu financé pour l\'instant. Finance un lieu aligné ' + (sd.zone || 'ton territoire') + ' depuis la carte 🌱</div>';
 }
@@ -8257,7 +8257,7 @@ let batFicheData = { prenom:'', nom:'', ville:'', lat:null, lng:null, dispo:[], 
 /* ─── Gamification : Potentiel bâtisseur vivant pendant la création de la fiche ───
    Score de COMPLÉTUDE du profil, pas de quantité : chaque section remplie rapporte
    un montant fixe, quel que soit le nombre d'items. Déclarer 1 compétence vaut
-   autant que 5 — équitable pour tous les profils. ── */
+   autant que 5, équitable pour tous les profils. ── */
 const BAT_POT_PALIERS = [
   { min: 85, label: '🚀 Profil complet' },
   { min: 60, label: '✨ Prêt à publier' },
@@ -8269,7 +8269,7 @@ let batLastPotentiel = 0;
 function computeBatPotentiel(d) {
   d = d || {};
   let v = 0;
-  // Étape 1 · Identité — présence d'une info, pas sa longueur.
+  // Étape 1 · Identité, présence d'une info, pas sa longueur.
   if (d.prenom && d.nom) v += 8;
   if (d.ville) v += 8;
   if (d.bio && String(d.bio).trim().length > 15) v += 9;
@@ -8277,7 +8277,7 @@ function computeBatPotentiel(d) {
   if ((d.valeurs || []).length || (d.valeurAutre || '').trim()) v += 8;
   if ((d.lieuType || []).length) v += 8;
 
-  // Étape 2 · Compétences — présence uniquement (équitable quel que soit le nombre).
+  // Étape 2 · Compétences, présence uniquement (équitable quel que soit le nombre).
   const skills = d.skills || [];
   if (skills.length) {
     v += 14;
@@ -8853,7 +8853,7 @@ function batMatchViz() {
     batLineAdd(cx, cy, qx, qy, col + '99', dashed, delay);
 
     setTimeout(() => {
-      const shortTitle = q.titre.split('—')[0].trim();
+      const shortTitle = q.titre.split('-')[0].trim();
       const label = shortTitle.length > 20 ? shortTitle.substring(0, 18) + '…' : shortTitle;
       const node = batNodeAdd('qm-' + q.id,
         `<div style="text-align:center;line-height:1.3">
@@ -8872,7 +8872,7 @@ function batMatchViz() {
   setTimeout(() => {
     const top = scored[0];
     const nb80 = scored.filter(q => q.score >= 65).length;
-    batTreeBubble(`Meilleur match : "${top.titre.split('—')[0].trim()}" · ${top.score}%, ${nb80} quête${nb80 > 1 ? 's' : ''} très compatibles · Clique pour postuler`);
+    batTreeBubble(`Meilleur match : "${top.titre.split('-')[0].trim()}" · ${top.score}%, ${nb80} quête${nb80 > 1 ? 's' : ''} très compatibles · Clique pour postuler`);
   }, scored.length * 110 + 200);
 }
 
@@ -9319,12 +9319,12 @@ function computeSemPortee(d) {
   if (d.localisation) v += 12;
   if (d.typeFinancement) v += 8;
 
-  // Étape 2 · Impacts — présence d'un choix, pas la quantité (équitable).
+  // Étape 2 · Impacts, présence d'un choix, pas la quantité (équitable).
   if ((d.axes || []).length) v += 18;
   if ((d.selectedCadres || []).length) v += 14;
   if ((d.selectedODD || []).length) v += 14;
 
-  // Étape 3 · Projets à financer — avoir parcouru le matching de Deva.
+  // Étape 3 · Projets à financer, avoir parcouru le matching de Deva.
   if (d._projetsReady) v += 20;
 
   return Math.min(100, Math.round(v));
@@ -11050,8 +11050,8 @@ function renderFicheFluxTable() {
   const inputMap  = new Map();
   const outputMap = new Map();
   ficheEspaces.forEach(esp => {
-    (esp.inputs  || []).forEach(fid => { if (!inputMap.has(fid))  inputMap.set(fid, new Set()); inputMap.get(fid).add(esp.nom || '—'); });
-    (esp.outputs || []).forEach(fid => { if (!outputMap.has(fid)) outputMap.set(fid, new Set()); outputMap.get(fid).add(esp.nom || '—'); });
+    (esp.inputs  || []).forEach(fid => { if (!inputMap.has(fid))  inputMap.set(fid, new Set()); inputMap.get(fid).add(esp.nom || '-'); });
+    (esp.outputs || []).forEach(fid => { if (!outputMap.has(fid)) outputMap.set(fid, new Set()); outputMap.get(fid).add(esp.nom || '-'); });
   });
 
   if (inputMap.size === 0 && outputMap.size === 0) { table.style.display = 'none'; return; }

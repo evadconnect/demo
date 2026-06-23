@@ -54,7 +54,7 @@ function openQueteModal(qid) {
             ${stat('⏱ '+q.duree,'Durée')}
             ${stat('👥 '+q.nb,'Équipe')}
             ${stat(q.graines+' 🌱','Graines','var(--amber)')}
-            ${stat((sol?CPLX[sol.cplx]||'—':'—'),'Niveau')}
+            ${stat((sol?CPLX[sol.cplx]||'-':'-'),'Niveau')}
           </div>`
   +     (q.impact ? `<div style="background:rgba(74,140,92,.08);border:1px solid rgba(74,140,92,.2);border-radius:10px;padding:.55rem .75rem;font-size:.74rem;color:var(--forest);font-weight:600;margin-bottom:.9rem">📈 Impact : ${q.impact}</div>` : '')
   +     (sol && sol.desc ? `<div style="font-size:.55rem;font-weight:700;color:var(--moss);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem">La solution</div><p style="font-size:.78rem;color:var(--ink);line-height:1.6;margin-bottom:1rem">${sol.desc}</p>` : '')
@@ -199,8 +199,8 @@ function syncPiloteQuetesFromLieu() {
       id: id,
       titre: q.titre || ('Quête · ' + nom),
       statut: 'ouverte',
-      duree: q.duree || '—',
-      nb: q.nb || '—',
+      duree: q.duree || '-',
+      nb: q.nb || '-',
       graines: sol.tok || 50,
       impact: q.impact_quete || sol.impact || '',
       source: nom,
@@ -281,7 +281,7 @@ function renderPiloteQuetes() {
     const stats = document.querySelectorAll('#pilote-panel-quetes .lq-stat-val');
     if (stats[0]) stats[0].textContent = '0';
     if (stats[2]) stats[2].textContent = '0';
-    if (stats[3]) stats[3].textContent = '—';
+    if (stats[3]) stats[3].textContent = '-';
     return;
   }
 
@@ -332,7 +332,7 @@ function renderPiloteQuetes() {
   const stats = document.querySelectorAll('#pilote-panel-quetes .lq-stat-val');
   if (stats[0]) stats[0].textContent = nbActives;
   if (stats[2]) stats[2].textContent = nbTerminees;
-  if (stats[3]) stats[3].textContent = totalGraines || '—';
+  if (stats[3]) stats[3].textContent = totalGraines || '-';
 
   // Message Deva
   const msg = document.getElementById('deva-quetes-msg');
@@ -819,9 +819,9 @@ function renderImpact() {
   if (srcTxt) srcTxt.textContent = `Données issues de ${nb} action${nb>1?'s':''} terrain`;
 
   if (nb === 0) {
-    // Tout reste à "—"
+    // Tout reste à "-"
     ['impact-kpi-regen','impact-kpi-co2','impact-kpi-personnes','impact-kpi-preuves'].forEach(id => {
-      const el = document.getElementById(id); if (el) el.textContent = '—';
+      const el = document.getElementById(id); if (el) el.textContent = '-';
     });
     const pl = document.getElementById('impact-proof-list');
     if (pl) pl.innerHTML = `<div style="padding:1.5rem;text-align:center;font-size:.78rem;color:var(--moss);opacity:.5">Aucune action saisie, documente via <span style="color:var(--fern);cursor:pointer;font-weight:600" onclick="piloteTab('dossiers',document.getElementById('ptab-dossiers'))">la perma-comptabilité →</span></div>`;
@@ -861,8 +861,8 @@ function renderImpact() {
   // ── KPIs ──
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   set('impact-kpi-regen',    regenScore + ' / 100');
-  set('impact-kpi-co2',      co2Total > 0 ? (co2Total / 1000).toFixed(2) + ' t' : '—');
-  set('impact-kpi-personnes', personnesTotal > 0 ? personnesTotal : '—');
+  set('impact-kpi-co2',      co2Total > 0 ? (co2Total / 1000).toFixed(2) + ' t' : '-');
+  set('impact-kpi-personnes', personnesTotal > 0 ? personnesTotal : '-');
   set('impact-kpi-preuves',  nb);
   set('impact-kpi-regen-trend',    regenScore >= 50 ? '✦ Éligible financement Semeur' : 'en progression');
   set('impact-kpi-co2-trend',      co2Total > 0 ? 'mesurées via perma-compta' : 'à mesurer');
@@ -874,7 +874,7 @@ function renderImpact() {
     const pct = max > 0 ? Math.min(100, Math.round(val / max * 100)) : 0;
     const f = document.getElementById(fillId); if (f) f.style.width = pct + '%';
     const v = document.getElementById(valId);
-    if (v) v.textContent = val > 0 ? (val >= 1000 ? Math.round(val/1000*10)/10 + ' t' : Math.round(val) + ' ' + unit) : '—';
+    if (v) v.textContent = val > 0 ? (val >= 1000 ? Math.round(val/1000*10)/10 + ' t' : Math.round(val) + ' ' + unit) : '-';
   };
   setBar('imp-bar-alim',  'imp-bar-val-alim',  alimentKg,    500,  'kg');
   setBar('imp-bar-pers',  'imp-bar-val-pers',  personnesTotal, 50, 'pers.');
@@ -965,7 +965,7 @@ function renderJournal() {
   list.innerHTML = [...actionsTerrains].reverse().map((a, idx) => {
     const realIdx = nb - 1 - idx;
     const icon  = PC_ICONS[a.type] || '⚡';
-    const date  = a.date ? new Date(a.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short' }) : '—';
+    const date  = a.date ? new Date(a.date).toLocaleDateString('fr-FR', { day:'numeric', month:'short' }) : '-';
     const src   = a.source === 'quete' ? ' · via quête' : '';
     const m     = CONVERGENCE_MATRIX[a.type];
     const u1    = m ? m.units.u1 : '';
@@ -1080,7 +1080,7 @@ function initDossiers() {
 
   const _set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   _set('doss-nb-actions', nbActions);
-  _set('doss-economie', ecoTotal ? ecoTotal.toLocaleString('fr-FR') + '€' : '—');
+  _set('doss-economie', ecoTotal ? ecoTotal.toLocaleString('fr-FR') + '€' : '-');
   _set('doss-completude', compMoy + '%');
 
 }
@@ -1203,11 +1203,11 @@ function ouvrirDossier(id) {
                 <div class="ind-row-label">${data.label || data.unite || code}</div>
                 ${data.sources ? `<div class="ind-row-source">Sources : ${data.sources.join(' · ')}</div>` : ''}
               </div>
-              <div class="ind-row-val">${typeof data.val === 'number' ? data.val.toLocaleString('fr-FR') : '—'} <span style="font-size:.58rem;font-weight:400;color:var(--moss)">${data.unite || ''}</span></div>
+              <div class="ind-row-val">${typeof data.val === 'number' ? data.val.toLocaleString('fr-FR') : '-'} <span style="font-size:.58rem;font-weight:400;color:var(--moss)">${data.unite || ''}</span></div>
             </div>`).join('')
         : d.indicateurs_cles.map(ic => `
             <div class="ind-row" style="opacity:.45">
-              <span class="ind-row-code conv-badge esrs">—</span>
+              <span class="ind-row-code conv-badge esrs">-</span>
               <div class="ind-row-label">${ic}</div>
               <div class="ind-row-val" style="color:var(--moss)">En attente</div>
             </div>`).join('');
