@@ -5558,14 +5558,14 @@ function mapShowNewLieu() {
       <!-- Vadance (promesse) + Vadité (preuve) -->
       <div style="margin:.85rem .85rem .2rem;background:white;border:1px solid rgba(46,102,66,.12);border-radius:var(--r-lg);padding:.75rem 1rem">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem">
-          <span style="font-size:.65rem;font-weight:700;color:var(--ink)">Vadance <span style="font-weight:500;opacity:.55">(promesse)</span></span>
+          <span style="font-size:.65rem;font-weight:700;color:var(--ink)">Vadance <span style="font-weight:500;opacity:.55">(promesse)</span>${evadGlossaryChip('vadance')}</span>
           <span style="font-size:1.3rem;font-weight:900;color:var(--amber)">${_imp.vadance}</span>
         </div>
         <div class="score-bar-bg" style="height:6px;border-radius:3px;background:rgba(46,102,66,.1)">
           <div style="height:6px;border-radius:3px;width:${_imp.vadance}%;background:linear-gradient(90deg,var(--fern),var(--amber));transition:width .6s ease"></div>
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:.55rem;padding-top:.5rem;border-top:1px solid rgba(46,102,66,.08)">
-          <span style="font-size:.65rem;font-weight:700;color:var(--ink)">✅ Vadité <span style="font-weight:500;opacity:.55">(preuve)</span></span>
+          <span style="font-size:.65rem;font-weight:700;color:var(--ink)">✅ Vadité <span style="font-weight:500;opacity:.55">(preuve)</span>${evadGlossaryChip('vadite')}</span>
           <span style="font-size:1.1rem;font-weight:900;color:var(--fern)">${_imp.vadite}</span>
         </div>
         <div class="score-bar-bg" style="height:6px;border-radius:3px;background:rgba(46,102,66,.1);margin-top:.3rem">
@@ -5573,7 +5573,7 @@ function mapShowNewLieu() {
         </div>
         <div style="display:flex;justify-content:space-between;margin-top:.45rem">
           <span style="font-size:.58rem;color:var(--moss);opacity:.7">${solutions.length} solution${solutions.length !== 1 ? 's' : ''} · ${espaces.length} espace${espaces.length !== 1 ? 's' : ''}${statut ? ' · ' + statut : ''}</span>
-          <span style="font-size:.58rem;color:var(--fern);font-weight:700">⚖️ Taux de tenue ${_imp.taux}%</span>
+          <span style="font-size:.58rem;color:var(--fern);font-weight:700">⚖️ Taux de tenue ${_imp.taux}%${evadGlossaryChip('taux')}</span>
         </div>
       </div>
 
@@ -5636,6 +5636,117 @@ function mapShowNewLieu() {
 
   mainPanel.style.display = 'none';
   panel.style.display = '';
+}
+
+/* ─── Glossaire d'impact : démystifie le vocabulaire EVAD ───
+   Une source unique de vérité ; la pastille « ? » se pose sur n'importe quel
+   terme et ouvre une bulle « phrase simple + exemple concret ». ── */
+const EVAD_GLOSSARY = {
+  vadance: { ic: '🌱', term: 'Vadance (promesse)', short: "L'impact que ton lieu vise — une note sur 100.", ex: 'Plus tu déclares de solutions à fort impact, plus elle monte.' },
+  vadite:  { ic: '✅', term: 'Vadité (preuve)', short: 'La part de cette promesse déjà prouvée par des documents.', ex: 'Chaque preuve déposée (facture, photo, mesure) fait monter la Vadité.' },
+  taux:    { ic: '⚖️', term: 'Taux de tenue', short: 'Vadité ÷ Vadance : à quel point tu tiens tes promesses.', ex: '100 % = tout ce que tu promets est déjà prouvé.' },
+  ici:     { ic: '📈', term: 'ICI · Indicateurs de Changement d’Impact', short: 'Les effets concrets et mesurables de ton lieu.', ex: 'Ex. 900 kg CO₂ évités/an · 12 personnes formées · 500 m² renaturés.' },
+  vade:    { ic: '🔄', term: 'Boucle VADE', short: 'Ton parcours : Valoriser → Activer → Développer → Élever.', ex: 'Les mêmes 4 étapes pour les trois profils EVAD.' },
+};
+
+// Pastille « ? » cliquable à insérer juste après un terme jargon.
+function evadGlossaryChip(key) {
+  const g = EVAD_GLOSSARY[key];
+  if (!g) return '';
+  return `<button type="button" class="gloss-q" onclick="evadGlossaryShow(event,'${key}')" aria-label="Qu'est-ce que ${g.term} ?" title="Qu'est-ce que c'est ?">?</button>`;
+}
+
+function evadGlossaryShow(e, key) {
+  if (e) e.stopPropagation();
+  const g = EVAD_GLOSSARY[key]; if (!g) return;
+  evadGlossaryClose();
+  const pop = document.createElement('div');
+  pop.id = 'gloss-pop';
+  pop.innerHTML =
+    `<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.32rem"><span style="font-size:.95rem">${g.ic}</span><span style="font-size:.72rem;font-weight:800;color:var(--ink)">${g.term}</span></div>`
+    + `<div style="font-size:.68rem;color:var(--moss);line-height:1.45;margin-bottom:.4rem">${g.short}</div>`
+    + `<div style="font-size:.62rem;color:var(--fern);line-height:1.4;background:rgba(74,140,92,.08);border-radius:7px;padding:.32rem .46rem">💡 ${g.ex}</div>`;
+  document.body.appendChild(pop);
+  const target = (e && (e.currentTarget || e.target)) || document.body;
+  const r = target.getBoundingClientRect();
+  const pr = pop.getBoundingClientRect();
+  let left = r.left + r.width / 2 - pr.width / 2;
+  left = Math.max(8, Math.min(left, window.innerWidth - pr.width - 8));
+  let top = r.bottom + 8;
+  if (top + pr.height > window.innerHeight - 8) top = r.top - pr.height - 8;
+  pop.style.left = left + 'px';
+  pop.style.top = Math.max(8, top) + 'px';
+  // Ferme au prochain clic n'importe où (sans attraper le clic d'ouverture).
+  setTimeout(() => { document.addEventListener('click', evadGlossaryClose, { once: true }); }, 0);
+}
+
+function evadGlossaryClose() {
+  const p = document.getElementById('gloss-pop'); if (p) p.remove();
+}
+
+/* ─── Aperçu de la fiche avant publication (commun aux 3 profils) ───
+   Réutilise EXACTEMENT la carte détaillée de la carte communauté
+   (mapShowNewLieu / Batisseur / Semeur) pour montrer la fiche telle qu'elle
+   apparaîtra, avec confirmation avant l'action irréversible. ── */
+const _PUBLISH_FNS = {
+  lieu: () => { if (typeof createLieuOnMap === 'function') createLieuOnMap(); },
+  bat:  () => { if (typeof publishBatProfil === 'function') publishBatProfil(); },
+  sem:  () => { if (typeof publishSemProfil === 'function') publishSemProfil(); },
+};
+
+// Capture le HTML de la carte « acteur » produite par mapShowNew* sans
+// perturber le panneau réel de la carte : on rend, on lit, on restaure.
+function _captureActeurCard(kind) {
+  const render = { lieu: mapShowNewLieu, bat: mapShowNewBatisseur, sem: mapShowNewSemeur }[kind];
+  const panel = document.getElementById('map-acteur-panel');
+  if (!panel || typeof render !== 'function') return '';
+  const mainPanel = document.getElementById('map-panel-main');
+  const prevHTML = panel.innerHTML, prevDisp = panel.style.display;
+  const prevMain = mainPanel ? mainPanel.style.display : null;
+  render();
+  let html = panel.innerHTML;
+  panel.innerHTML = prevHTML; panel.style.display = prevDisp;
+  if (mainPanel) mainPanel.style.display = prevMain;
+  // En aperçu : la croix interne ferme l'aperçu (pas la carte).
+  return html.replace(/mapCloseActeur\(\)/g, 'closePublishPreview()');
+}
+
+function openPublishPreview(kind) {
+  if (!_PUBLISH_FNS[kind]) return;
+  const card = _captureActeurCard(kind);
+  const old = document.getElementById('publish-preview-modal'); if (old) old.remove();
+  const accent = kind === 'sem' ? '#3a6e8c' : '#018262';
+  const cta = 'Publier' + (kind === 'lieu' ? ' le lieu' : ' la fiche');
+  const ov = document.createElement('div');
+  ov.id = 'publish-preview-modal';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:10020;background:rgba(13,43,34,.62);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:1.2rem;animation:obFadeIn .25s ease';
+  ov.onclick = (e) => { if (e.target === ov) closePublishPreview(); };
+  ov.innerHTML = `
+    <style>#publish-preview-modal .acteur-cta{display:none!important}#publish-preview-modal .acteur-hero>button{display:none!important}#publish-preview-modal .acteur-fiche{padding-bottom:.4rem}</style>
+    <div style="display:flex;flex-direction:column;width:344px;max-width:94vw;max-height:90vh;background:var(--paper);border-radius:var(--r-lg);overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.34);font-family:'Satoshi',sans-serif" onclick="event.stopPropagation()">
+      <div style="display:flex;align-items:center;gap:.4rem;padding:.7rem 1rem;background:#fff;border-bottom:1px solid rgba(46,102,66,.1);flex-shrink:0">
+        <span style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:${accent}">👁 Aperçu avant publication</span>
+        <button onclick="closePublishPreview()" style="margin-left:auto;background:rgba(46,102,66,.08);border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:.7rem;color:var(--moss)">✕</button>
+      </div>
+      <div style="flex:1;overflow-y:auto;min-height:0">${card || '<div style="padding:1.4rem;font-size:.74rem;color:var(--moss)">Aperçu indisponible.</div>'}</div>
+      <div style="display:flex;gap:.6rem;padding:.85rem 1rem;border-top:1px solid rgba(46,102,66,.1);background:#fff;flex-shrink:0">
+        <button onclick="closePublishPreview()" style="flex:1;padding:.65rem;border-radius:100px;border:1.5px solid rgba(46,102,66,.2);background:#fff;color:var(--moss);font-family:inherit;font-weight:700;font-size:.74rem;cursor:pointer">← Continuer l'édition</button>
+        <button onclick="confirmPublishPreview()" style="flex:1.3;padding:.65rem;border-radius:100px;border:none;background:${accent};color:#fff;font-family:inherit;font-weight:800;font-size:.74rem;cursor:pointer;box-shadow:0 8px 20px -8px ${accent}">${cta} →</button>
+      </div>
+    </div>`;
+  document.body.appendChild(ov);
+  window._publishPreviewFn = _PUBLISH_FNS[kind];
+}
+
+function closePublishPreview() {
+  const m = document.getElementById('publish-preview-modal'); if (m) m.remove();
+  window._publishPreviewFn = null;
+}
+
+function confirmPublishPreview() {
+  const fn = window._publishPreviewFn;
+  closePublishPreview();
+  if (typeof fn === 'function') fn();
 }
 
 /* ─── PUBLIER FICHE BÂTISSEUR → Carte communauté ─── */

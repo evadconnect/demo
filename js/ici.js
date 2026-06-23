@@ -119,7 +119,7 @@ function iciFicheSolutionHTML(solNom, fallbackInd) {
   }
 
   return `
-    <div style="font-family:'Satoshi', sans-serif;font-size:.82rem;font-weight:600;color:var(--ink);margin-bottom:.4rem;padding-bottom:.35rem;border-bottom:1px solid rgba(46,102,66,.1)">🎯 Indicateurs de Changement d'Impact</div>
+    <div style="font-family:'Satoshi', sans-serif;font-size:.82rem;font-weight:600;color:var(--ink);margin-bottom:.4rem;padding-bottom:.35rem;border-bottom:1px solid rgba(46,102,66,.1)">🎯 Indicateurs de Changement d'Impact${typeof evadGlossaryChip==='function'?evadGlossaryChip('ici'):''}</div>
     <div style="font-size:.63rem;color:var(--moss);line-height:1.5;margin-bottom:.55rem">Cette solution embarque ses ICI : la donnée que ton lieu mesurera, du point de départ (T0) à la cible. L'impact, c'est la flèche, le changement attribuable.</div>
     ${corps}
     <div style="display:flex;align-items:center;gap:.25rem;flex-wrap:wrap;margin:.5rem 0 1rem;padding:.45rem .6rem;background:rgba(58,110,140,.05);border:1px solid rgba(58,110,140,.14);border-radius:var(--r)">

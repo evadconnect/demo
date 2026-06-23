@@ -3732,3 +3732,8 @@ body {
 @keyframes vadFloat { 0%{opacity:0;transform:translateX(-50%) translateY(6px) scale(.9)} 18%{opacity:1} 100%{opacity:0;transform:translateX(-50%) translateY(-28px) scale(1)} }
 @keyframes vadPop { 0%{transform:translateX(-50%) scale(1)} 40%{transform:translateX(-50%) scale(1.07)} 100%{transform:translateX(-50%) scale(1)} }
 .creer-doc-spin { width:14px; height:14px; flex-shrink:0; border:2px solid rgba(46,102,66,.25); border-top-color:var(--forest); border-radius:50%; animation:spin .7s linear infinite; display:inline-block; }
+
+/* Glossaire d'impact : pastille « ? » + bulle explicative (démystifie ICI, Vadance, Vadité…) */
+.gloss-q { display:inline-flex; align-items:center; justify-content:center; width:15px; height:15px; border-radius:50%; background:rgba(46,102,66,.12); color:var(--moss); font-size:.62rem; font-weight:800; line-height:1; cursor:pointer; vertical-align:middle; margin-left:.25rem; border:none; padding:0; font-family:'Satoshi',sans-serif; flex-shrink:0; transition:background .15s,transform .15s; }
+.gloss-q:hover { background:rgba(46,102,66,.24); transform:scale(1.12); }
+#gloss-pop { position:fixed; z-index:10050; width:max-content; max-width:248px; background:#fff; border:1px solid rgba(46,102,66,.15); border-radius:12px; box-shadow:0 14px 38px -10px rgba(0,30,20,.36); padding:.7rem .8rem; font-family:'Satoshi',sans-serif; animation:obFadeIn .16s ease; }
