@@ -9,6 +9,9 @@ const PILOTE_QUETES_DEMO = [];
 /* État des quêtes validées (session) */
 const quetesValidees = new Set();
 
+/* Filtre actif de la liste des quêtes Pilote : toutes | a_publier | ouvertes | terminees */
+let piloteQueteFilter = 'toutes';
+
 /* ─── Modal de présentation d'une quête (depuis la solution source) ─── */
 function openQueteModal(qid) {
   const q = (typeof PILOTE_QUETES_DEMO !== 'undefined') ? PILOTE_QUETES_DEMO.find(x => x.id === qid) : null;
@@ -299,8 +302,15 @@ function renderPiloteQuetes() {
   const nbDossiers = 8;
   const isVal = (id) => (typeof quetesValidees !== 'undefined') && quetesValidees.has(id);
 
+  const F = (typeof piloteQueteFilter !== 'undefined') ? piloteQueteFilter : 'toutes';
   const aVerifier = PILOTE_QUETES_DEMO.filter(q => q.statut === 'a_verifier');
   const enLigne   = PILOTE_QUETES_DEMO.filter(q => q.statut === 'ouverte');
+  // Sections affichées selon le filtre actif
+  const enLigneActives = enLigne.filter(q => !isVal(q.id));   // publiées, non terminées
+  const terminees      = enLigne.filter(q =>  isVal(q.id));   // validées / propagées
+  const showAverif    = (F === 'toutes' || F === 'a_publier');
+  const showOuvertes  = (F === 'toutes' || F === 'ouvertes');
+  const showTerminees = (F === 'toutes' || F === 'terminees');
 
   const card = (q) => {
     const estAVerif  = q.statut === 'a_verifier';
@@ -335,7 +345,7 @@ function renderPiloteQuetes() {
   };
 
   let html = '';
-  if (aVerifier.length) {
+  if (showAverif && aVerifier.length) {
     html += `
       <div style="display:flex;align-items:center;justify-content:space-between;gap:.7rem;background:rgba(200,115,42,.08);border:1px solid rgba(200,115,42,.22);border-radius:var(--r-lg);padding:.65rem .9rem;margin-bottom:.75rem">
         <div style="font-size:.72rem;color:#8a4a1a;line-height:1.45">🕓 <b>${aVerifier.length} quête${aVerifier.length>1?'s':''} proposée${aVerifier.length>1?'s':''}</b> par Deva à vérifier avant publication. Seules les quêtes publiées sont visibles par les bâtisseurs.</div>
@@ -343,9 +353,20 @@ function renderPiloteQuetes() {
       </div>`;
     html += aVerifier.map(card).join('');
   }
-  if (enLigne.length) {
-    html += `<div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--moss);opacity:.65;margin:${aVerifier.length ? '1.1rem' : '.2rem'} 0 .55rem">🟢 En ligne · ${enLigne.length}</div>`;
-    html += enLigne.map(card).join('');
+  if (showOuvertes && enLigneActives.length) {
+    html += `<div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--moss);opacity:.65;margin:${html ? '1.1rem' : '.2rem'} 0 .55rem">🟢 En ligne · ${enLigneActives.length}</div>`;
+    html += enLigneActives.map(card).join('');
+  }
+  if (showTerminees && terminees.length) {
+    html += `<div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--moss);opacity:.65;margin:${html ? '1.1rem' : '.2rem'} 0 .55rem">✓ Terminées · ${terminees.length}</div>`;
+    html += terminees.map(card).join('');
+  }
+  if (!html) {
+    const labels = { a_publier: 'à publier', ouvertes: 'ouverte', terminees: 'terminée' };
+    html = `<div style="text-align:center;padding:2.2rem 1rem;color:var(--moss);opacity:.5">
+      <div style="font-size:1.6rem;margin-bottom:.6rem">⚡</div>
+      <div style="font-size:.76rem;font-weight:600">Aucune quête ${labels[F] || ''} pour l'instant</div>
+    </div>`;
   }
   container.innerHTML = html;
 
