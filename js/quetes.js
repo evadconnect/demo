@@ -198,7 +198,7 @@ function syncPiloteQuetesFromLieu() {
     PILOTE_QUETES_DEMO.push({
       id: id,
       titre: q.titre || ('Quête · ' + nom),
-      statut: 'ouverte',
+      statut: 'a_verifier',
       duree: q.duree || '-',
       nb: q.nb || '-',
       graines: sol.tok || 50,
@@ -210,6 +210,16 @@ function syncPiloteQuetesFromLieu() {
   sols.forEach(_pushQuete);
   // Démo : on garantit un jeu de quêtes fonctionnelles prêtes à l'emploi.
   ['Compostage partagé', 'Repair café', 'AMAP circuit court', 'Jardin permaculture', 'Panneaux solaires PV', 'Récupération eau de pluie'].forEach(_pushQuete);
+
+  // Persistance + reprise du statut vérifié (le Pilote publie quête par quête).
+  if (window.store) {
+    const lieuId = (d && d.id) || 'lieu-demo';
+    PILOTE_QUETES_DEMO.forEach(qq => {
+      const saved = store.get('quetes', qq.id);
+      if (saved && saved.statut) qq.statut = saved.statut;
+      store.upsert('quetes', { id: qq.id, lieu_id: lieuId, titre: qq.titre, statut: qq.statut, duree: qq.duree, nb: qq.nb, graines: qq.graines, source: qq.source });
+    });
+  }
 }
 
 /* ─── Détection automatique du type de convergence ─── */
@@ -285,69 +295,100 @@ function renderPiloteQuetes() {
     return;
   }
 
-  const nbValidees = quetesValidees.size;
   const nbDossiers = 8;
+  const isVal = (id) => (typeof quetesValidees !== 'undefined') && quetesValidees.has(id);
 
-  container.innerHTML = PILOTE_QUETES_DEMO.map(q => {
-    const estValidee = quetesValidees.has(q.id);
-    const statut     = estValidee ? 'validee' : q.statut;
-    const statutLabel = { 'ouverte':'Ouverte', 'en-cours':'En cours', 'validee':'✓ Propagée' }[statut];
-    const type       = detectConvType(q.titre, q.impact);
-    const badges     = renderQueteConvBadges(q);
-    const propagBadge = estValidee
-      ? `<span class="pq-propag-badge visible">✦ ${nbDossiers} dossiers mis à jour</span>`
-      : '';
+  const aVerifier = PILOTE_QUETES_DEMO.filter(q => q.statut === 'a_verifier');
+  const enLigne   = PILOTE_QUETES_DEMO.filter(q => q.statut === 'ouverte');
 
+  const card = (q) => {
+    const estAVerif  = q.statut === 'a_verifier';
+    const estValidee = !estAVerif && isVal(q.id);
+    const badges = renderQueteConvBadges(q);
+    const statutHtml = estAVerif
+      ? `<span class="pq-status a-verifier">🕓 À vérifier</span>`
+      : estValidee
+        ? `<span class="pq-status validee">✓ Propagée</span>`
+        : `<span class="pq-status ouverte">🟢 En ligne</span>`;
+    const actions = estAVerif
+      ? `<button class="btn btn-primary" style="font-size:.74rem;font-weight:700;padding:.5rem 1.1rem" onclick="piloteQuetePublier('${q.id}')">✓ Publier</button>
+         <button class="btn btn-ghost" style="font-size:.72rem;padding:.5rem .9rem" onclick="openPiloteQueteFiche('${q.id}')">Vérifier le détail →</button>
+         <button class="btn btn-ghost" style="font-size:.7rem;padding:.5rem .8rem;color:var(--moss);opacity:.65" onclick="piloteQueteRetirer('${q.id}')">✕ Retirer</button>`
+      : `<button class="btn btn-ghost" style="font-size:.74rem;padding:.5rem 1.1rem" onclick="openPiloteQueteFiche('${q.id}')">Voir détail →</button>
+         ${estValidee ? `<span class="pq-propag-badge visible">✦ ${nbDossiers} dossiers mis à jour</span>` : `<span style="font-size:.62rem;color:var(--fern);font-weight:600;margin-left:.2rem">✓ Visible par les bâtisseurs</span>`}`;
     return `
-      <div class="pq-card" id="pq-${q.id}" style="${estValidee ? 'opacity:.7' : ''}">
+      <div class="pq-card" id="pq-${q.id}" style="${estAVerif ? 'border-left:3px solid var(--amber)' : ''}${estValidee ? ';opacity:.78' : ''}">
         <div class="pq-card-top">
           <div class="pq-card-title">${q.titre}</div>
-          <span class="pq-status ${statut}">${statutLabel}</span>
+          ${statutHtml}
         </div>
         <div class="pq-card-meta">
           <span>⏱ ${q.duree}</span>
           <span>👥 ${q.nb}</span>
           <span>🌱 ${q.graines} graines</span>
-          <span style="color:var(--fern);font-weight:600">${q.impact.split('·')[0].trim()}</span>
+          <span style="color:var(--fern);font-weight:600">${(q.impact || '').split('·')[0].trim()}</span>
         </div>
         ${badges}
-        <div class="pq-actions">
-          <button class="btn btn-primary" style="font-size:.8rem;font-weight:700;padding:.55rem 1.3rem"
-            onclick="openPiloteQueteFiche('${q.id}')">Voir détail →</button>
-          ${estValidee ? `<span style="font-size:.65rem;color:var(--fern);font-weight:600;margin-left:.2rem">✓ Validée</span>` : ''}
-          ${propagBadge}
-          ${type ? `<span style="font-size:.58rem;color:var(--moss);opacity:.45;margin-left:auto">Type : ${CONVERGENCE_MATRIX[type]?.label || type}</span>` : ''}
-        </div>
+        <div class="pq-actions">${actions}</div>
       </div>`;
-  }).join('');
+  };
 
-  // Mise à jour stats KPI
-  const nbActives   = PILOTE_QUETES_DEMO.filter(q => !quetesValidees.has(q.id) && q.statut !== 'terminee').length;
-  const nbTerminees = quetesValidees.size;
-  const totalGraines = [...quetesValidees].reduce((s, id) => {
-    const q = PILOTE_QUETES_DEMO.find(x => x.id === id);
-    return s + (q ? q.graines : 0);
-  }, 0);
+  let html = '';
+  if (aVerifier.length) {
+    html += `
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:.7rem;background:rgba(200,115,42,.08);border:1px solid rgba(200,115,42,.22);border-radius:var(--r-lg);padding:.65rem .9rem;margin-bottom:.75rem">
+        <div style="font-size:.72rem;color:#8a4a1a;line-height:1.45">🕓 <b>${aVerifier.length} quête${aVerifier.length>1?'s':''} proposée${aVerifier.length>1?'s':''}</b> par Deva à vérifier avant publication. Seules les quêtes publiées sont visibles par les bâtisseurs.</div>
+        <button class="btn btn-primary" style="font-size:.72rem;font-weight:700;padding:.45rem 1rem;white-space:nowrap" onclick="piloteQuetesPublierToutes()">Tout publier →</button>
+      </div>`;
+    html += aVerifier.map(card).join('');
+  }
+  if (enLigne.length) {
+    html += `<div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--moss);opacity:.65;margin:${aVerifier.length ? '1.1rem' : '.2rem'} 0 .55rem">🟢 En ligne · ${enLigne.length}</div>`;
+    html += enLigne.map(card).join('');
+  }
+  container.innerHTML = html;
 
+  // Stats KPI : « actives » = quêtes en ligne
+  const nbTerminees = (typeof quetesValidees !== 'undefined') ? quetesValidees.size : 0;
+  const totalGraines = enLigne.reduce((s, q) => s + (isVal(q.id) ? (q.graines || 0) : 0), 0);
   const stats = document.querySelectorAll('#pilote-panel-quetes .lq-stat-val');
-  if (stats[0]) stats[0].textContent = nbActives;
+  if (stats[0]) stats[0].textContent = enLigne.length;
   if (stats[2]) stats[2].textContent = nbTerminees;
   if (stats[3]) stats[3].textContent = totalGraines || '-';
 
   // Message Deva
   const msg = document.getElementById('deva-quetes-msg');
   if (msg) {
-    if (nbValidees === 0) {
-      msg.textContent = 'Valide une quête pour la propager automatiquement dans tes dossiers FSE+, CSRD et PCAET.';
-    } else if (nbValidees < 3) {
-      msg.textContent = `${nbValidees} quête${nbValidees>1?'s':''} validée${nbValidees>1?'s':''} → données propagées dans ${nbDossiers} dossiers. Continue : chaque validation enrichit tes rapports.`;
-    } else {
-      msg.textContent = `${nbValidees} quêtes validées → tes dossiers CSRD et FSE+ sont maintenant renseignés. Génère un rapport depuis l'onglet Dossiers.`;
-    }
+    if (aVerifier.length) msg.textContent = `${aVerifier.length} quête${aVerifier.length>1?'s':''} à vérifier : ouvre le détail, puis publie celles qui te conviennent. Seules les quêtes publiées sont visibles par les bâtisseurs.`;
+    else if (enLigne.length) msg.textContent = `Tes ${enLigne.length} quête${enLigne.length>1?'s':''} sont en ligne. Valide une preuve depuis le détail pour la propager dans tes dossiers CSRD/FSE+.`;
   }
 
   // Répercute sur l'aperçu (Vadance + wallet graines)
   if (typeof updateApercuFromQuetes === 'function') updateApercuFromQuetes();
+}
+
+/* ─── Vérification → mise en ligne des quêtes (le Pilote publie quête par quête) ─── */
+function piloteQuetePublier(id) {
+  const q = PILOTE_QUETES_DEMO.find(x => x.id === id); if (!q) return;
+  q.statut = 'ouverte';
+  if (window.store) store.update('quetes', id, { statut: 'ouverte' });
+  if (typeof mmBubble === 'function') mmBubble('🟢 Quête publiée · désormais visible par les bâtisseurs');
+  renderPiloteQuetes();
+}
+function piloteQueteRetirer(id) {
+  const q = PILOTE_QUETES_DEMO.find(x => x.id === id); if (!q) return;
+  q.statut = 'retiree';
+  if (window.store) store.update('quetes', id, { statut: 'retiree' });
+  if (typeof mmBubble === 'function') mmBubble('Quête retirée des propositions');
+  renderPiloteQuetes();
+}
+function piloteQuetesPublierToutes() {
+  let n = 0;
+  PILOTE_QUETES_DEMO.forEach(q => {
+    if (q.statut === 'a_verifier') { q.statut = 'ouverte'; if (window.store) store.update('quetes', q.id, { statut: 'ouverte' }); n++; }
+  });
+  if (typeof mmBubble === 'function') mmBubble('🟢 ' + n + ' quête' + (n > 1 ? 's' : '') + ' publiée' + (n > 1 ? 's' : '') + ' · visibles par les bâtisseurs');
+  renderPiloteQuetes();
 }
 
 /* ─── Validation d'une quête → propagation dans actionsTerrains ─── */

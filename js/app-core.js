@@ -5619,7 +5619,7 @@ function mapShowNewLieu() {
       </div>` : ''}
 
       ${quetes.length ? `
-      <div style="font-size:.62rem;font-weight:700;color:var(--moss);opacity:.55;text-transform:uppercase;letter-spacing:.1em;margin:0 .85rem .4rem">⚡ Quêtes ouvertes · ${quetes.length}</div>
+      <div style="font-size:.62rem;font-weight:700;color:var(--moss);opacity:.55;text-transform:uppercase;letter-spacing:.1em;margin:0 .85rem .4rem">⚡ Quêtes proposées · ${quetes.length}</div>
       <div style="display:flex;flex-direction:column;gap:.35rem;margin:0 .85rem .8rem">
         ${quetes.map(q => {
           const CAT_COL = {eau:'#2a7cb8',electricite:'#b08800',construction:'#8b6914',alimentaire:'#4a8c5c',dechets:'#2e9970',biodiversite:'#3a7a3a',social:'#7a5a9a'};

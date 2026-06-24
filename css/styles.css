@@ -2958,6 +2958,7 @@ body {
 .pq-card-meta span { font-size:.6rem;color:var(--moss);opacity:.65; }
 .pq-status { font-size:.6rem;font-weight:700;padding:.18rem .55rem;border-radius:100px;white-space:nowrap;flex-shrink:0; }
 .pq-status.ouverte  { background:rgba(74,140,92,.1);color:var(--fern); }
+.pq-status.a-verifier { background:rgba(200,115,42,.14);color:#8a4a1a; }
 .pq-status.en-cours { background:rgba(200,115,42,.1);color:var(--amber); }
 .pq-status.validee  { background:rgba(74,140,92,.18);color:var(--fern);text-decoration:line-through;opacity:.7; }
 .pq-actions { display:flex;gap:.5rem;align-items:center;margin-top:.55rem; }
