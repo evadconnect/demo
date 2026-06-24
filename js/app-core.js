@@ -4106,9 +4106,12 @@ function renderStep(){
     // Deva pré-sélectionne les solutions à la première visite
     if(!cData.solsByEspace || Object.keys(cData.solsByEspace).length===0){
       cData.solsByEspace={};
+      const _seenSols=new Set();   // une solution n'est proposée qu'une seule fois
       espItems.forEach(({eid},idx)=>{
         const meta=ESPS.find(e=>e.id===eid);
-        cData.solsByEspace[idx]=[...(meta?.sols||[])];
+        const sols=(meta?.sols||[]).filter(n=>!_seenSols.has(n));
+        sols.forEach(n=>_seenSols.add(n));
+        cData.solsByEspace[idx]=sols;
       });
       cData.solutions=[...new Set(Object.values(cData.solsByEspace).flat())];
       // La présélection ajoute des solutions APRÈS le 1er calcul de jauge :
@@ -5540,8 +5543,8 @@ function mapShowNewLieu() {
   const quetes = solutions.map(nom => {
     const sol = typeof SOLS !== 'undefined' ? SOLS.find(s => s.nom === nom) : null;
     if (!sol || !sol.quete) return null;
-    return { ...sol.quete, source: nom, sourceIc: sol.img || '✦', cat: sol.cat };
-  }).filter(Boolean).slice(0, 3);
+    return { ...sol.quete, source: nom, sourceIc: sol.img || '✦', cat: sol.cat, tok: sol.tok || 50 };
+  }).filter(Boolean);
 
   // FN_TO_ESPS for domain color mapping
   const _FN_TO_ESPS = {cuisine:'cuisine',cafe:'cafe',cantine:'cafe',coworking:'bureau',reunion:'bureau',atelier:'atelier',fablab:'fablab',scene:'salle',expo:'salle',boutique:'boutique',biblio:'salle',formation:'salle',jardin:'jardin',serre:'serre',compost:'jardin',hebergement:'dortoir',sport:'salle',meditation:'salle',stockage:'bureau',autre:'cafe'};
@@ -5624,7 +5627,7 @@ function mapShowNewLieu() {
               ${q.impact_quete ? `<div style="font-size:.57rem;color:${col};font-weight:600;margin-top:.2rem">📈 ${q.impact_quete}</div>` : ''}
             </div>
             <div style="flex-shrink:0;text-align:right;padding-top:.1rem">
-              <div style="font-size:.68rem;font-weight:800;color:var(--amber)">+120</div>
+              <div style="font-size:.68rem;font-weight:800;color:var(--amber)">+${q.tok}</div>
               <div style="font-size:.5rem;color:var(--moss);opacity:.5">🌱 graines</div>
             </div>
           </div>`;
@@ -11134,11 +11137,17 @@ function ficheMmRender() {
     return { esp, eid, ic: fn?.ic || '📦', c: style.c, bg: style.bg };
   });
 
-  // Pre-fill solutions from ESPS suggestions on first render
+  // Pre-fill solutions from ESPS suggestions on first render (une solution
+  // n'est présélectionnée que sur le premier espace concerné — pas de doublon).
+  const _seenMmSols = new Set();
   espItems.forEach((item, i) => {
     if (!ficheSolsByEspace[i]) {
       const meta = ESPS.find(e => e.id === item.eid);
-      ficheSolsByEspace[i] = meta ? [...(meta.sols || [])].slice(0, 3) : [];
+      const sols = (meta ? (meta.sols || []) : []).filter(n => !_seenMmSols.has(n)).slice(0, 3);
+      sols.forEach(n => _seenMmSols.add(n));
+      ficheSolsByEspace[i] = sols;
+    } else {
+      ficheSolsByEspace[i].forEach(n => _seenMmSols.add(n));
     }
   });
 
