@@ -6057,10 +6057,15 @@ function batBuildQuetesFromProfile() {
     const matchedSkills = skills.filter(sk => (BAT_SKILL_KW[sk] || []).some(k => text.includes(k)));
     const matched = matchedSkills.length > 0;
     // lieu hôte : un lieu dont le type accueille cette solution, sinon rotation
-    let host = lieux.find(l => {
-      const tid = (typeof TYPES_LIEU !== 'undefined') ? (TYPES_LIEU.find(t => t.l === l.type) || {}).id : null;
-      return tid && (sol.lieux || []).includes(tid);
-    }) || lieux[idx % Math.max(1, lieux.length)] || { nom: 'Lieu EVAD', ville: 'Bordeaux' };
+    // Ces quêtes sont les quêtes PUBLIÉES d'un lieu : on affiche le vrai nom de ce lieu.
+    const _srcNom = ((typeof myLieuData !== 'undefined' && myLieuData && myLieuData.nom) || (typeof cData !== 'undefined' && cData && cData.nom) || '');
+    const _srcVille = ((typeof myLieuData !== 'undefined' && myLieuData && (myLieuData.localisation || myLieuData.ville)) || (typeof cData !== 'undefined' && cData && cData.localisation) || 'Bordeaux');
+    let host = _srcNom
+      ? { nom: _srcNom, ville: _srcVille }
+      : (lieux.find(l => {
+          const tid = (typeof TYPES_LIEU !== 'undefined') ? (TYPES_LIEU.find(t => t.l === l.type) || {}).id : null;
+          return tid && (sol.lieux || []).includes(tid);
+        }) || lieux[idx % Math.max(1, lieux.length)] || { nom: 'Lieu EVAD', ville: 'Bordeaux' });
     const villeMatch = ville && host.ville && host.ville.toLowerCase().includes(ville);
     let match = 62 + (matched ? 28 : 0) + (villeMatch ? 8 : 0) - (idx % 3);
     match = Math.max(55, Math.min(99, match));
