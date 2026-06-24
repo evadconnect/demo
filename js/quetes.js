@@ -144,7 +144,8 @@ function openPiloteQueteFiche(qid) {
     tokens: pq.graines || 50, co2: (sol && sol.co2) || 0,
     esrs: ((sol && sol.esrs) || []).map(e => String(e).replace('ESRS ', '').trim()),
     financement: { objectif: 0, montant: 0, semeur: null },
-    equipe: [{ i: 'M', c: '#4a8c5c' }], dates: ['Samedi · 9h–17h', 'Dimanche · 9h–13h']
+    equipe: [{ i: 'M', c: '#4a8c5c' }], dates: ['Samedi · 9h–17h', 'Dimanche · 9h–13h'],
+    srcId: pq.id, published: pq.statut === 'ouverte'
   }, 'pilote');
 }
 

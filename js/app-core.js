@@ -3037,20 +3037,10 @@ function setBddLieu(id, btn){
 }
 
 function bddUpdateContext(){
+  // Bandeau « Solutions recommandées » et pré-filtrage contextuel retirés :
+  // la Bibliothèque s'ouvre sur « Tous ».
   const banner=document.getElementById('bdd-context-banner');
-  if(!banner) return;
-  // Chercher le type de lieu actif (fiche pilote en cours)
-  const type = (typeof cData !== 'undefined' && cData.type) ? cData.type : null;
-  if(!type){ banner.style.display='none'; return; }
-  const tl = (typeof TYPES_LIEU !== 'undefined' ? TYPES_LIEU : []).find(t=>t.id===type);
-  if(!tl){ banner.style.display='none'; return; }
-  const count = SOLS.filter(s=>(s.lieux||[]).includes(type)).length;
-  document.getElementById('bdd-ctx-icon').textContent = tl.ic;
-  document.getElementById('bdd-ctx-text').textContent = `Solutions recommandées pour ton ${tl.l}`;
-  document.getElementById('bdd-ctx-count').textContent = `${count} solution${count>1?'s':''} compatibles`;
-  banner.style.display='flex';
-  // Pré-filtrer automatiquement
-  setBddLieu(type, document.getElementById('bdd-lieu-chip-'+type));
+  if(banner) banner.style.display='none';
 }
 
 function initBDD(){
@@ -6053,7 +6043,13 @@ function batBuildQuetesFromProfile() {
   const ville = (fd.ville || '').trim().toLowerCase();
   const lieux = (typeof MAP_PLACES !== 'undefined') ? MAP_PLACES : [];
   BAT_QUETES.length = 0;
-  SOLS.filter(s => s.quete).forEach((sol, idx) => {
+  // On ne propose au bâtisseur que les quêtes effectivement publiées par les pilotes
+  // (statut 'ouverte' dans PILOTE_QUETES_DEMO, reliées à leur solution par .source).
+  if (typeof syncPiloteQuetesFromLieu === 'function') { try { syncPiloteQuetesFromLieu(); } catch (e) {} }
+  const publishedSols = (typeof PILOTE_QUETES_DEMO !== 'undefined')
+    ? new Set(PILOTE_QUETES_DEMO.filter(q => q.statut === 'ouverte').map(q => q.source))
+    : new Set();
+  SOLS.filter(s => s.quete && publishedSols.has(s.nom)).forEach((sol, idx) => {
     const text = (sol.nom + ' ' + (sol.cat || '') + ' ' + sol.quete.titre).toLowerCase();
     const matchedSkills = skills.filter(sk => (BAT_SKILL_KW[sk] || []).some(k => text.includes(k)));
     const matched = matchedSkills.length > 0;
@@ -6096,6 +6092,14 @@ function batRenderQuetes() {
   const list = document.getElementById('bat-quetes-list');
   if (!list) return;
   batBuildQuetesFromProfile();
+  if (!BAT_QUETES.length) {
+    list.innerHTML = `<div style="text-align:center;padding:2.5rem 1.2rem;color:var(--moss)">
+      <div style="font-size:2rem;margin-bottom:.75rem">🌱</div>
+      <div style="font-size:.85rem;font-weight:700;color:var(--ink);margin-bottom:.4rem">Aucune quête publiée pour l'instant</div>
+      <div style="font-size:.72rem;opacity:.75;line-height:1.55">Les quêtes apparaîtront ici dès qu'un Pilote en publiera sur son lieu.</div>
+    </div>`;
+    return;
+  }
   let quetes = [...BAT_QUETES];
   if (batCurrentFilter === 'proches') quetes = quetes.filter(q => q.ville === 'Bordeaux' || q.ville === 'Libourne');
   if (batCurrentFilter === 'competences') quetes = quetes.filter(q => q.match >= 85);
@@ -6206,27 +6210,19 @@ function showQueteFiche(quest, from) {
   showScreen('quete-detail');
 }
 
-// Boutons d'action de la fiche quête, selon le rôle actif.
-function qdActionButtons() {
-  const B = (l, fn, kind) => {
-    const base = 'width:100%;border:none;border-radius:100px;padding:.6rem 1rem;font-size:.78rem;font-weight:700;cursor:pointer;font-family:\'Satoshi\',sans-serif;text-align:center';
-    const styles = {
-      primary: 'background:var(--forest);color:#fff',
-      ghost:   'background:rgba(46,102,66,.07);color:var(--forest);border:1px solid rgba(46,102,66,.2)',
-      danger:  'background:rgba(184,78,53,.08);color:var(--terracotta);border:1px solid rgba(184,78,53,.25)'
-    };
-    return `<button onclick="${fn}" style="${base};${styles[kind] || styles.ghost}">${l}</button>`;
-  };
-  const byRole = {
-    pilote: [B('✏️ Modifier', 'qdModifier()', 'ghost'), B('⏸ Mettre en pause', 'qdPause()', 'ghost'), B('🗑 Supprimer', 'qdSupprimer()', 'danger'), B('✅ Valider la preuve', 'qdValider()', 'primary')],
-    batisseur: [B('✅ Rejoindre', 'qdJoindre()', 'primary'), B('✉️ Contacter le Pilote', 'qdContactPilote()', 'ghost'), B('📎 Déposer la preuve', 'qdDeposerPreuve()', 'ghost')],
-    semeur: [B('💰 Financer', 'qdFinancer()', 'primary'), B('✉️ Contacter le Pilote', 'qdContactPilote()', 'ghost')]
-  };
-  const btns = byRole[currentRole] || byRole.batisseur;
-  return `<div style="background:white;border:1px solid rgba(46,102,66,.1);border-radius:var(--r-lg);padding:.9rem 1rem;display:flex;flex-direction:column;gap:.5rem">
-    <div style="font-size:.72rem;font-weight:600;color:var(--ink);margin-bottom:.1rem">⚡ Actions</div>
-    ${btns.join('')}
-  </div>`;
+// Ouvre la fiche lieu rattachée à la quête : lieu du réseau (MAP_PLACES) sinon lieu du Pilote courant.
+function qdVoirLieu() {
+  const q = qdQuest(); if (!q) return;
+  const nom = q.lieu || q.pilote;
+  const idx = (typeof MAP_PLACES !== 'undefined') ? MAP_PLACES.findIndex(p => p.nom === nom) : -1;
+  if (idx >= 0) { openLieuModalFromPlace(idx); return; }
+  // Quête du Pilote sur son propre lieu → on affiche sa fiche (myLieuData).
+  if (typeof myLieuData !== 'undefined' && myLieuData && myLieuData.nom) {
+    try { cData = Object.assign(_CDATA_EMPTY(), myLieuData); } catch (e) {}
+    openLieuModal();
+    return;
+  }
+  if (typeof mmBubble === 'function') mmBubble('Aucune fiche lieu rattachée à cette quête');
 }
 
 // ─── Actions fonctionnelles de la fiche quête (mutent la quête + re-render) ───
@@ -6334,6 +6330,11 @@ function qdSupprimer() {
 
 function queteDetailBack() {
   showScreen(_qdFrom);
+  // showScreen('pilote') réinitialise sur l'onglet Aperçu : on rétablit l'onglet
+  // Quêtes, d'où la fiche quête du Pilote est toujours ouverte.
+  if (_qdFrom === 'pilote' && typeof piloteTab === 'function') {
+    try { piloteTab('quetes', document.getElementById('ptab-quetes')); } catch (e) {}
+  }
 }
 
 function renderQueteDetail() {
@@ -6363,9 +6364,11 @@ function renderQueteDetail() {
   const ctas = {
     batisseur: q.joined ? done('✓ Tu participes') : `<button class="btn btn-primary" onclick="qdJoindre()">✅ Rejoindre cette quête</button>`,
     semeur: funded ? done('✓ Quête financée') : `<button class="btn btn-primary" onclick="qdFinancer()">💰 Financer cette quête</button>`,
-    pilote: q.validated ? done('✓ Quête validée') : `<button class="btn btn-ghost" onclick="qdModifier()">✏️ Modifier</button><button class="btn btn-primary" onclick="qdValider()">✅ Valider la preuve</button>`
+    // Pilote : pas de bouton dans le bandeau, les actions vivent dans
+    // « Gestion de la quête » (publier/modifier) et « Preuves des bâtisseurs » (valider).
+    pilote: ''
   };
-  const _qdta = document.getElementById('qd-topbar-actions'); if (_qdta) _qdta.innerHTML = ctas[currentRole] || ctas.batisseur;
+  const _qdta = document.getElementById('qd-topbar-actions'); if (_qdta) _qdta.innerHTML = (currentRole in ctas) ? ctas[currentRole] : ctas.batisseur;
 
   // Étapes = le plan d'action de la Bibliothèque (sinon labels génériques)
   const _planSteps = (q.plan && q.plan.length) ? q.plan : null;
@@ -6441,10 +6444,11 @@ function renderQueteDetail() {
         ${q.joined ? '<span style="font-size:.62rem;padding:.18rem .5rem;border-radius:100px;background:rgba(74,140,92,.2);color:#9be3a6;border:1px solid rgba(74,140,92,.35);font-weight:700">✓ Tu participes</span>' : ''}
       </div>
       <div style="font-family:'Satoshi', sans-serif;font-size:1.5rem;font-weight:900;color:white;line-height:1.15;margin-bottom:.5rem">${edDark('titre', q.titre)}</div>
-      <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:1rem;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:${ED ? '1rem' : '.7rem'};flex-wrap:wrap">
         <div style="font-size:.72rem;color:rgba(255,255,255,.5)">🏡 Pilote : ${edDark('pilote', q.pilote)}</div>
         <div style="font-size:.72rem;color:rgba(255,255,255,.5)">⏱ ${edDark('duree', q.duree)}</div>
       </div>
+      ${ED ? '' : `<button onclick="qdVoirLieu()" style="display:inline-flex;align-items:center;gap:.35rem;margin-bottom:1rem;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:100px;padding:.4rem .85rem;font-size:.7rem;font-weight:700;cursor:pointer;font-family:inherit">🏡 Voir le lieu →</button>`}
       <div style="display:flex;gap:.8rem;flex-wrap:wrap">
         <div style="text-align:center;background:rgba(255,255,255,.07);border-radius:var(--r);padding:.55rem .9rem">
           <div style="font-family:'Satoshi', sans-serif;font-size:1.3rem;font-weight:900;color:var(--amber)">${edDark('tokens', q.tokens, true)}</div>
@@ -6459,6 +6463,27 @@ function renderQueteDetail() {
           <div style="font-size:.55rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.1em">participants</div>
         </div>
       </div>
+      ${(() => {
+        // Progression vers la récolte : graines déjà gagnées / total, indexées sur les étapes franchies.
+        const gtot = q.tokens || 0;
+        const gfait = Math.max(0, Math.min(_stepCount, (q.etape_actuelle || 1) - 1));
+        const gpct = q.validated ? 100 : (_stepCount ? Math.round(gfait / _stepCount * 100) : 0);
+        const ggain = q.validated ? gtot : Math.round(gtot * gpct / 100);
+        const reste = Math.max(0, _stepCount - gfait);
+        const hint = q.validated
+          ? '🎉 Quête certifiée · graines récoltées !'
+          : reste > 0
+            ? `Plus que ${reste} étape${reste > 1 ? 's' : ''} avant de récolter tes ${gtot} 🌱`
+            : 'Dernière ligne droite · valide pour récolter 🌱';
+        return `<div style="margin-top:1rem;background:rgba(255,255,255,.06);border-radius:var(--r);padding:.7rem .9rem">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
+            <span style="font-size:.6rem;font-weight:700;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:.08em">🌱 Graines récoltées</span>
+            <span style="font-family:'Satoshi', sans-serif;font-size:.9rem;font-weight:900;color:var(--amber)">${ggain} <span style="color:rgba(255,255,255,.4);font-weight:600">/ ${gtot}</span></span>
+          </div>
+          <div style="height:7px;background:rgba(255,255,255,.1);border-radius:100px;overflow:hidden"><div style="height:100%;width:${gpct}%;background:linear-gradient(90deg,#f0b032,#7ab840);border-radius:100px;transition:width .6s cubic-bezier(.34,1.2,.5,1)"></div></div>
+          <div style="font-size:.6rem;color:rgba(255,255,255,.5);margin-top:.4rem">${hint}</div>
+        </div>`;
+      })()}
     </div>
 
     <!-- Description -->
@@ -6641,7 +6666,9 @@ function renderQueteDetail() {
           <button class="btn" style="font-size:.65rem;padding:.3rem .7rem;background:rgba(200,115,42,.1);color:var(--amber);border:1px solid rgba(200,115,42,.25)" onclick="qdCloturer()">🔒 Clôturer</button>
         </div>
         <button class="btn btn-ghost" style="width:100%;font-size:.7rem;margin-bottom:.45rem" onclick="qdModifier()">✏️ Modifier les paramètres →</button>
-        <button class="btn btn-primary" style="width:100%;font-size:.72rem;background:rgba(240,176,50,.16);color:#a06c00;border:1px solid rgba(240,176,50,.35)" onclick="qdPublierReseau()">📣 Publier dans le réseau →</button>
+        ${q.published
+          ? `<button class="btn" style="width:100%;font-size:.72rem;background:rgba(74,140,92,.1);color:var(--fern);border:1px solid rgba(74,140,92,.3)" onclick="qdPublierReseau()">✓ Publiée · revoir au réseau →</button>`
+          : `<button class="btn btn-primary" style="width:100%;font-size:.72rem;background:rgba(240,176,50,.16);color:#a06c00;border:1px solid rgba(240,176,50,.35)" onclick="qdPublier()">📣 Publier la quête →</button>`}
       </div>
 
       <!-- Preuves déposées par les bâtisseurs (à valider une par une) -->
@@ -6763,6 +6790,17 @@ function qdValider() {
 function qdCloturer() {
   const q = qdQuest(); if (!q) return;
   q.closed = true; mmBubble('🔒 Quête clôturée'); qdRerender();
+}
+// Publie la quête : la rend visible aux bâtisseurs (statut 'ouverte') + la pousse au Réseau.
+function qdPublier() {
+  const q = qdQuest(); if (!q) return;
+  q.published = true;
+  // Répercute sur la quête source du Pilote → désormais proposée aux bâtisseurs.
+  if (q.srcId && typeof PILOTE_QUETES_DEMO !== 'undefined') {
+    const src = PILOTE_QUETES_DEMO.find(x => x.id === q.srcId);
+    if (src) { src.statut = 'ouverte'; if (window.store) { try { store.update('quetes', src.id, { statut: 'ouverte' }); } catch (e) {} } }
+  }
+  qdPublierReseau();
 }
 function qdPublierReseau() {
   const q = qdQuest(); if (!q || typeof RESEAU_POSTS === 'undefined') return;
@@ -8587,6 +8625,16 @@ function batFicheRenderStep() {
     }
     // Construit les quêtes à partir des lieux de la démo selon le profil saisi
     if (typeof batBuildQuetesFromProfile === 'function') batBuildQuetesFromProfile();
+    // Aucune quête publiée par les pilotes → rien à proposer (le bâtisseur ne voit que le publié).
+    if (!BAT_QUETES.length) {
+      if (pub) pub.style.display = 'none';
+      c.innerHTML = `<div style="text-align:center;padding:2.5rem 1.2rem;color:var(--moss)">
+        <div style="font-size:2rem;margin-bottom:.75rem">🌱</div>
+        <div style="font-size:.85rem;font-weight:700;color:var(--ink);margin-bottom:.4rem">Aucune quête publiée pour l'instant</div>
+        <div style="font-size:.72rem;opacity:.75;line-height:1.55;max-width:280px;margin:0 auto">Les quêtes apparaîtront ici dès qu'un Pilote en publiera sur son lieu. Reviens bientôt, la communauté sème 🌿</div>
+      </div>`;
+      return;
+    }
     const scored = BAT_QUETES
       .map(q => ({ ...q, score: calcMatch(batFicheData, q) }))
       .sort((a, b) => b.score - a.score);

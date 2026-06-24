@@ -231,7 +231,14 @@ function creerOpenSolDetail(nomSol) {
         <span style="font-size:1rem;font-weight:800;color:white;font-family:'Satoshi',sans-serif;line-height:1.2">${s.nom}</span>
       </div>
     </div>` : `<div style="padding:1rem .9rem 0;display:flex;align-items:center;gap:.5rem"><span style="font-size:1.6rem">${s.img}</span><span style="font-size:1rem;font-weight:800;color:var(--ink);font-family:'Satoshi',sans-serif">${s.nom}</span></div>`}
-    <div style="padding:.9rem">
+    <!-- ONGLETS -->
+    <div style="display:flex;border-bottom:1px solid rgba(46,102,66,.12);background:white;position:sticky;top:0;z-index:10">
+      <button class="creer-sol-tab active" onclick="creerSolSwitchTab('solution',this)" style="flex:1;padding:.7rem;font-size:.78rem;font-weight:600;border:none;background:none;cursor:pointer;color:var(--forest);border-bottom:2px solid var(--forest)">📋 Solution</button>
+      <button class="creer-sol-tab" onclick="creerSolSwitchTab('quete',this)" style="flex:1;padding:.7rem;font-size:.78rem;font-weight:600;border:none;background:none;cursor:pointer;color:var(--moss);opacity:.55;border-bottom:2px solid transparent">⚡ Quête</button>
+    </div>
+
+    <!-- PANNEAU SOLUTION -->
+    <div id="creer-sol-tab-solution" style="padding:.9rem">
       <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.85rem">
         <span style="padding:.2rem .55rem;border-radius:100px;background:${cv.bg};color:${cv.c};font-size:.62rem;font-weight:700">${cv.l}</span>
         <span style="padding:.2rem .55rem;border-radius:100px;background:${cplxMeta.bg};color:${cplxMeta.c};font-size:.62rem;font-weight:700">${cplxMeta.label}</span>
@@ -242,13 +249,33 @@ function creerOpenSolDetail(nomSol) {
       ${budgetHtml}
       ${typeof iciFicheSolutionHTML==='function'?iciFicheSolutionHTML(s.nom,s.ind):''}
       ${typeof iciCorrespondancesHTML==='function'?iciCorrespondancesHTML(s):''}
-      ${queteHtml}
-      ${matHtml}
-      ${planHtml}
+    </div>
+
+    <!-- PANNEAU QUÊTE -->
+    <div id="creer-sol-tab-quete" style="display:none;padding:.9rem">
+      ${(queteHtml||matHtml||planHtml)
+        ? `${queteHtml}${matHtml}${planHtml}`
+        : '<div style="text-align:center;padding:2rem 1rem;color:var(--moss);opacity:.6"><div style="font-size:1.6rem;margin-bottom:.5rem">⚡</div><div style="font-size:.75rem">Aucune quête associée à cette solution.</div></div>'}
     </div>`;
   modal.style.display = 'flex';
+  creerSolSwitchTab('solution');
 }
 
 function creerCloseSolDetail() {
   document.getElementById('creer-sol-detail-modal').style.display = 'none';
+}
+
+/* Bascule entre les onglets Solution / Quête de la fiche solution (création de lieu). */
+function creerSolSwitchTab(tab, btn) {
+  document.querySelectorAll('.creer-sol-tab').forEach(b => {
+    const on = btn ? (b === btn) : (b.getAttribute('onclick') || '').includes("'" + tab + "'");
+    b.classList.toggle('active', on);
+    b.style.color = on ? 'var(--forest)' : 'var(--moss)';
+    b.style.opacity = on ? '1' : '.55';
+    b.style.borderBottom = on ? '2px solid var(--forest)' : '2px solid transparent';
+  });
+  const sol = document.getElementById('creer-sol-tab-solution');
+  const que = document.getElementById('creer-sol-tab-quete');
+  if (sol) sol.style.display = tab === 'solution' ? 'block' : 'none';
+  if (que) que.style.display = tab === 'quete' ? 'block' : 'none';
 }
