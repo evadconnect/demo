@@ -1550,6 +1550,52 @@ const SOLS=[
    photo:'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=800&q=80&auto=format&fit=crop',
    lieux:['cafe','epicerie','tiers','ecole','coworking','ecolieu','ferme'],
    quete:{titre:'Monter le partenariat AMAP',duree:'2 réunions',nb:'2–4 pers.',impact_quete:'+12 pts social · 90% approvisionnement local'}},
+
+  // ── Adaptation à la hausse des températures (+1,7 à +2,6 °C) ──
+  {nom:'Toiture & murs végétalisés',cat:'adaptation',cplx:'moyen',impact:'−3 à −5 °C en toiture',co2:.3,tok:80,img:'🪴',
+   desc:'Couvrir toits et murs d\'une couche végétale (substrat léger + plantes résistantes à la sécheresse) qui isole du chaud comme du froid. La surface abaisse sa température de plusieurs degrés, retient 50 à 80 % des eaux de pluie et crée un refuge de biodiversité. Réduit les besoins de climatisation lors des canicules de plus en plus fréquentes.',
+   avantages:['Abaisse la température intérieure de 2 à 4 °C en été','Retient 50–80 % des eaux de pluie, limite le ruissellement','Double l\'isolation et accueille la biodiversité'],
+   budget:'60–150 €/m²',
+   ind:['Surface végétalisée m²','Température de surface évitée °C'],
+   esrs:['ESRS E1','ESRS E4'],esrs_detail:'Adaptation au changement climatique (E1) et contribution à la biodiversité (E4).',
+   lieux:['ecolieu','habitat','tiers','fablab','coworking','incubateur','cafe','epicerie','ecole','autre'],
+   quete:{titre:'Installer une toiture végétalisée',duree:'2 week-ends',nb:'4–8 pers.',impact_quete:'+10 pts adaptation · −3 °C en toiture'}},
+
+  {nom:'Canopée & îlots de fraîcheur',cat:'adaptation',cplx:'moyen',impact:'−2 à −4 °C ressentis',co2:.6,tok:70,img:'🌳',
+   desc:'Planter des arbres et arbustes d\'ombrage (essences locales adaptées à la sécheresse) pour créer des îlots de fraîcheur. Un arbre mature rafraîchit l\'air ambiant par évapotranspiration et par son ombre, jusqu\'à 2 à 4 °C ressentis sous le houppier. Protège les espaces extérieurs, les façades et les usagers pendant les vagues de chaleur.',
+   avantages:['Jusqu\'à −4 °C ressentis sous les arbres','Stocke du carbone et abrite la biodiversité','Ombre naturelle qui limite la surchauffe des bâtiments'],
+   budget:'30–120 €/arbre',
+   ind:['Arbres plantés','Surface ombragée m²'],
+   esrs:['ESRS E1','ESRS E4'],esrs_detail:'Adaptation aux fortes chaleurs (E1) et renforcement des écosystèmes (E4).',
+   lieux:['ferme','ecolieu','habitat','jardin','tiers','ecole','autre'],
+   quete:{titre:'Planter des arbres d\'ombrage',duree:'1 journée',nb:'5–12 pers.',impact_quete:'+9 pts adaptation · îlot de fraîcheur'}},
+
+  {nom:'Ombrières & pergolas bioclimatiques',cat:'adaptation',cplx:'facile',impact:'−30 à −50 % de soleil direct',co2:.2,tok:50,img:'⛱️',
+   desc:'Installer des structures d\'ombrage (pergolas, voiles, ombrières), végétalisées ou couplées à des panneaux solaires, sur les zones exposées : terrasses, façades sud, parkings. Elles bloquent le rayonnement direct, abaissent la température des surfaces et des espaces de vie, et peuvent produire de l\'électricité (ombrière photovoltaïque).',
+   avantages:['Réduit de 30 à 50 % le rayonnement solaire direct','Protège façades et terrasses de la surchauffe','Cumulable avec du solaire en ombrière photovoltaïque'],
+   budget:'150–500 €/m²',
+   ind:['Surface ombragée m²','Énergie solaire produite kWh/an'],
+   esrs:['ESRS E1'],esrs_detail:'Protection solaire passive, adaptation au réchauffement (E1).',
+   lieux:['ecolieu','habitat','tiers','fablab','coworking','cafe','epicerie','ecole','autre'],
+   quete:{titre:'Monter une pergola bioclimatique',duree:'1 journée',nb:'3–6 pers.',impact_quete:'+7 pts adaptation · −30 % ensoleillement'}},
+
+  {nom:'Rafraîchissement passif du bâti',cat:'adaptation',cplx:'moyen',impact:'−4 à −6 °C sans clim',co2:.4,tok:85,img:'❄️',
+   desc:'Combiner protections solaires (volets, brise-soleil), ventilation nocturne traversante et inertie thermique pour rafraîchir le bâtiment sans climatisation. Un puits canadien (échangeur air-sol) pré-rafraîchit l\'air entrant de 4 à 8 °C. Le confort d\'été est assuré avec une consommation énergétique quasi nulle, même par +2 °C.',
+   avantages:['Jusqu\'à −6 °C en intérieur sans climatisation','Consommation énergétique quasi nulle','Confort d\'été durable face aux canicules'],
+   budget:'2 000–12 000 €',
+   ind:['Température intérieure évitée °C','Énergie de clim économisée kWh/an'],
+   esrs:['ESRS E1'],esrs_detail:'Confort d\'été passif, réduit le besoin de climatisation (E1).',
+   lieux:['ecolieu','habitat','tiers','fablab','coworking','incubateur','ecole','autre'],
+   quete:{titre:'Audit & rafraîchissement passif',duree:'2 jours',nb:'3–5 pers.',impact_quete:'+12 pts adaptation · −5 °C sans clim'}},
+
+  {nom:'Désimperméabilisation des sols',cat:'adaptation',cplx:'moyen',impact:'−2 °C en surface',co2:.3,tok:60,img:'💦',
+   desc:'Remplacer le bitume et le béton par des sols perméables et végétalisés (stabilisé clair, dalles engazonnées, noues plantées). Les surfaces claires et vivantes stockent moins de chaleur, laissent l\'eau s\'infiltrer et rafraîchissent l\'air par évaporation. Lutte directement contre l\'effet d\'îlot de chaleur et contre les inondations lors des orages intenses.',
+   avantages:['Réduit l\'effet d\'îlot de chaleur urbain','Infiltre l\'eau de pluie et recharge les nappes','Rafraîchit l\'air ambiant par évaporation'],
+   budget:'40–120 €/m²',
+   ind:['Surface désimperméabilisée m²','Eau infiltrée L/an'],
+   esrs:['ESRS E1','ESRS E3'],esrs_detail:'Adaptation aux chaleurs et aux pluies intenses (E1), gestion de l\'eau (E3).',
+   lieux:['ecolieu','habitat','tiers','jardin','ecole','autre'],
+   quete:{titre:'Désimperméabiliser une cour',duree:'2 week-ends',nb:'5–10 pers.',impact_quete:'+8 pts adaptation · sol perméable'}},
 ];
 
 /* ── Méta ODD (couleurs officielles ONU) ── */
@@ -1779,6 +1825,7 @@ const CATS={
   dechets:     {l:'Déchets',      c:'#5a4090',bg:'rgba(122,100,168,0.12)'},
   biodiversite:{l:'Biodiversité', c:'#1a7050',bg:'rgba(26,112,80,0.12)'},
   social:      {l:'Social',       c:'#903060',bg:'rgba(180,78,100,0.12)'},
+  adaptation:  {l:'Adaptation climat', c:'#b84e35',bg:'rgba(184,78,53,0.12)'},
 };
 
 const ESPS=[
@@ -4373,6 +4420,7 @@ const CAT_META = {
   dechets:      {ic:'♻️', l:'Déchets',      c:'#2e9970'},
   biodiversite: {ic:'🌿', l:'Biodiversité', c:'#3a7a3a'},
   social:       {ic:'🤝', l:'Social',       c:'#7a5a9a'},
+  adaptation:   {ic:'🌡', l:'Adaptation',   c:'#b84e35'},
 };
 
 function creerBddPanelHTML(espIdx){
