@@ -157,6 +157,17 @@ function closeAmelioration(){
   if (w) w.style.display = 'none';
 }
 
+/* ─── Envoi des retours vers Supabase (insertion directe via l'API REST) ───
+   Remplis url + anonKey quand ton projet Supabase est prêt. Tant qu'ils sont
+   vides, les retours restent en localStorage (secours). La clé doit être la clé
+   « anon public » (publique, jamais la service_role). Table attendue : `feedback`
+   avec une policy RLS « insert » pour le rôle anon (voir SQL fourni). ── */
+const EVAD_FEEDBACK_SUPABASE = {
+  url: '',            // ex. 'https://xxxxxxxx.supabase.co'
+  anonKey: '',        // clé "anon public"
+  table: 'feedback'
+};
+
 function submitAmelioration(){
   const txt = (document.getElementById('evad-feedback-text').value || '').trim();
   if (!txt){
@@ -164,13 +175,34 @@ function submitAmelioration(){
     document.getElementById('evad-feedback-text').focus();
     return;
   }
-  // Prototype : on conserve localement (pas de backend)
+  const row = {
+    categorie: document.getElementById('evad-feedback-cat').value,
+    idee: txt,
+    role: (typeof currentRole !== 'undefined' ? currentRole : null),
+    page: (location.hash || location.pathname || '')
+  };
+  // Secours local : ne jamais perdre un retour (hors-ligne, ou Supabase non configuré).
   try {
-    const cat = document.getElementById('evad-feedback-cat').value;
     const all = JSON.parse(localStorage.getItem('evad_feedback') || '[]');
-    all.push({ cat, txt, role: (typeof currentRole !== 'undefined' ? currentRole : null) });
+    all.push(row);
     localStorage.setItem('evad_feedback', JSON.stringify(all));
   } catch(e){}
+  // Envoi direct à Supabase si configuré.
+  const cfg = EVAD_FEEDBACK_SUPABASE;
+  if (cfg.url && cfg.anonKey) {
+    try {
+      fetch(cfg.url.replace(/\/+$/, '') + '/rest/v1/' + cfg.table, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': cfg.anonKey,
+          'Authorization': 'Bearer ' + cfg.anonKey,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(row)
+      }).catch(() => {});
+    } catch(e){}
+  }
   document.getElementById('evad-feedback-form').style.display = 'none';
   document.getElementById('evad-feedback-thanks').style.display = 'block';
 }
