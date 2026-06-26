@@ -121,7 +121,7 @@ function evadFeedbackEnsureDom(){
   +       '<option>🛖 Marketplace</option>'
   +       '<option>⚡ Les quêtes</option>'
   +       '<option>🏡 Création de fiche Pilote</option>'
-  +       '<option>🔨 Création de fiche Bâtisseur</option>'
+  +       '<option>🌿 Création de fiche Bâtisseur</option>'
   +       '<option>🌾 Création de fiche Semeur</option>'
   +       '<option>💬 Deva</option>'
   +       '<option>Autre chose</option>'
