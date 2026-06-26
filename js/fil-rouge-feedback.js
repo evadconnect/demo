@@ -163,8 +163,8 @@ function closeAmelioration(){
    « anon public » (publique, jamais la service_role). Table attendue : `feedback`
    avec une policy RLS « insert » pour le rôle anon (voir SQL fourni). ── */
 const EVAD_FEEDBACK_SUPABASE = {
-  url: '',            // ex. 'https://xxxxxxxx.supabase.co'
-  anonKey: '',        // clé "anon public"
+  url: 'https://lmhhrccmgebztioesmik.supabase.co',
+  anonKey: 'sb_publishable_M_1-SinRmo1T8exi8_gkvw_RTiHznag',  // clé publishable (publique, OK dans le front)
   table: 'feedback'
 };
 
