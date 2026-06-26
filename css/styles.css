@@ -153,6 +153,8 @@ body {
 .nav-stepper { display: none; }
 .nav.wizard-mode .nav-menu,
 .nav.wizard-mode .ob-intro-btn { display: none !important; }
+/* On garde le bouton « Proposer une amélioration » visible aussi pendant la création (au-dessus de Deva). */
+.nav.wizard-mode #evad-feedback-btn { display: flex !important; }
 .nav.wizard-mode .nav-stepper {
   display: flex;
   flex-direction: column;
