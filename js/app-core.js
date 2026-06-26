@@ -2076,7 +2076,7 @@ function navWizardSet(steps, currentIdx, onJump) {
         </div>
       `;
     }).join('')}
-    <button class="nav-stepper-skip" onclick="showScreen('carte')" title="Aller directement à la carte">Passer, voir la carte →</button>
+    <button class="nav-stepper-skip" onclick="showScreen('carte')" title="Créer ta fiche plus tard, aller à la carte">Créer sa fiche plus tard →</button>
   `;
   if (typeof onJump === 'function') {
     container.querySelectorAll('.nav-step').forEach(el => {
