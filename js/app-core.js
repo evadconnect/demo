@@ -1827,6 +1827,45 @@ const CATS={
   social:      {l:'Social',       c:'#903060',bg:'rgba(180,78,100,0.12)'},
   adaptation:  {l:'Adaptation climat', c:'#b84e35',bg:'rgba(184,78,53,0.12)'},
 };
+/* ─── Matching « problématique à résoudre » → solutions de la BDD (SOLS) ───
+   100 % local : croise le texte de la problématique avec le catalogue. Ne
+   propose QUE des solutions existantes (jamais d'invention). ── */
+const PROBLEME_CAT_KW = {
+  eau:          ['eau','secheresse','pluie','arrosage','inondation','nappe','potable','irrigation','fuite'],
+  electricite:  ['energie','electricite','facture','chauffage','precarite energetique','solaire','kwh','autonomie','carburant','fossile'],
+  adaptation:   ['chaleur','canicule','temperature','surchauffe','fraicheur','ombre','climat','rechauffement','ilot de chaleur','trop chaud','clim'],
+  dechets:      ['dechet','gaspillage','ordure','tri','compost','poubelle','biodechet','jeter','recyclage','plastique'],
+  biodiversite: ['biodiversite','nature','pollinisateur','haie','arbre','faune','flore','sol vivant','espece','vivant','beton'],
+  alimentaire:  ['alimentation','manger','nourriture','faim','maraichage','potager','circuit court','local','bio','cantine','agriculture'],
+  construction: ['batiment','isolation','renovation','construction','materiaux','chantier','confort thermique','vetuste','humidite'],
+  social:       ['isolement','solitude','lien social','exclusion','precarite','insertion','inclusion','rencontre','communaute','entraide','solidarite','cohesion','quartier','vivre ensemble','intergeneration','mixite','emploi'],
+};
+
+// Renvoie les noms de solutions de SOLS les plus pertinents pour un texte de
+// problématique, classés par score. opts.limit (def 4), opts.lieux (types de lieu).
+function solutionsForProbleme(txt, opts) {
+  opts = opts || {};
+  const limit = opts.limit || 4;
+  const lieux = opts.lieux || null;
+  const norm = (s) => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const nt = norm(txt);
+  if (!nt.trim() || typeof SOLS === 'undefined') return [];
+  // Catégories déclenchées par les mots-clés présents dans la problématique.
+  const catScore = {};
+  Object.keys(PROBLEME_CAT_KW).forEach((cat) => {
+    const hits = PROBLEME_CAT_KW[cat].filter((k) => nt.includes(norm(k))).length;
+    if (hits) catScore[cat] = hits;
+  });
+  const words = [...new Set(nt.split(/[^a-z0-9]+/).filter((w) => w.length > 3))];
+  const scored = SOLS.map((s) => {
+    let score = (catScore[s.cat] || 0) * 3;
+    const solText = norm([s.nom, s.desc, (s.avantages || []).join(' '), s.impact, (s.ind || []).join(' ')].join(' '));
+    words.forEach((w) => { if (solText.includes(w)) score += 1; });
+    if (lieux && (s.lieux || []).some((l) => lieux.includes(l))) score += 0.5;
+    return { nom: s.nom, score };
+  }).filter((x) => x.score > 0).sort((a, b) => b.score - a.score);
+  return scored.slice(0, limit).map((x) => x.nom);
+}
 
 const ESPS=[
   {id:'cafe',    l:'Café',         ic:'☕',c:'#8a4a1a',bg:'rgba(200,115,42,0.1)',
@@ -4153,10 +4192,18 @@ function renderStep(){
     // Deva pré-sélectionne les solutions à la première visite
     if(!cData.solsByEspace || Object.keys(cData.solsByEspace).length===0){
       cData.solsByEspace={};
+      cData._problemeSols={};        // solution → problématique qui l'a fait remonter
       const _seenSols=new Set();   // une solution n'est proposée qu'une seule fois
-      espItems.forEach(({eid},idx)=>{
+      espItems.forEach(({eid,esp},idx)=>{
         const meta=ESPS.find(e=>e.id===eid);
         const sols=(meta?.sols||[]).filter(n=>!_seenSols.has(n));
+        // + solutions de la BDD qui répondent à la problématique déclarée de l'espace
+        const _prob=(esp&&esp.probleme)||'';
+        if(_prob && typeof solutionsForProbleme==='function'){
+          solutionsForProbleme(_prob,{lieux:[cData.type]}).forEach(n=>{
+            if(!_seenSols.has(n) && !sols.includes(n)){ sols.push(n); cData._problemeSols[n]=_prob; }
+          });
+        }
         sols.forEach(n=>_seenSols.add(n));
         cData.solsByEspace[idx]=sols;
       });
@@ -4182,6 +4229,7 @@ function renderStep(){
             return '<span style="display:inline-flex;align-items:center;gap:0;border-radius:100px;background:'+bg+';border:1.5px solid '+col+'55;font-size:.65rem;font-weight:600;color:'+col+';margin:.15rem;overflow:hidden">'
               // Nom cliquable → fiche solution
               +'<span onclick="creerOpenSolDetail(\''+safeNom+'\')" title="Voir la fiche" style="padding:.22rem .45rem .22rem .6rem;cursor:pointer;display:flex;align-items:center;gap:.28rem">'
+              +((cData._problemeSols&&cData._problemeSols[nom])?'<span title="Proposée pour ta problématique : '+String(cData._problemeSols[nom]).replace(/[<>"]/g,'')+'" style="font-size:.62rem">🎯</span>':'')
               +'<span>'+nom+'</span>'
               +'<span style="font-size:.58rem;opacity:.55">↗</span>'
               +'</span>'
