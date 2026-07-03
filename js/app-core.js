@@ -4194,7 +4194,7 @@ function renderStep(){
       cData.solsByEspace={};
       cData._problemeSols={};        // solution → problématique qui l'a fait remonter
       const _seenSols=new Set();   // une solution n'est proposée qu'une seule fois
-      const _CAP=4;                // on ne propose pas trop de solutions par espace
+      const _CAP=3;                // on ne propose pas trop de solutions par espace
       espItems.forEach(({eid,esp},idx)=>{
         const meta=ESPS.find(e=>e.id===eid);
         const base=(meta?.sols||[]);
