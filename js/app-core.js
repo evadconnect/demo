@@ -10267,6 +10267,7 @@ function ficheOpenEspaceModal(idx) {
   document.getElementById('espace-capacite').value = esp ? (esp.capacite || '') : '';
   document.getElementById('espace-surface').value = esp ? (esp.surface || '') : '';
   document.getElementById('espace-acces').value = esp ? (esp.acces || 'libre') : 'libre';
+  document.getElementById('espace-probleme').value = esp ? (esp.probleme || '') : '';
   document.getElementById('espace-notes').value = esp ? (esp.notes || '') : '';
   document.getElementById('espace-responsable').value = esp ? (esp.responsable || '') : '';
 
@@ -10470,6 +10471,7 @@ function ficheSaveEspace() {
     capacite: document.getElementById('espace-capacite').value || '',
     surface:  document.getElementById('espace-surface').value || '',
     acces:    document.getElementById('espace-acces').value,
+    probleme: document.getElementById('espace-probleme').value.trim(),
     notes:    document.getElementById('espace-notes').value.trim(),
     inputs:       [..._fluxInputSelected],
     outputs:      [..._fluxOutputSelected],
@@ -10510,6 +10512,7 @@ function creerOpenEspaceModal(idx) {
   document.getElementById('espace-capacite').value = esp ? (esp.capacite || '') : '';
   document.getElementById('espace-surface').value = esp ? (esp.surface || '') : '';
   document.getElementById('espace-acces').value = esp ? (esp.acces || 'libre') : 'libre';
+  document.getElementById('espace-probleme').value = esp ? (esp.probleme || '') : '';
   document.getElementById('espace-notes').value = esp ? (esp.notes || '') : '';
   _fnPickSelected = esp ? [...esp.fonctions] : [];
   _fluxInputSelected  = esp ? [...(esp.inputs  || [])] : [];
@@ -10777,7 +10780,7 @@ function creerApplyExtracted(data){
         activites: acts,
         capacite: num(e.capacite),
         surface: num(e.surface),
-        acces: 'libre', notes: '', responsable: '',
+        acces: 'libre', probleme: '', notes: '', responsable: '',
         phase: cData.phase || 'operationnel'
       });
     });
