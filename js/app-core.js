@@ -4194,18 +4194,26 @@ function renderStep(){
       cData.solsByEspace={};
       cData._problemeSols={};        // solution → problématique qui l'a fait remonter
       const _seenSols=new Set();   // une solution n'est proposée qu'une seule fois
+      const _CAP=4;                // on ne propose pas trop de solutions par espace
       espItems.forEach(({eid,esp},idx)=>{
         const meta=ESPS.find(e=>e.id===eid);
-        const sols=(meta?.sols||[]).filter(n=>!_seenSols.has(n));
-        // + solutions de la BDD qui répondent à la problématique déclarée de l'espace
+        const base=(meta?.sols||[]);
         const _prob=(esp&&esp.probleme)||'';
+        // Quand une problématique est déclarée, elle PILOTE la sélection : les solutions
+        // de la BDD qui y répondent passent en tête (et sont taguées 🎯).
+        let ordered=base;
         if(_prob && typeof solutionsForProbleme==='function'){
-          solutionsForProbleme(_prob,{lieux:[cData.type]}).forEach(n=>{
-            if(!_seenSols.has(n) && !sols.includes(n)){ sols.push(n); cData._problemeSols[n]=_prob; }
-          });
+          const matched=solutionsForProbleme(_prob,{lieux:[cData.type],limit:6});
+          matched.forEach(n=>{ cData._problemeSols[n]=_prob; });
+          ordered=[...matched, ...base.filter(n=>!matched.includes(n))];
         }
-        sols.forEach(n=>_seenSols.add(n));
-        cData.solsByEspace[idx]=sols;
+        // dédup global + limite
+        const chosen=[];
+        for(const n of ordered){
+          if(chosen.length>=_CAP) break;
+          if(!_seenSols.has(n)){ chosen.push(n); _seenSols.add(n); }
+        }
+        cData.solsByEspace[idx]=chosen;
       });
       cData.solutions=[...new Set(Object.values(cData.solsByEspace).flat())];
       // La présélection ajoute des solutions APRÈS le 1er calcul de jauge :
