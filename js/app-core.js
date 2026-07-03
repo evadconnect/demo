@@ -10631,6 +10631,7 @@ function creerRenderEspaces() {
       ${inputChips  ? `<div class="flux-row"><span class="flux-row-label">📥 IN</span>${inputChips}</div>`  : ''}
       ${outputChips ? `<div class="flux-row"><span class="flux-row-label">📤 OUT</span>${outputChips}</div>` : ''}
       ${esp.activites && esp.activites.length ? `<div class="flux-row"><span class="flux-row-label">⚡</span>${esp.activites.map(a=>`<span class="esp-tag" style="pointer-events:none;margin:.1rem">${a}</span>`).join('')}</div>` : ''}
+      ${esp.probleme ? `<div class="flux-row" style="align-items:flex-start"><span class="flux-row-label">🎯</span><span style="font-size:.66rem;color:var(--amber);font-weight:600;line-height:1.4">${String(esp.probleme).replace(/[<>]/g,'')}</span></div>` : ''}
       ${esp.responsable ? `<div class="espace-meta-item" style="font-size:.63rem;opacity:.7">👤 ${esp.responsable}</div>` : ''}
       ${esp.notes ? `<div class="espace-meta-item" style="font-size:.63rem;opacity:.6;font-style:italic">${esp.notes}</div>` : ''}
     `;
@@ -10919,6 +10920,7 @@ function ficheRenderEspaces() {
       ${inputChips  ? `<div class="flux-row"><span class="flux-row-label">📥 IN</span>${inputChips}</div>`  : ''}
       ${outputChips ? `<div class="flux-row"><span class="flux-row-label">📤 OUT</span>${outputChips}</div>` : ''}
       ${esp.activites && esp.activites.length ? `<div class="flux-row"><span class="flux-row-label">⚡</span>${esp.activites.map(a=>`<span class="esp-tag" style="pointer-events:none;margin:.1rem">${a}</span>`).join('')}</div>` : ''}
+      ${esp.probleme ? `<div class="flux-row" style="align-items:flex-start"><span class="flux-row-label">🎯</span><span style="font-size:.66rem;color:var(--amber);font-weight:600;line-height:1.4">${String(esp.probleme).replace(/[<>]/g,'')}</span></div>` : ''}
       ${esp.responsable ? `<div class="espace-meta-item" style="font-size:.63rem;opacity:.7">👤 ${esp.responsable}</div>` : ''}
       ${esp.notes ? `<div class="espace-meta-item" style="font-size:.63rem;opacity:.6;font-style:italic">${esp.notes}</div>` : ''}
     `;
