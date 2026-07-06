@@ -10,7 +10,7 @@ let devaTyping = false;
 //   Vercel  : 'https://evad-deva.vercel.app/api/deva'
 //   Netlify : 'https://evad-deva.netlify.app/.netlify/functions/deva'
 // Laisser vide tant que le proxy n'est pas déployé (Deva affichera un message d'attente).
-const DEVA_API_URL = 'https://demo-chi-seven-49.vercel.app/api/deva';
+const DEVA_API_URL = 'https://prototype-theta-mocha.vercel.app/api/deva';
 
 // ─── Compteur d'empreinte de la conversation ───
 // Coût estimé d'UNE question à l'IA (ordre de grandeur, modèle frugal + réponses
