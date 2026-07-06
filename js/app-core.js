@@ -10555,15 +10555,17 @@ function creerOpenEspaceModal(idx) {
   document.getElementById('espace-nom').focus();
 }
 
-/* Ancre le panneau espace sur la zone du mind map (mesurée) plutôt que sur
-   toute la page ; si la zone est introuvable, on retombe sur le plein écran. */
+/* Cale le formulaire en tiroir de largeur fixe collé à gauche de la zone du
+   mind map (mesurée) : le mind map reste visible à droite. Si la zone est
+   introuvable, on retombe sur le plein écran. */
 function espacePanelCoverMindmap(modal, stageSel) {
   const stage = document.querySelector(stageSel);
   if (!stage) { espacePanelReset(modal); return; }
   const r = stage.getBoundingClientRect();
+  const drawerW = Math.min(440, r.width);   // le reste de la zone montre le mind map
   modal.style.left   = r.left  + 'px';
   modal.style.top    = r.top   + 'px';
-  modal.style.width  = r.width + 'px';
+  modal.style.width  = drawerW + 'px';
   modal.style.height = r.height + 'px';
   modal.style.right  = 'auto';
   modal.style.bottom = 'auto';

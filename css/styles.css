@@ -2225,18 +2225,20 @@ body {
 .espace-meta-item strong { font-weight:600; color:var(--ink); opacity:0.85; }
 
 /* ─── ESPACE MODAL ─── */
-/* Panneau plein écran : recouvre la zone de travail (mind map) mais laisse
-   la sidebar visible → la pastille Deva reste accessible, et la fenêtre de
-   chat Deva (z-index 1000) flotte au-dessus. */
+/* Dans le wizard, le formulaire est un tiroir de largeur fixe collé à gauche
+   de la zone mind map (JS mesure la position) : le mind map reste visible à
+   droite. Fond transparent + ombre à droite pour détacher le tiroir du mind
+   map. La sidebar reste visible → pastille Deva accessible, chat Deva au-dessus. */
 #espace-modal {
   display:none; position:fixed; top:0; right:0; bottom:0; left:220px; z-index:200;
-  background:var(--paper);
+  background:transparent;
   flex-direction:column;
 }
 #espace-modal-box {
   background:var(--paper);
   width:100%; height:100%;
   display:flex; flex-direction:column;
+  box-shadow:10px 0 40px -12px rgba(14,26,18,0.4);
 }
 .espace-modal-header {
   padding:1.2rem 1.4rem 0.9rem; border-bottom:1px solid rgba(46,102,66,0.1);
