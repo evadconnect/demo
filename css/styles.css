@@ -839,16 +839,6 @@ body {
   border-radius: var(--r);
   margin-bottom: 0.4rem;
 }
-.acteur-deva-tip {
-  background: linear-gradient(135deg, rgba(74,140,92,0.08), rgba(120,110,168,0.06));
-  border: 1px solid rgba(74,140,92,0.18);
-  border-radius: var(--r);
-  padding: 0.65rem 0.8rem;
-  margin-top: 0.6rem;
-  font-size: 0.68rem;
-  color: var(--ink);
-  line-height: 1.45;
-}
 .acteur-cta {
   width: 100%;
   padding: 0.6rem;

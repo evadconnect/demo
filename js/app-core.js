@@ -2668,10 +2668,6 @@ function mapShowBatisseur(idx) {
         ${b.certifications.map(cert => `<span class="acteur-skill-tag" style="background:rgba(240,200,74,0.1);color:#9a7a00;border:1px solid rgba(240,200,74,0.3)">✓ ${cert}</span>`).join('')}
       </div>` : ''}
 
-      <div class="acteur-deva-tip">
-        <span style="color:var(--sage);font-weight:700">✦ Deva · </span>${b.nom} est actif à ${b.lieux_frequentes[0]}, ${b.quetes_actives} quête${b.quetes_actives > 1 ? 's' : ''} en cours. Ses compétences correspondent à 3 quêtes ouvertes sur votre territoire.
-      </div>
-
       <button class="acteur-cta" style="background:var(--amber);color:white" onclick="mmBubble('✉️ Message envoyé à ${b.nom}, réponse sous 48h')">
         Contacter ce bâtisseur →
       </button>
@@ -2760,10 +2756,6 @@ function mapShowSemeur(idx) {
 
       <!-- Contact -->
       <div style="font-size:.65rem;color:var(--moss);opacity:.7;text-align:center;margin-bottom:.5rem">👤 ${s.contact}</div>
-
-      <div class="acteur-deva-tip">
-        <span style="color:var(--sage);font-weight:700">✦ Deva · </span>${s.nom} finance ${s.contrats_actifs} lieu${s.contrats_actifs > 1 ? 'x' : ''} EVAD. ${pctRetour}% des graines retournés via jalons certifiés. Profil compatible CSRD E1/E2.
-      </div>
 
       <button class="acteur-cta" style="background:var(--sky);color:white" onclick="mmBubble('📋 Demande de partenariat envoyée à ${s.nom}')">
         Demander un partenariat →
@@ -2857,10 +2849,6 @@ function mapShowLieu(idx) {
         ${place.besoins.map(b =>
           `<span class="acteur-skill-tag" style="background:rgba(46,102,66,.07);color:var(--forest);border:1px solid rgba(46,102,66,.15)">${b}</span>`
         ).join('')}
-      </div>
-
-      <div class="acteur-deva-tip">
-        <span style="color:var(--sage);font-weight:700">✦ Deva · </span>${place.deva}
       </div>
 
       <button class="acteur-cta" style="background:var(--forest);color:white;margin-top:.6rem" onclick="openLieuModalFromPlace(${idx})">
@@ -3980,7 +3968,7 @@ function devaAideCreer(){
   const prompts = {
     0: 'Je crée ' + t + ' sur EVAD. Aide-moi à bien le nommer et à choisir le bon type de lieu.',
     1: 'Je remplis la fiche de ' + t + '. Aide-moi à rédiger une description claire et engageante, et dis-moi quelles infos comptent le plus.',
-    2: 'Pour ' + t + ', quels espaces physiques décrire (nom, fonction, flux entrants et sortants) ? Donne-moi des exemples adaptés à ce type de lieu.',
+    2: 'Pour ' + t + ', quels espaces physiques décrire (nom, fonction) ? Donne-moi des exemples adaptés à ce type de lieu.',
     3: 'Deva a présélectionné des solutions pour ' + t + '. Aide-moi à choisir les plus pertinentes et explique-moi leur impact (les ICI).'
   };
   const q = prompts[cStep] || ('Aide-moi à créer ' + t + ' sur EVAD.');
@@ -4143,7 +4131,7 @@ function renderStep(){
   } else if(cStep===2){
     c.innerHTML=`
       <label class="creer-lbl">Les espaces du lieu</label>
-      <p style="font-size:.68rem;color:var(--moss);opacity:.7;margin:-.3rem 0 .9rem;line-height:1.5">Décris chaque espace physique de ton lieu, nom, fonctions, capacité, flux entrants et sortants.</p>
+      <p style="font-size:.68rem;color:var(--moss);opacity:.7;margin:-.3rem 0 .9rem;line-height:1.5">Décris chaque espace physique de ton lieu, nom, fonctions, capacité.</p>
       <div style="display:flex;justify-content:flex-end;margin-bottom:.6rem">
         <button class="btn btn-ghost" style="font-size:0.65rem;padding:0.25rem 0.65rem" onclick="creerOpenEspaceModal(null)">+ Ajouter un espace</button>
       </div>
@@ -10339,8 +10327,6 @@ function ficheOpenEspaceModal(idx) {
   _fluxOutputSelected = esp ? [...(esp.outputs || [])] : [];
   _espaceActivites    = esp ? [...(esp.activites || [])] : [];
   ficheRenderFnPicker();
-  ficheRenderFluxPicker('input');
-  ficheRenderFluxPicker('output');
   ficheRenderActivitesPicker();
   const actInput = document.getElementById('espace-activites-input');
   if (actInput) actInput.value = '';
@@ -10498,26 +10484,6 @@ function fntoggle(id) {
   ficheRenderFnPicker();
 }
 
-function ficheRenderFluxPicker(type) {
-  const arr = type === 'input' ? _fluxInputSelected : _fluxOutputSelected;
-  const selCls = type === 'input' ? 'sel-input' : 'sel-output';
-  const picker = document.getElementById(`flux-${type}-picker`);
-  if (!picker) return;
-  picker.innerHTML = FLUX_CATALOG.map(f => {
-    const active = arr.includes(f.id);
-    const cls = `fn-pick-btn${active ? ' ' + selCls : ''}`;
-    return `<button class="${cls}" onclick="fluxToggle('${type}','${f.id}')">${f.ic} ${f.label}</button>`;
-  }).join('');
-}
-
-function fluxToggle(type, id) {
-  const arr = type === 'input' ? _fluxInputSelected : _fluxOutputSelected;
-  const pos = arr.indexOf(id);
-  if (pos === -1) arr.push(id);
-  else arr.splice(pos, 1);
-  ficheRenderFluxPicker(type);
-}
-
 function ficheSaveEspace() {
   const nom = document.getElementById('espace-nom').value.trim();
   if (!nom) { document.getElementById('espace-nom').focus(); return; }
@@ -10575,8 +10541,6 @@ function creerOpenEspaceModal(idx) {
   _fluxOutputSelected = esp ? [...(esp.outputs || [])] : [];
   _espaceActivites    = esp ? [...(esp.activites || [])] : [];
   ficheRenderFnPicker();
-  ficheRenderFluxPicker('input');
-  ficheRenderFluxPicker('output');
   ficheRenderActivitesPicker();
   const actInput2 = document.getElementById('espace-activites-input');
   if (actInput2) actInput2.value = '';
