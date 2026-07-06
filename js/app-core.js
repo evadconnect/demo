@@ -10332,6 +10332,7 @@ function ficheOpenEspaceModal(idx) {
   if (actInput) actInput.value = '';
   const actDrop = document.getElementById('espace-activites-suggestions');
   if (actDrop) actDrop.style.display = 'none';
+  espacePanelReset(modal);
   modal.style.display = 'flex';
   document.getElementById('espace-nom').focus();
 }
@@ -10546,8 +10547,31 @@ function creerOpenEspaceModal(idx) {
   if (actInput2) actInput2.value = '';
   const actDrop2 = document.getElementById('espace-activites-suggestions');
   if (actDrop2) actDrop2.style.display = 'none';
-  document.getElementById('espace-modal').style.display = 'flex';
+  const _em = document.getElementById('espace-modal');
+  _em.style.display = 'flex';
+  // Wizard : le panneau se limite au mind map, on laisse visible la colonne
+  // de gauche (« Les espaces du lieu ») en calquant la zone de la maquette.
+  espacePanelCoverMindmap(_em, '#screen-creer .mm-stage');
   document.getElementById('espace-nom').focus();
+}
+
+/* Ancre le panneau espace sur la zone du mind map (mesurée) plutôt que sur
+   toute la page ; si la zone est introuvable, on retombe sur le plein écran. */
+function espacePanelCoverMindmap(modal, stageSel) {
+  const stage = document.querySelector(stageSel);
+  if (!stage) { espacePanelReset(modal); return; }
+  const r = stage.getBoundingClientRect();
+  modal.style.left   = r.left  + 'px';
+  modal.style.top    = r.top   + 'px';
+  modal.style.width  = r.width + 'px';
+  modal.style.height = r.height + 'px';
+  modal.style.right  = 'auto';
+  modal.style.bottom = 'auto';
+}
+
+/* Efface les overrides inline → retour au plein écran défini en CSS. */
+function espacePanelReset(modal) {
+  ['left', 'top', 'right', 'bottom', 'width', 'height'].forEach(p => modal.style[p] = '');
 }
 
 function creerRemoveEspace(idx) {
