@@ -1598,6 +1598,98 @@ const SOLS=[
    quete:{titre:'Désimperméabiliser une cour',duree:'2 week-ends',nb:'5–10 pers.',impact_quete:'+8 pts adaptation · sol perméable'}},
 ];
 
+/* ── Dimension régénérative & enjeux de demain, par solution (clé = nom) ──
+   Deux angles pour chaque solution :
+   - regen  : en quoi elle va au-delà du « moins pire » et restaure activement
+              (sol, eau, biodiversité, énergie, lien social).
+   - enjeux : à quelles problématiques de demain elle répond (canicule,
+              sécheresse, inondation, précarité énergétique, effondrement de la
+              biodiversité, insécurité alimentaire, déchets, isolement social…).
+   Les mots-clés servent aussi à Deva pour relier une solution à la
+   « problématique à résoudre » notée dans un espace. */
+const SOLS_ENJEUX = {
+  'Récupération eau de pluie': {
+    regen: `Elle referme le cycle de l'eau à l'échelle du lieu : l'eau de pluie, habituellement perdue dans les réseaux, redevient une ressource qui nourrit les sols et les plantations plutôt que de ruisseler.`,
+    enjeux: `Répond à la raréfaction de l'eau et aux sécheresses estivales, aux restrictions d'arrosage et à la hausse du prix de l'eau. Utile pour un espace confronté au manque d'eau, un jardin à arroser ou des coûts d'eau élevés.`
+  },
+  'Phytoépuration': {
+    regen: `Transforme une eau usée en ressource : les plantes épurent l'eau et créent au passage un écosystème vivant (roselière) qui abrite la biodiversité, au lieu de rejeter des polluants.`,
+    enjeux: `Répond à la pollution de l'eau et à l'absence d'assainissement, à la pression sur les stations d'épuration. Pertinent pour un espace sans tout-à-l'égout ou qui rejette des eaux grises (cuisine, douches, atelier).`
+  },
+  'Toilettes sèches': {
+    regen: `Ferme le cycle des nutriments : au lieu de gaspiller de l'eau potable et de charger les réseaux, elle transforme un déchet en compost qui régénère le sol.`,
+    enjeux: `Répond au gaspillage d'eau potable et à la raréfaction de l'eau, à l'absence de raccordement. Utile pour un espace sans réseau d'assainissement ou qui veut réduire fortement sa consommation d'eau.`
+  },
+  'Panneaux solaires PV': {
+    regen: `Décarbone l'énergie du lieu et le rend autonome : produire son électricité localement réduit la dépendance aux fossiles et redonne au lieu la maîtrise de son énergie.`,
+    enjeux: `Répond à la précarité et à la volatilité énergétiques, à la dépendance aux énergies fossiles et à la hausse des prix. Pertinent pour un espace aux factures d'électricité élevées ou en quête d'autonomie.`
+  },
+  'Chauffe-eau solaire': {
+    regen: `Substitue une ressource renouvelable et locale, le soleil, à l'énergie fossile pour l'eau chaude, réduisant durablement l'empreinte du lieu.`,
+    enjeux: `Répond à la précarité énergétique et au coût de l'eau chaude, à la dépendance au gaz et à l'électricité. Utile pour un espace à forte consommation d'eau chaude (cuisine, douches, hébergement).`
+  },
+  'Isolation paille': {
+    regen: `Construit avec un matériau vivant, local et biosourcé qui stocke du carbone : le bâtiment devient un puits de carbone au lieu d'une source d'émissions.`,
+    enjeux: `Répond à la précarité énergétique, au froid l'hiver comme à la surchauffe l'été, et à l'énergie grise du bâtiment. Pertinent pour un espace mal isolé, coûteux à chauffer ou inconfortable.`
+  },
+  'Toiture végétalisée': {
+    regen: `Rend au vivant une surface morte : le toit devient un habitat pour les pollinisateurs, une éponge à eau de pluie et un régulateur thermique.`,
+    enjeux: `Répond aux canicules et à l'îlot de chaleur, aux inondations et au ruissellement urbain, à l'effondrement de la biodiversité. Utile pour un espace qui surchauffe l'été ou en milieu très minéral.`
+  },
+  'Réemploi matériaux': {
+    regen: `Sort de la logique extractive : au lieu de puiser des ressources neuves, il fait revivre des matériaux existants, réduisant déchets et extraction.`,
+    enjeux: `Répond à l'épuisement des ressources, à la montagne de déchets du bâtiment et au coût des matériaux. Pertinent pour un espace en travaux ou en aménagement, ou une ressourcerie.`
+  },
+  'Jardin permaculture': {
+    regen: `Régénère activement le sol : chaque saison, le système enrichit la terre, augmente la vie du sol et la fertilité, au lieu de l'épuiser.`,
+    enjeux: `Répond à l'insécurité alimentaire, à la dépendance aux circuits longs et à l'appauvrissement des sols. Utile pour un espace nourricier, pédagogique ou en quête d'autonomie alimentaire.`
+  },
+  'Potager en buttes': {
+    regen: `Reconstruit un sol fertile à partir de bois et de déchets organiques, en stockant l'eau et le carbone dans la butte.`,
+    enjeux: `Répond à la sécheresse et au manque d'eau, à l'insécurité alimentaire et aux sols pauvres. Pertinent pour un espace au sol dégradé ou qui veut démarrer une production vivrière à petit budget.`
+  },
+  'Compostage partagé': {
+    regen: `Boucle la matière organique : les biodéchets redeviennent un sol vivant, et l'action fédère la communauté autour d'un geste concret.`,
+    enjeux: `Répond au gaspillage et à l'enfouissement des déchets organiques, à l'appauvrissement des sols et au manque de lien social. Utile pour un espace qui produit des biodéchets (cuisine, café, cantine) ou veut mobiliser ses usagers.`
+  },
+  'Haie champêtre': {
+    regen: `Recrée un corridor de vie : la haie restaure la biodiversité, protège les sols de l'érosion et stocke du carbone durablement.`,
+    enjeux: `Répond à l'effondrement de la biodiversité, à l'érosion des sols et à l'exposition au vent et au froid. Pertinent pour un espace extérieur exposé, une ferme ou un jardin qui veut accueillir le vivant.`
+  },
+  'Mare écologique': {
+    regen: `Réintroduit un écosystème aquatique complet : elle fait revenir amphibiens et insectes, et régule naturellement l'eau du site.`,
+    enjeux: `Répond à l'effondrement de la biodiversité, à la gestion des eaux de ruissellement et aux inondations locales. Utile pour un espace extérieur qui veut restaurer un habitat ou gérer l'eau de pluie.`
+  },
+  'Repair café': {
+    regen: `Régénère le lien social et les savoir-faire : il prolonge la vie des objets tout en tissant de l'entraide intergénérationnelle.`,
+    enjeux: `Répond à la société du jetable et aux déchets électroniques, à l'isolement social et à la perte des savoir-faire. Pertinent pour un espace communautaire, un tiers-lieu ou un fablab.`
+  },
+  'AMAP circuit court': {
+    regen: `Reconnecte le lieu à son territoire nourricier : elle soutient une agriculture paysanne locale et rémunère justement le producteur.`,
+    enjeux: `Répond à l'insécurité et à la dépendance alimentaires, au juste revenu paysan et aux émissions du transport. Utile pour un espace qui nourrit du public (café, cantine, épicerie) ou veut ancrer une filière locale.`
+  },
+  'Toiture & murs végétalisés': {
+    regen: `Transforme l'enveloppe du bâtiment en surface vivante qui rafraîchit, retient l'eau et héberge la biodiversité.`,
+    enjeux: `Répond aux canicules et à l'îlot de chaleur, aux pluies intenses et à la perte de biodiversité. Pertinent pour un espace qui surchauffe l'été ou en tissu urbain dense.`
+  },
+  'Canopée & îlots de fraîcheur': {
+    regen: `Fait de l'arbre l'infrastructure du lieu : il rafraîchit, stocke le carbone et abrite le vivant, avec un bénéfice qui grandit chaque année.`,
+    enjeux: `Répond directement aux canicules et à la surchauffe des espaces extérieurs, à l'îlot de chaleur. Utile pour une cour, une terrasse ou un parking exposés au soleil.`
+  },
+  'Ombrières & pergolas bioclimatiques': {
+    regen: `Protège les usages du soleil de façon passive, et peut même produire de l'énergie, sans consommer de ressource pour rafraîchir.`,
+    enjeux: `Répond aux canicules et à la surchauffe des façades et terrasses, au besoin de rafraîchir sans climatisation. Pertinent pour un espace extérieur ou une façade sud très exposée.`
+  },
+  'Rafraîchissement passif du bâti': {
+    regen: `Assure le confort d'été sans énergie ni climatisation, en s'appuyant sur la conception et l'inertie plutôt que sur des machines.`,
+    enjeux: `Répond aux canicules et à l'inconfort thermique intérieur, à l'explosion de la climatisation et de ses coûts. Utile pour un espace intérieur qui devient invivable l'été (bureau, atelier, salle).`
+  },
+  'Désimperméabilisation des sols': {
+    regen: `Redonne vie au sol : en remplaçant le bitume par du vivant, elle laisse l'eau s'infiltrer, recharge les nappes et rafraîchit l'air.`,
+    enjeux: `Répond à l'îlot de chaleur et aux canicules, aux inondations lors des orages et à l'imperméabilisation. Pertinent pour une cour, un parking ou un espace très minéral.`
+  }
+};
+
 /* ── Méta ODD (couleurs officielles ONU) ── */
 const ODD_META={
   1:{c:'#E5243B',l:'Pas de pauvreté'},
@@ -3466,6 +3558,18 @@ function bddDetail(s){
       </div>
     </div>
 
+
+    <!-- ⑤⑥ Dimension régénérative & enjeux de demain -->
+    ${(()=>{ const se = (typeof SOLS_ENJEUX!=='undefined' ? SOLS_ENJEUX[s.nom] : null) || {}; let h='';
+      if (se.regen) h += `<div style="margin:1rem 1.4rem 0;background:rgba(74,140,92,.06);border:1px solid rgba(74,140,92,.22);border-radius:1rem;padding:.95rem 1.1rem">
+        <div style="font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--fern);font-weight:800;margin-bottom:.4rem">🌱 En quoi c'est une solution régénérative</div>
+        <div style="font-size:.76rem;color:var(--ink);line-height:1.6;opacity:.92">${se.regen}</div>
+      </div>`;
+      if (se.enjeux) h += `<div style="margin:1rem 1.4rem 0;background:rgba(200,115,42,.06);border:1px solid rgba(200,115,42,.24);border-radius:1rem;padding:.95rem 1.1rem">
+        <div style="font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:#a06010;font-weight:800;margin-bottom:.4rem">🌡 À quelle problématique de demain elle répond</div>
+        <div style="font-size:.76rem;color:var(--ink);line-height:1.6;opacity:.92">${se.enjeux}</div>
+      </div>`;
+      return h; })()}
 
     <!-- ⑦ Indicateurs de Changement d'Impact (ICI) -->
     <div style="margin:1rem 1.4rem 0">

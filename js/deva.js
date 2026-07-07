@@ -117,6 +117,36 @@ function devaHideTyping() {
   if (el) el.remove();
 }
 
+// Contexte live injecté dans l'appel : les espaces du lieu (avec leur
+// problématique) + le catalogue de solutions et les enjeux qu'elles couvrent.
+// Permet à Deva de relier une problématique d'espace aux bonnes solutions.
+function devaBuildAppContext() {
+  const parts = [];
+  try {
+    const espaces = [];
+    if (typeof cData !== 'undefined' && cData && Array.isArray(cData.espacesData)) espaces.push(...cData.espacesData);
+    if (typeof ficheEspaces !== 'undefined' && Array.isArray(ficheEspaces)) espaces.push(...ficheEspaces);
+    const lignes = espaces
+      .filter(e => e && (e.nom || e.probleme))
+      .map(e => `- Espace « ${e.nom || 'sans nom'} »`
+        + (e.probleme ? ` — problématique à résoudre : ${e.probleme}` : '')
+        + (e.fonctions && e.fonctions.length ? ` (fonctions : ${e.fonctions.join(', ')})` : ''));
+    if (lignes.length) parts.push('ESPACES DU LIEU EN COURS :\n' + lignes.join('\n'));
+  } catch (e) {}
+  try {
+    if (typeof SOLS !== 'undefined' && Array.isArray(SOLS)) {
+      const cat = SOLS.map(s => {
+        const se = (typeof SOLS_ENJEUX !== 'undefined' ? SOLS_ENJEUX[s.nom] : null) || {};
+        const enj = se.enjeux ? se.enjeux.split('. ')[0] : (s.impact || '');
+        return `- ${s.nom} → ${enj}`;
+      });
+      parts.push('CATALOGUE DE SOLUTIONS (bibliothèque EVAD) :\n' + cat.join('\n'));
+    }
+  } catch (e) {}
+  if (!parts.length) return null;
+  return "Contexte live de l'application EVAD. Utilise-le pour relier les problématiques notées dans les espaces du lieu aux solutions de la bibliothèque, et proposer les plus pertinentes :\n\n" + parts.join('\n\n');
+}
+
 async function devaSubmit() {
   const input = document.getElementById('deva-chat-input');
   const text = input.value.trim();
@@ -145,10 +175,12 @@ async function devaSubmit() {
   try {
     // Appel du proxy (Vercel/Netlify) qui ajoute la clé + le system prompt et
     // interroge Mistral. On n'envoie que l'historique de conversation.
+    const ctx = devaBuildAppContext();
+    const payloadMessages = ctx ? [{ role: 'system', content: ctx }, ...devaHistory] : devaHistory;
     const response = await fetch(DEVA_API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: devaHistory })
+      body: JSON.stringify({ messages: payloadMessages })
     });
 
     const data = await response.json();
