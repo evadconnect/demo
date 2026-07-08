@@ -313,7 +313,7 @@ function piloteQueteCreerEnsureDom() {
   // Icône + Titre
   +   '<div style="display:flex;gap:.6rem;align-items:flex-end">'
   +     '<div style="width:58px;flex-shrink:0"><label style="' + lbl + '" for="pqc-emoji">Icône</label>'
-  +     '<input id="pqc-emoji" maxlength="4" style="' + inp + ';text-align:center;font-size:1rem" placeholder="⚡"></div>'
+  +     '<input id="pqc-emoji" maxlength="4" style="' + inp + ';text-align:center;font-size:1rem" placeholder=""></div>'
   +     '<div style="flex:1"><label style="' + lbl + '" for="pq-create-titre">Titre de la quête *</label>'
   +     '<input id="pq-create-titre" style="' + inp + '" placeholder="Ex : Planter la haie champêtre du verger"></div>'
   +   '</div>'
@@ -330,7 +330,7 @@ function piloteQueteCreerEnsureDom() {
   // Graines + Impact
   +   '<div style="display:flex;gap:.6rem">'
   +     '<div style="flex:1"><label style="' + lbl + '" for="pq-create-graines">Graines offertes</label>'
-  +     '<input id="pq-create-graines" type="number" min="0" style="' + inp + '" placeholder="50"></div>'
+  +     '<input id="pq-create-graines" type="number" min="0" style="' + inp + '" placeholder="Ex : 50"></div>'
   +     '<div style="flex:2"><label style="' + lbl + '" for="pq-create-impact">Impact visé</label>'
   +     '<input id="pq-create-impact" style="' + inp + '" placeholder="Ex : +8 pts eau · 200 m de haie"></div>'
   +   '</div>'
