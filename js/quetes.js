@@ -129,21 +129,26 @@ function openPiloteQueteFiche(qid) {
   const sol = (typeof SOLS !== 'undefined') ? SOLS.find(s => s.nom === pq.source) : null;
   const lieuNom = (typeof myLieuData !== 'undefined' && myLieuData && myLieuData.nom) ? myLieuData.nom : 'Mon lieu';
   const ville = (typeof myLieuData !== 'undefined' && myLieuData && myLieuData.localisation) ? myLieuData.localisation : 'Bordeaux';
-  const _semPlan = ((sol && typeof SOLS_INDICATORS !== 'undefined' && SOLS_INDICATORS[sol.nom]) ? SOLS_INDICATORS[sol.nom].plan : null) || [];
+  const _solPlan = ((sol && typeof SOLS_INDICATORS !== 'undefined' && SOLS_INDICATORS[sol.nom]) ? SOLS_INDICATORS[sol.nom].plan : null) || [];
+  const _solMat = ((sol && typeof SOLS_INDICATORS !== 'undefined' && SOLS_INDICATORS[sol.nom]) ? SOLS_INDICATORS[sol.nom].materiel : null) || [];
+  // Quête créée à la main : on utilise ses propres champs (desc, plan, matériel) ;
+  // sinon on retombe sur ceux de la solution associée.
+  const _plan = (pq.plan && pq.plan.length) ? pq.plan : _solPlan;
+  const _mat  = (pq.materiel && pq.materiel.length) ? pq.materiel : _solMat;
   showQueteFiche({
     titre: pq.titre,
     type: (pq.sourceIc || (sol && sol.img) || '⚡') + ' ' + ((sol && sol.cat) || 'Quête'),
     lieu: lieuNom, pilote: lieuNom, ville: ville,
-    desc: (sol && sol.desc) || pq.titre,
+    desc: pq.desc || (sol && sol.desc) || pq.titre,
     impact: pq.impact || (sol && sol.impact) || '',
-    plan: _semPlan,
-    materiel: ((sol && typeof SOLS_INDICATORS !== 'undefined' && SOLS_INDICATORS[sol.nom]) ? SOLS_INDICATORS[sol.nom].materiel : null) || [],
+    plan: _plan,
+    materiel: _mat,
     preuve: 'Photos de l\'action réalisée + indicateurs mesurés.',
     apprendre: 'Mise en œuvre de « ' + ((sol && sol.nom) || pq.titre) + ' ».',
     duree: pq.duree || '1 journée',
     places: '0/' + (parseInt(pq.nb, 10) || 6),
-    etape_actuelle: 1, etapes: _semPlan.length || 4,
-    etapeLabels: _semPlan.length ? _semPlan.map(p => p.titre) : ['Lancement', 'Préparation', 'Réalisation', 'Certification'],
+    etape_actuelle: 1, etapes: _plan.length || 4,
+    etapeLabels: _plan.length ? _plan.map(p => p.titre) : ['Lancement', 'Préparation', 'Réalisation', 'Certification'],
     tokens: pq.graines || 50, co2: (sol && sol.co2) || 0,
     esrs: ((sol && sol.esrs) || []).map(e => String(e).replace('ESRS ', '').trim()),
     financement: { objectif: 0, montant: 0, semeur: null },
@@ -231,23 +236,73 @@ function syncPiloteQuetesFromLieu() {
       PILOTE_QUETES_DEMO.push({
         id: r.id, titre: r.titre || 'Quête', statut: r.statut || 'a_verifier',
         duree: r.duree || '-', nb: r.nb || '-', graines: r.graines || 50,
-        impact: r.impact || '', source: null, sourceIc: r.sourceIc || '⚡', custom: true
+        impact: r.impact || '', desc: r.desc || '',
+        materiel: Array.isArray(r.materiel) ? r.materiel : [],
+        plan: Array.isArray(r.plan) ? r.plan : [],
+        source: null, sourceIc: r.sourceIc || '⚡', custom: true
       });
     });
   }
 }
 
-/* ─── Création manuelle d'une quête par le Pilote (modal « + Nouvelle quête ») ─── */
+/* ─── Création manuelle d'une quête par le Pilote (modal « + Nouvelle quête ») ───
+   Formulaire complet, inspiré des quêtes existantes : titre, icône, description,
+   durée, participants, graines, impact, matériel nécessaire, étapes du plan. */
+let _pqcMat = [];
+let _pqcPlan = [];
+
+function _pqcRenderMat() {
+  const list = document.getElementById('pqc-mat-list'); if (!list) return;
+  list.innerHTML = _pqcMat.map((m, i) =>
+    '<div style="display:flex;align-items:center;gap:.5rem;padding:.35rem .55rem;border-radius:8px;background:rgba(46,102,66,.05);border:1px solid rgba(46,102,66,.1)">'
+    + '<div style="width:5px;height:5px;border-radius:50%;background:var(--fern);flex-shrink:0"></div>'
+    + '<span style="flex:1;font-size:.75rem;color:var(--ink)">' + m + '</span>'
+    + '<button type="button" onclick="_pqcMatRemove(' + i + ')" style="border:none;background:none;cursor:pointer;color:var(--moss);opacity:.5;font-size:.75rem;line-height:1">✕</button>'
+    + '</div>'
+  ).join('');
+}
+function pqcAddMat() {
+  const inp = document.getElementById('pqc-mat-input'); if (!inp) return;
+  const v = inp.value.trim(); if (!v) return;
+  _pqcMat.push(v); inp.value = ''; inp.focus(); _pqcRenderMat();
+}
+function _pqcMatRemove(i) { _pqcMat.splice(i, 1); _pqcRenderMat(); }
+
+function _pqcRenderPlan() {
+  const list = document.getElementById('pqc-plan-list'); if (!list) return;
+  list.innerHTML = _pqcPlan.map((p, i) =>
+    '<div style="display:flex;gap:.5rem;padding:.5rem .6rem;border-radius:10px;border:1px solid rgba(46,102,66,.1);background:rgba(46,102,66,.03);align-items:flex-start">'
+    + '<div style="width:24px;height:24px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.9rem;background:rgba(46,102,66,.08)">' + (p.ic || '▶') + '</div>'
+    + '<div style="flex:1;min-width:0"><div style="font-size:.72rem;font-weight:700;color:var(--ink)">' + (i + 1) + '. ' + p.titre + '</div>' + (p.desc ? '<div style="font-size:.64rem;color:var(--moss);opacity:.85;line-height:1.4;margin-top:.1rem">' + p.desc + '</div>' : '') + '</div>'
+    + '<button type="button" onclick="_pqcPlanRemove(' + i + ')" style="border:none;background:none;cursor:pointer;color:var(--moss);opacity:.5;font-size:.72rem;line-height:1">✕</button>'
+    + '</div>'
+  ).join('');
+}
+function pqcAddPlan() {
+  const ic = (document.getElementById('pqc-plan-ic').value || '').trim() || '▶';
+  const titre = (document.getElementById('pqc-plan-titre').value || '').trim();
+  const desc = (document.getElementById('pqc-plan-desc').value || '').trim();
+  if (!titre) return;
+  _pqcPlan.push({ ic: ic, titre: titre, desc: desc });
+  document.getElementById('pqc-plan-ic').value = '';
+  document.getElementById('pqc-plan-titre').value = '';
+  document.getElementById('pqc-plan-desc').value = '';
+  document.getElementById('pqc-plan-titre').focus();
+  _pqcRenderPlan();
+}
+function _pqcPlanRemove(i) { _pqcPlan.splice(i, 1); _pqcRenderPlan(); }
+
 function piloteQueteCreerEnsureDom() {
   if (document.getElementById('pq-create-modal')) return;
   const wrap = document.createElement('div');
   wrap.id = 'pq-create-modal';
   wrap.style.cssText = 'display:none;position:fixed;inset:0;z-index:10030;font-family:\'Satoshi\',sans-serif';
-  const inputStyle = 'width:100%;box-sizing:border-box;padding:.55rem .7rem;border-radius:10px;border:1px solid rgba(46,102,66,.2);font-family:inherit;font-size:.82rem;color:var(--ink);background:#fff';
-  const labelStyle = 'display:block;font-size:.72rem;font-weight:700;color:var(--moss);margin:.75rem 0 .3rem';
+  const inp = 'width:100%;box-sizing:border-box;padding:.55rem .7rem;border-radius:10px;border:1px solid rgba(46,102,66,.2);font-family:inherit;font-size:.82rem;color:var(--ink);background:#fff';
+  const lbl = 'display:block;font-size:.72rem;font-weight:700;color:var(--moss);margin:.75rem 0 .3rem';
+  const addBtn = 'padding:.5rem .8rem;border-radius:8px;border:none;background:rgba(46,102,66,.1);color:var(--forest);font-size:.8rem;font-weight:700;cursor:pointer;flex-shrink:0;font-family:inherit';
   wrap.innerHTML =
     '<div style="position:absolute;inset:0;background:rgba(13,43,34,.6);backdrop-filter:blur(4px)" onclick="piloteQueteCreerFermer()"></div>'
-  + '<div role="dialog" aria-label="Nouvelle quête" style="position:relative;max-width:460px;width:calc(100% - 2rem);margin:5vh auto 0;max-height:88vh;overflow-y:auto;background:#fff;border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.32);padding:1.3rem 1.4rem 1.4rem">'
+  + '<div role="dialog" aria-label="Nouvelle quête" style="position:relative;max-width:480px;width:calc(100% - 2rem);margin:4vh auto 0;max-height:90vh;overflow-y:auto;background:#fff;border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.32);padding:1.3rem 1.4rem 1.4rem">'
   +   '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem">'
   +     '<div>'
   +       '<div style="font-size:1.05rem;font-weight:800;color:var(--ink)">⚡ Nouvelle quête</div>'
@@ -255,21 +310,49 @@ function piloteQueteCreerEnsureDom() {
   +     '</div>'
   +     '<button onclick="piloteQueteCreerFermer()" aria-label="Fermer" style="flex-shrink:0;background:none;border:none;font-size:1.2rem;line-height:1;color:var(--moss);opacity:.5;cursor:pointer">✕</button>'
   +   '</div>'
-  +   '<label style="' + labelStyle + '" for="pq-create-titre">Titre de la quête *</label>'
-  +   '<input id="pq-create-titre" style="' + inputStyle + '" placeholder="Ex : Planter la haie champêtre du verger">'
-  +   '<div style="display:flex;gap:.6rem">'
-  +     '<div style="flex:1"><label style="' + labelStyle + '" for="pq-create-duree">Durée</label>'
-  +     '<input id="pq-create-duree" style="' + inputStyle + '" placeholder="Ex : 1 journée"></div>'
-  +     '<div style="flex:1"><label style="' + labelStyle + '" for="pq-create-nb">Participants</label>'
-  +     '<input id="pq-create-nb" style="' + inputStyle + '" placeholder="Ex : 2–4 pers."></div>'
+  // Icône + Titre
+  +   '<div style="display:flex;gap:.6rem;align-items:flex-end">'
+  +     '<div style="width:58px;flex-shrink:0"><label style="' + lbl + '" for="pqc-emoji">Icône</label>'
+  +     '<input id="pqc-emoji" maxlength="4" style="' + inp + ';text-align:center;font-size:1rem" placeholder="⚡"></div>'
+  +     '<div style="flex:1"><label style="' + lbl + '" for="pq-create-titre">Titre de la quête *</label>'
+  +     '<input id="pq-create-titre" style="' + inp + '" placeholder="Ex : Planter la haie champêtre du verger"></div>'
   +   '</div>'
+  // Description
+  +   '<label style="' + lbl + '" for="pqc-desc">Description</label>'
+  +   '<textarea id="pqc-desc" rows="2" style="' + inp + ';resize:vertical;line-height:1.5" placeholder="Décris l\'action, son but, ce que les bâtisseurs vont faire…"></textarea>'
+  // Durée + Participants
   +   '<div style="display:flex;gap:.6rem">'
-  +     '<div style="flex:1"><label style="' + labelStyle + '" for="pq-create-graines">Graines offertes</label>'
-  +     '<input id="pq-create-graines" type="number" min="0" style="' + inputStyle + '" placeholder="50"></div>'
-  +     '<div style="flex:2"><label style="' + labelStyle + '" for="pq-create-impact">Impact visé (facultatif)</label>'
-  +     '<input id="pq-create-impact" style="' + inputStyle + '" placeholder="Ex : +8 pts eau · 200 m de haie"></div>'
+  +     '<div style="flex:1"><label style="' + lbl + '" for="pq-create-duree">Durée</label>'
+  +     '<input id="pq-create-duree" style="' + inp + '" placeholder="Ex : 1 journée"></div>'
+  +     '<div style="flex:1"><label style="' + lbl + '" for="pq-create-nb">Participants</label>'
+  +     '<input id="pq-create-nb" style="' + inp + '" placeholder="Ex : 2–4 pers."></div>'
   +   '</div>'
-  +   '<div id="pq-create-hint" style="font-size:.7rem;color:var(--terracotta);margin-top:.45rem;min-height:1rem"></div>'
+  // Graines + Impact
+  +   '<div style="display:flex;gap:.6rem">'
+  +     '<div style="flex:1"><label style="' + lbl + '" for="pq-create-graines">Graines offertes</label>'
+  +     '<input id="pq-create-graines" type="number" min="0" style="' + inp + '" placeholder="50"></div>'
+  +     '<div style="flex:2"><label style="' + lbl + '" for="pq-create-impact">Impact visé</label>'
+  +     '<input id="pq-create-impact" style="' + inp + '" placeholder="Ex : +8 pts eau · 200 m de haie"></div>'
+  +   '</div>'
+  // Matériel
+  +   '<label style="' + lbl + '">🛠 Matériel nécessaire</label>'
+  +   '<div id="pqc-mat-list" style="display:flex;flex-direction:column;gap:.3rem;margin-bottom:.4rem"></div>'
+  +   '<div style="display:flex;gap:.5rem">'
+  +     '<input id="pqc-mat-input" style="' + inp + '" placeholder="Ex : Cuve 1 000 L, plants de haie…" onkeydown="if(event.key===\'Enter\'){event.preventDefault();pqcAddMat();}">'
+  +     '<button type="button" onclick="pqcAddMat()" style="' + addBtn + '">+</button>'
+  +   '</div>'
+  // Étapes / plan
+  +   '<label style="' + lbl + '">📋 Étapes de la quête</label>'
+  +   '<div id="pqc-plan-list" style="display:flex;flex-direction:column;gap:.35rem;margin-bottom:.4rem"></div>'
+  +   '<div style="background:rgba(246,250,247,.8);border:1px solid rgba(46,102,66,.15);border-radius:12px;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.4rem">'
+  +     '<div style="display:flex;gap:.5rem">'
+  +       '<input id="pqc-plan-ic" maxlength="4" style="width:46px;box-sizing:border-box;padding:.5rem .3rem;border-radius:8px;border:1px solid rgba(46,102,66,.2);font-size:.9rem;text-align:center;font-family:inherit;background:#fff" placeholder="🔧">'
+  +       '<input id="pqc-plan-titre" style="flex:1;box-sizing:border-box;padding:.5rem .7rem;border-radius:8px;border:1px solid rgba(46,102,66,.2);font-size:.78rem;font-family:inherit;color:var(--ink);background:#fff" placeholder="Titre de l\'étape">'
+  +     '</div>'
+  +     '<textarea id="pqc-plan-desc" rows="2" style="width:100%;box-sizing:border-box;padding:.5rem .7rem;border-radius:8px;border:1px solid rgba(46,102,66,.2);font-size:.74rem;font-family:inherit;color:var(--ink);background:#fff;resize:none;line-height:1.5" placeholder="Décris cette étape (facultatif)…"></textarea>'
+  +     '<button type="button" onclick="pqcAddPlan()" style="align-self:flex-end;padding:.42rem .9rem;border-radius:8px;border:none;background:var(--forest);color:#fff;font-size:.74rem;font-weight:700;cursor:pointer;font-family:inherit">+ Ajouter cette étape</button>'
+  +   '</div>'
+  +   '<div id="pq-create-hint" style="font-size:.7rem;color:var(--terracotta);margin-top:.55rem;min-height:1rem"></div>'
   +   '<div style="display:flex;align-items:center;justify-content:flex-end;gap:.6rem;margin-top:.4rem">'
   +     '<button onclick="piloteQueteCreerFermer()" style="background:none;border:none;color:var(--moss);font-size:.8rem;font-weight:600;cursor:pointer;padding:.5rem .6rem;font-family:inherit">Annuler</button>'
   +     '<button onclick="piloteQueteCreerSave()" style="background:var(--forest);color:#fff;border:none;border-radius:100px;padding:.55rem 1.3rem;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit">Créer la quête</button>'
@@ -279,9 +362,12 @@ function piloteQueteCreerEnsureDom() {
 }
 function piloteQueteCreerOuvrir() {
   piloteQueteCreerEnsureDom();
-  ['pq-create-titre', 'pq-create-duree', 'pq-create-nb', 'pq-create-graines', 'pq-create-impact'].forEach(id => {
+  ['pq-create-titre', 'pq-create-duree', 'pq-create-nb', 'pq-create-graines', 'pq-create-impact',
+   'pqc-emoji', 'pqc-desc', 'pqc-mat-input', 'pqc-plan-ic', 'pqc-plan-titre', 'pqc-plan-desc'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
+  _pqcMat = []; _pqcPlan = [];
+  _pqcRenderMat(); _pqcRenderPlan();
   const hint = document.getElementById('pq-create-hint'); if (hint) hint.textContent = '';
   document.getElementById('pq-create-modal').style.display = 'block';
   setTimeout(() => { const t = document.getElementById('pq-create-titre'); if (t) t.focus(); }, 60);
@@ -307,7 +393,10 @@ function piloteQueteCreerSave() {
     nb: val('pq-create-nb') || '-',
     graines: parseInt(val('pq-create-graines'), 10) || 50,
     impact: val('pq-create-impact'),
-    source: null, sourceIc: '⚡', custom: true
+    desc: val('pqc-desc'),
+    materiel: _pqcMat.slice(),
+    plan: _pqcPlan.slice(),
+    source: null, sourceIc: val('pqc-emoji') || '⚡', custom: true
   };
   PILOTE_QUETES_DEMO.push(q);
   if (window.store) {
