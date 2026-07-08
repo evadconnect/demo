@@ -223,7 +223,100 @@ function syncPiloteQuetesFromLieu() {
       if (saved && saved.statut) qq.statut = saved.statut;
       store.upsert('quetes', { id: qq.id, lieu_id: lieuId, titre: qq.titre, statut: qq.statut, duree: qq.duree, nb: qq.nb, graines: qq.graines, source: qq.source });
     });
+    // Quêtes créées à la main par le Pilote (« + Nouvelle quête ») : elles ne
+    // viennent pas des solutions, on les recharge pour qu'elles survivent aux
+    // reconstructions de la liste.
+    store.where('quetes', r => r.custom === true && r.statut !== 'retiree').forEach(r => {
+      if (PILOTE_QUETES_DEMO.some(q => q.id === r.id)) return;
+      PILOTE_QUETES_DEMO.push({
+        id: r.id, titre: r.titre || 'Quête', statut: r.statut || 'a_verifier',
+        duree: r.duree || '-', nb: r.nb || '-', graines: r.graines || 50,
+        impact: r.impact || '', source: null, sourceIc: r.sourceIc || '⚡', custom: true
+      });
+    });
   }
+}
+
+/* ─── Création manuelle d'une quête par le Pilote (modal « + Nouvelle quête ») ─── */
+function piloteQueteCreerEnsureDom() {
+  if (document.getElementById('pq-create-modal')) return;
+  const wrap = document.createElement('div');
+  wrap.id = 'pq-create-modal';
+  wrap.style.cssText = 'display:none;position:fixed;inset:0;z-index:10030;font-family:\'Satoshi\',sans-serif';
+  const inputStyle = 'width:100%;box-sizing:border-box;padding:.55rem .7rem;border-radius:10px;border:1px solid rgba(46,102,66,.2);font-family:inherit;font-size:.82rem;color:var(--ink);background:#fff';
+  const labelStyle = 'display:block;font-size:.72rem;font-weight:700;color:var(--moss);margin:.75rem 0 .3rem';
+  wrap.innerHTML =
+    '<div style="position:absolute;inset:0;background:rgba(13,43,34,.6);backdrop-filter:blur(4px)" onclick="piloteQueteCreerFermer()"></div>'
+  + '<div role="dialog" aria-label="Nouvelle quête" style="position:relative;max-width:460px;width:calc(100% - 2rem);margin:5vh auto 0;max-height:88vh;overflow-y:auto;background:#fff;border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.32);padding:1.3rem 1.4rem 1.4rem">'
+  +   '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem">'
+  +     '<div>'
+  +       '<div style="font-size:1.05rem;font-weight:800;color:var(--ink)">⚡ Nouvelle quête</div>'
+  +       '<div style="font-size:.78rem;line-height:1.5;color:var(--moss);margin-top:.3rem">Une action concrète sur ton lieu. Une fois publiée, les bâtisseurs pourront la rejoindre.</div>'
+  +     '</div>'
+  +     '<button onclick="piloteQueteCreerFermer()" aria-label="Fermer" style="flex-shrink:0;background:none;border:none;font-size:1.2rem;line-height:1;color:var(--moss);opacity:.5;cursor:pointer">✕</button>'
+  +   '</div>'
+  +   '<label style="' + labelStyle + '" for="pq-create-titre">Titre de la quête *</label>'
+  +   '<input id="pq-create-titre" style="' + inputStyle + '" placeholder="Ex : Planter la haie champêtre du verger">'
+  +   '<div style="display:flex;gap:.6rem">'
+  +     '<div style="flex:1"><label style="' + labelStyle + '" for="pq-create-duree">Durée</label>'
+  +     '<input id="pq-create-duree" style="' + inputStyle + '" placeholder="Ex : 1 journée"></div>'
+  +     '<div style="flex:1"><label style="' + labelStyle + '" for="pq-create-nb">Participants</label>'
+  +     '<input id="pq-create-nb" style="' + inputStyle + '" placeholder="Ex : 2–4 pers."></div>'
+  +   '</div>'
+  +   '<div style="display:flex;gap:.6rem">'
+  +     '<div style="flex:1"><label style="' + labelStyle + '" for="pq-create-graines">Graines offertes</label>'
+  +     '<input id="pq-create-graines" type="number" min="0" style="' + inputStyle + '" placeholder="50"></div>'
+  +     '<div style="flex:2"><label style="' + labelStyle + '" for="pq-create-impact">Impact visé (facultatif)</label>'
+  +     '<input id="pq-create-impact" style="' + inputStyle + '" placeholder="Ex : +8 pts eau · 200 m de haie"></div>'
+  +   '</div>'
+  +   '<div id="pq-create-hint" style="font-size:.7rem;color:var(--terracotta);margin-top:.45rem;min-height:1rem"></div>'
+  +   '<div style="display:flex;align-items:center;justify-content:flex-end;gap:.6rem;margin-top:.4rem">'
+  +     '<button onclick="piloteQueteCreerFermer()" style="background:none;border:none;color:var(--moss);font-size:.8rem;font-weight:600;cursor:pointer;padding:.5rem .6rem;font-family:inherit">Annuler</button>'
+  +     '<button onclick="piloteQueteCreerSave()" style="background:var(--forest);color:#fff;border:none;border-radius:100px;padding:.55rem 1.3rem;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit">Créer la quête</button>'
+  +   '</div>'
+  + '</div>';
+  document.body.appendChild(wrap);
+}
+function piloteQueteCreerOuvrir() {
+  piloteQueteCreerEnsureDom();
+  ['pq-create-titre', 'pq-create-duree', 'pq-create-nb', 'pq-create-graines', 'pq-create-impact'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  const hint = document.getElementById('pq-create-hint'); if (hint) hint.textContent = '';
+  document.getElementById('pq-create-modal').style.display = 'block';
+  setTimeout(() => { const t = document.getElementById('pq-create-titre'); if (t) t.focus(); }, 60);
+}
+function piloteQueteCreerFermer() {
+  const m = document.getElementById('pq-create-modal');
+  if (m) m.style.display = 'none';
+}
+function piloteQueteCreerSave() {
+  const val = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  const titre = val('pq-create-titre');
+  if (!titre) {
+    const hint = document.getElementById('pq-create-hint');
+    if (hint) hint.textContent = 'Donne un titre à ta quête 🙂';
+    const t = document.getElementById('pq-create-titre'); if (t) t.focus();
+    return;
+  }
+  const q = {
+    id: 'q-' + (window.store ? store.uuid() : Date.now().toString(36)),
+    titre: titre,
+    statut: 'a_verifier',
+    duree: val('pq-create-duree') || '-',
+    nb: val('pq-create-nb') || '-',
+    graines: parseInt(val('pq-create-graines'), 10) || 50,
+    impact: val('pq-create-impact'),
+    source: null, sourceIc: '⚡', custom: true
+  };
+  PILOTE_QUETES_DEMO.push(q);
+  if (window.store) {
+    const lieuId = (typeof myLieuData !== 'undefined' && myLieuData && myLieuData.id) || 'lieu-demo';
+    store.upsert('quetes', Object.assign({ lieu_id: lieuId }, q));
+  }
+  piloteQueteCreerFermer();
+  if (typeof renderPiloteQuetes === 'function') renderPiloteQuetes();
+  if (typeof mmBubble === 'function') mmBubble('⚡ Quête créée · vérifie-la puis publie-la pour la rendre visible');
 }
 
 /* ─── Détection automatique du type de convergence ─── */
