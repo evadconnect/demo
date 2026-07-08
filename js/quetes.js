@@ -320,7 +320,7 @@ function piloteQueteCreerEnsureDom() {
   +   '</div>'
   // Description
   +   '<label style="' + lbl + '" for="pqc-desc">Description</label>'
-  +   '<textarea id="pqc-desc" rows="2" style="' + inp + ';resize:vertical;line-height:1.5" placeholder="Décris l\'action, son but, ce que les bâtisseurs vont faire…"></textarea>'
+  +   '<textarea id="pqc-desc" rows="2" style="' + inp + ';resize:vertical;line-height:1.5" placeholder="Ex : Installer 200 m de haie champêtre pour la biodiversité et couper le vent"></textarea>'
   // Durée + Participants
   +   '<div style="display:flex;gap:.6rem">'
   +     '<div style="flex:1"><label style="' + lbl + '" for="pq-create-duree">Durée</label>'
