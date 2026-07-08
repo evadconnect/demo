@@ -4421,7 +4421,8 @@ function renderStep(){
         +_tabBtn('solutions','🧩 Solutions')
         +_tabBtn('indicateurs','📊 Indicateurs')
       +'</div>'
-      +'<div id="creer-s3-pane">'+(_tab==='indicateurs'?_indicateursPane:_solutionsPane)+'</div>';
+      +'<div id="creer-s3-pane">'+(_tab==='indicateurs'?_indicateursPane:_solutionsPane)+'</div>'
+      +'<button onclick="piloteQueteCreerOuvrir()" style="width:100%;margin-top:.9rem;padding:.6rem;border-radius:100px;border:1.5px dashed rgba(46,102,66,.3);background:rgba(46,102,66,.04);color:var(--forest);font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit">⚡ + Nouvelle quête</button>';
 
     genMM(espItems);
     mmDrawCircularLinks(espItems, circLinks);

@@ -296,20 +296,21 @@ function piloteQueteCreerEnsureDom() {
   if (document.getElementById('pq-create-modal')) return;
   const wrap = document.createElement('div');
   wrap.id = 'pq-create-modal';
-  wrap.style.cssText = 'display:none;position:fixed;inset:0;z-index:10030;font-family:\'Satoshi\',sans-serif';
+  wrap.style.cssText = 'display:none;position:fixed;inset:0;z-index:10030;background:var(--paper);flex-direction:column;font-family:\'Satoshi\',sans-serif';
   const inp = 'width:100%;box-sizing:border-box;padding:.55rem .7rem;border-radius:10px;border:1px solid rgba(46,102,66,.2);font-family:inherit;font-size:.82rem;color:var(--ink);background:#fff';
   const lbl = 'display:block;font-size:.72rem;font-weight:700;color:var(--moss);margin:.75rem 0 .3rem';
   const addBtn = 'padding:.5rem .8rem;border-radius:8px;border:none;background:rgba(46,102,66,.1);color:var(--forest);font-size:.8rem;font-weight:700;cursor:pointer;flex-shrink:0;font-family:inherit';
   wrap.innerHTML =
-    '<div style="position:absolute;inset:0;background:rgba(13,43,34,.6);backdrop-filter:blur(4px)" onclick="piloteQueteCreerFermer()"></div>'
-  + '<div role="dialog" aria-label="Nouvelle quête" style="position:relative;max-width:480px;width:calc(100% - 2rem);margin:4vh auto 0;max-height:90vh;overflow-y:auto;background:#fff;border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.32);padding:1.3rem 1.4rem 1.4rem">'
-  +   '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem">'
-  +     '<div>'
-  +       '<div style="font-size:1.05rem;font-weight:800;color:var(--ink)">⚡ Nouvelle quête</div>'
-  +       '<div style="font-size:.78rem;line-height:1.5;color:var(--moss);margin-top:.3rem">Une action concrète sur ton lieu. Une fois publiée, les bâtisseurs pourront la rejoindre.</div>'
-  +     '</div>'
-  +     '<button onclick="piloteQueteCreerFermer()" aria-label="Fermer" style="flex-shrink:0;background:none;border:none;font-size:1.2rem;line-height:1;color:var(--moss);opacity:.5;cursor:pointer">✕</button>'
+    // Topbar pleine page
+    '<div style="flex-shrink:0;display:flex;align-items:center;gap:1rem;padding:.9rem 1.4rem;background:rgba(232,247,243,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(1,130,98,.14)">'
+  +   '<button onclick="piloteQueteCreerFermer()" style="flex-shrink:0;background:rgba(46,102,66,.08);border:none;border-radius:100px;padding:.42rem .95rem;font-size:.78rem;font-weight:600;color:var(--forest);cursor:pointer;font-family:inherit">← Retour</button>'
+  +   '<div style="min-width:0">'
+  +     '<div style="font-size:1.05rem;font-weight:800;color:var(--ink)">⚡ Nouvelle quête</div>'
+  +     '<div style="font-size:.72rem;line-height:1.4;color:var(--moss);opacity:.75">Une action concrète sur ton lieu, que les bâtisseurs pourront rejoindre.</div>'
   +   '</div>'
+  + '</div>'
+    // Contenu défilant, colonne centrée
+  + '<div style="flex:1;overflow-y:auto;padding:1.6rem 1.4rem 2.4rem"><div style="max-width:600px;margin:0 auto">'
   // Icône + Titre
   +   '<div style="display:flex;gap:.6rem;align-items:flex-end">'
   +     '<div style="width:58px;flex-shrink:0"><label style="' + lbl + '" for="pqc-emoji">Icône</label>'
@@ -353,11 +354,11 @@ function piloteQueteCreerEnsureDom() {
   +     '<button type="button" onclick="pqcAddPlan()" style="align-self:flex-end;padding:.42rem .9rem;border-radius:8px;border:none;background:var(--forest);color:#fff;font-size:.74rem;font-weight:700;cursor:pointer;font-family:inherit">+ Ajouter cette étape</button>'
   +   '</div>'
   +   '<div id="pq-create-hint" style="font-size:.7rem;color:var(--terracotta);margin-top:.55rem;min-height:1rem"></div>'
-  +   '<div style="display:flex;align-items:center;justify-content:flex-end;gap:.6rem;margin-top:.4rem">'
-  +     '<button onclick="piloteQueteCreerFermer()" style="background:none;border:none;color:var(--moss);font-size:.8rem;font-weight:600;cursor:pointer;padding:.5rem .6rem;font-family:inherit">Annuler</button>'
-  +     '<button onclick="piloteQueteCreerSave()" style="background:var(--forest);color:#fff;border:none;border-radius:100px;padding:.55rem 1.3rem;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit">Créer la quête</button>'
+  +   '<div style="display:flex;align-items:center;justify-content:flex-end;gap:.6rem;margin-top:.8rem">'
+  +     '<button onclick="piloteQueteCreerFermer()" style="background:none;border:1.5px solid rgba(46,102,66,.2);border-radius:100px;color:var(--moss);font-size:.8rem;font-weight:600;cursor:pointer;padding:.55rem 1.1rem;font-family:inherit">Annuler</button>'
+  +     '<button onclick="piloteQueteCreerSave()" style="background:var(--forest);color:#fff;border:none;border-radius:100px;padding:.6rem 1.4rem;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit">Créer la quête</button>'
   +   '</div>'
-  + '</div>';
+  + '</div></div>';
   document.body.appendChild(wrap);
 }
 function piloteQueteCreerOuvrir() {
@@ -369,7 +370,8 @@ function piloteQueteCreerOuvrir() {
   _pqcMat = []; _pqcPlan = [];
   _pqcRenderMat(); _pqcRenderPlan();
   const hint = document.getElementById('pq-create-hint'); if (hint) hint.textContent = '';
-  document.getElementById('pq-create-modal').style.display = 'block';
+  document.getElementById('pq-create-modal').style.display = 'flex';
+  const _sc = document.querySelector('#pq-create-modal > div:last-child'); if (_sc) _sc.scrollTop = 0;
   setTimeout(() => { const t = document.getElementById('pq-create-titre'); if (t) t.focus(); }, 60);
 }
 function piloteQueteCreerFermer() {
