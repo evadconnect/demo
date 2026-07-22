@@ -10,7 +10,7 @@ const OB_STEP2 = {
   steps: [
     { num: '🎯', title: 'La Vadance, la promesse', text: 'Le score d\'impact projeté d\'un lieu, sur 100. Calculé sur les valeurs prévues (le plan). Il sert à mobiliser la communauté et à convaincre les financeurs.' },
     { num: '✅', title: 'La Vadité, la preuve', text: 'L\'impact réellement prouvé et vérifié. Chaque donnée est décotée selon son niveau de preuve : déclaré, documenté, validé par les pairs, audité. C\'est ce que reçoit le financeur.' },
-    { num: '⚖️', title: 'L'indice de confiance', text: 'Vadité ÷ Vadance : la capacité d\'un lieu à transformer ses promesses en preuves. L\'indicateur anti-greenwashing d\'EVAD.' }
+    { num: '⚖️', title: 'L\'indice de confiance', text: 'Vadité ÷ Vadance : la capacité d\'un lieu à transformer ses promesses en preuves. L\'indicateur anti-greenwashing d\'EVAD.' }
   ]
 };
 
@@ -7590,7 +7590,7 @@ function apercuNextCran() {
   if (v < 38)   return { icon:'🌱', title:'Déclare plus d\'impact', why:'Ajoute des solutions et des espaces : chacune porte de vrais ICI qui font monter ta Vadance.', from:10, to:38, val:v, unit:'Vadance', cta:'Enrichir ma fiche', onclick:goFiche };
   if (v < 65)   return { icon:'✨', title:'Vise le palier « Prêt à publier »', why:'Quelques solutions à fort impact de plus et ton lieu devient convaincant pour la communauté.', from:38, to:65, val:v, unit:'Vadance', cta:'Enrichir ma fiche', onclick:goFiche };
   if (vit <= 10) return { icon:'✅', title:'Transforme ta promesse en preuve', why:'Ta Vadance est solide. Valide ta première quête pour faire décoller ta Vadité (l\'impact prouvé).', from:0, to:25, val:vit, unit:'Vadité', cta:'Aller aux quêtes', onclick:goQuetes };
-  if (taux < 50) return { icon:'⚖️', title:'Atteins 50% d'indice de confiance', why:'C\'est le seuil qui rend ton lieu éligible aux financements Semeur. Continue à certifier tes actions.', from:0, to:50, val:taux, unit:'% de tenue', cta:'Saisir une action', onclick:goImpact };
+  if (taux < 50) return { icon:'⚖️', title:'Atteins 50% d\'indice de confiance', why:'C\'est le seuil qui rend ton lieu éligible aux financements Semeur. Continue à certifier tes actions.', from:0, to:50, val:taux, unit:'% de tenue', cta:'Saisir une action', onclick:goImpact };
   if (taux < 80) return { icon:'📣', title:'Attire des financeurs', why:'Tu es éligible au financement Semeur. Publie au réseau pour gagner en visibilité.', from:50, to:80, val:taux, unit:'% de tenue', cta:'Publier au réseau', onclick:"evadPublishLieuToReseau()" };
   return { icon:'🚀', title:'Élève ton impact', why:'Lieu à fort indice de confiance : fais auditer tes preuves pour viser la certification maximale.', from:80, to:100, val:taux, unit:'% de tenue', cta:'Voir mon impact', onclick:goImpact };
 }
