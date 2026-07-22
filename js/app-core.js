@@ -10,7 +10,7 @@ const OB_STEP2 = {
   steps: [
     { num: '🎯', title: 'La Vadance, la promesse', text: 'Le score d\'impact projeté d\'un lieu, sur 100. Calculé sur les valeurs prévues (le plan). Il sert à mobiliser la communauté et à convaincre les financeurs.' },
     { num: '✅', title: 'La Vadité, la preuve', text: 'L\'impact réellement prouvé et vérifié. Chaque donnée est décotée selon son niveau de preuve : déclaré, documenté, validé par les pairs, audité. C\'est ce que reçoit le financeur.' },
-    { num: '⚖️', title: 'Le taux de tenue', text: 'Vadité ÷ Vadance : la capacité d\'un lieu à transformer ses promesses en preuves. L\'indicateur anti-greenwashing d\'EVAD.' }
+    { num: '⚖️', title: 'L'indice de confiance', text: 'Vadité ÷ Vadance : la capacité d\'un lieu à transformer ses promesses en preuves. L\'indicateur anti-greenwashing d\'EVAD.' }
   ]
 };
 
@@ -278,7 +278,7 @@ function obRenderSVG() {
 }
 
 /* Étape 2 d'onboarding : Vadance (promesse, barre translucide) vs Vadité
-   (preuve, barre pleine décotée), avec le taux de tenue. Commun aux 3 profils. */
+   (preuve, barre pleine décotée), avec l'indice de confiance. Commun aux 3 profils. */
 function svgVadanceVadite(svg, c, ca) {
   const base = 298, top = 98, sc = (base - top) / 100;
   const vadance = 85, vadite = 55, taux = Math.round(vadite / vadance * 100), reste = vadance - vadite;
@@ -298,7 +298,7 @@ function svgVadanceVadite(svg, c, ca) {
     </defs>
     <g transform="translate(210,48)">
       <rect x="-94" y="-17" width="188" height="32" rx="16" fill="${ca}" fill-opacity=".14" stroke="${ca}" stroke-opacity=".5"/>
-      <text x="0" y="5" text-anchor="middle" font-size="12" font-weight="800" fill="${cream}" font-family="Satoshi,sans-serif">📈 Taux de tenue · ${taux}%</text>
+      <text x="0" y="5" text-anchor="middle" font-size="12" font-weight="800" fill="${cream}" font-family="Satoshi,sans-serif">📈 Indice de confiance · ${taux}%</text>
     </g>
     <line x1="76" y1="${base}" x2="344" y2="${base}" stroke="rgba(255,255,255,.18)"/>
     ${[0,50,100].map(v=>{const y=base-v*sc;return `<text x="66" y="${y+3}" text-anchor="end" font-size="9" fill="rgba(196,219,201,.4)" font-family="Satoshi,sans-serif">${v}</text>`;}).join('')}
@@ -896,7 +896,7 @@ function lieuRenderHero() {
         <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(122,184,64,0.3);border-radius:var(--r-lg);padding:.7rem .9rem;text-align:center">
           <div style="font-family:'Satoshi', sans-serif;font-size:1.8rem;font-weight:900;color:var(--fern);line-height:1">${hasV?imp.vadite:'0'}</div>
           <div style="font-size:.55rem;color:var(--sage);text-transform:uppercase;letter-spacing:.1em;margin-top:.15rem">Vadité <span style="opacity:.6">(preuve)</span></div>
-          <div style="font-size:.6rem;color:rgba(255,255,255,.45);margin-top:.1rem">${hasV?'⚖️ taux de tenue '+imp.taux+'%':'à prouver'}</div>
+          <div style="font-size:.6rem;color:rgba(255,255,255,.45);margin-top:.1rem">${hasV?'⚖️ indice de confiance '+imp.taux+'%':'à prouver'}</div>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(${nDim},1fr);gap:.6rem">
@@ -5555,7 +5555,7 @@ async function createLieuOnMap(){
         <div class="score-bar-bg"><div id="evad-mylieu-scorebar" class="score-bar-fill" style="width:${_imp0.vadance}%"></div></div>
         <div id="evad-mylieu-scorelabel" class="score-label" style="color:var(--fern)">Vadance ${_imp0.vadance}/100 <span style="opacity:.6;font-weight:500">(promesse)</span></div>
       </div>
-      <div id="evad-mylieu-preuve" class="pcm-quetes" style="color:var(--moss);opacity:.85">✅ Vadité ${_imp0.vadite}/100 · ⚖️ Taux de tenue ${_imp0.taux}%</div>
+      <div id="evad-mylieu-preuve" class="pcm-quetes" style="color:var(--moss);opacity:.85">✅ Vadité ${_imp0.vadite}/100 · ⚖️ Indice de confiance ${_imp0.taux}%</div>
       <div class="pcm-quetes" style="color:var(--fern)">✦ ${cData.solutions?.length || 0} solution${(cData.solutions?.length||0)!==1?'s':''} · Lieu régénératif</div>
     `;
     // Insère en haut de la liste (juste après l'en-tête « 🏡 Lieux »)
@@ -5795,7 +5795,7 @@ function mapShowNewLieu() {
         </div>
         <div style="display:flex;justify-content:space-between;margin-top:.45rem">
           <span style="font-size:.58rem;color:var(--moss);opacity:.7">${solutions.length} solution${solutions.length !== 1 ? 's' : ''} · ${espaces.length} espace${espaces.length !== 1 ? 's' : ''}${statut ? ' · ' + statut : ''}</span>
-          <span style="font-size:.58rem;color:var(--fern);font-weight:700">⚖️ Taux de tenue ${_imp.taux}%${evadGlossaryChip('taux')}</span>
+          <span style="font-size:.58rem;color:var(--fern);font-weight:700">⚖️ Indice de confiance ${_imp.taux}%${evadGlossaryChip('taux')}</span>
         </div>
       </div>
 
@@ -5866,7 +5866,7 @@ function mapShowNewLieu() {
 const EVAD_GLOSSARY = {
   vadance: { ic: '🌱', term: 'Vadance (promesse)', short: "L'impact que ton lieu vise, une note sur 100.", ex: 'Plus tu déclares de solutions à fort impact, plus elle monte.' },
   vadite:  { ic: '✅', term: 'Vadité (preuve)', short: 'La part de cette promesse déjà prouvée par des documents.', ex: 'Chaque preuve déposée (facture, photo, mesure) fait monter la Vadité.' },
-  taux:    { ic: '⚖️', term: 'Taux de tenue', short: 'Vadité ÷ Vadance : à quel point tu tiens tes promesses.', ex: '100 % = tout ce que tu promets est déjà prouvé.' },
+  taux:    { ic: '⚖️', term: 'Indice de confiance', short: 'Vadité ÷ Vadance : à quel point tu tiens tes promesses.', ex: '100 % = tout ce que tu promets est déjà prouvé.' },
   ici:     { ic: '📈', term: 'ICI · Indicateurs de Changement d’Impact', short: 'Les effets concrets et mesurables de ton lieu.', ex: 'Ex. 900 kg CO₂ évités/an · 12 personnes formées · 500 m² renaturés.' },
   vade:    { ic: '🔄', term: 'Boucle VADE', short: 'Ton parcours : Valoriser → Activer → Développer → Élever.', ex: 'Les mêmes 4 étapes pour les trois profils EVAD.' },
 };
@@ -7458,7 +7458,7 @@ function evadLieuScoreData() {
   return { score: Math.min(100, 10 + bonus), bonus: bonus, graines: graines, nbValidees: nbVal };
 }
 
-/* ─── Vadance (promesse) vs Vadité (preuve) + taux de tenue ───
+/* ─── Vadance (promesse) vs Vadité (preuve) + indice de confiance ───
    Vadance : impact projeté figé à la création.
    Vadité  : impact réellement prouvé (quêtes validées + actions terrain certifiées).
    Taux    : Vadité ÷ Vadance, l'indicateur anti-greenwashing. */
@@ -7480,7 +7480,7 @@ function evadImpactData() {
   } else if (typeof evadLieuScoreData === 'function') {
     vadite = evadLieuScoreData().score || 0;
   }
-  // La preuve ne dépasse pas la promesse : le taux de tenue est plafonné à 100 %.
+  // La preuve ne dépasse pas la promesse : l'indice de confiance est plafonné à 100 %.
   if (vadance > 0) vadite = Math.min(vadite, vadance);
   const taux = vadance > 0 ? Math.round(vadite / vadance * 100) : 0;
   return { vadance: vadance, vadite: vadite, taux: taux };
@@ -7590,9 +7590,9 @@ function apercuNextCran() {
   if (v < 38)   return { icon:'🌱', title:'Déclare plus d\'impact', why:'Ajoute des solutions et des espaces : chacune porte de vrais ICI qui font monter ta Vadance.', from:10, to:38, val:v, unit:'Vadance', cta:'Enrichir ma fiche', onclick:goFiche };
   if (v < 65)   return { icon:'✨', title:'Vise le palier « Prêt à publier »', why:'Quelques solutions à fort impact de plus et ton lieu devient convaincant pour la communauté.', from:38, to:65, val:v, unit:'Vadance', cta:'Enrichir ma fiche', onclick:goFiche };
   if (vit <= 10) return { icon:'✅', title:'Transforme ta promesse en preuve', why:'Ta Vadance est solide. Valide ta première quête pour faire décoller ta Vadité (l\'impact prouvé).', from:0, to:25, val:vit, unit:'Vadité', cta:'Aller aux quêtes', onclick:goQuetes };
-  if (taux < 50) return { icon:'⚖️', title:'Atteins 50% de taux de tenue', why:'C\'est le seuil qui rend ton lieu éligible aux financements Semeur. Continue à certifier tes actions.', from:0, to:50, val:taux, unit:'% de tenue', cta:'Saisir une action', onclick:goImpact };
+  if (taux < 50) return { icon:'⚖️', title:'Atteins 50% d'indice de confiance', why:'C\'est le seuil qui rend ton lieu éligible aux financements Semeur. Continue à certifier tes actions.', from:0, to:50, val:taux, unit:'% de tenue', cta:'Saisir une action', onclick:goImpact };
   if (taux < 80) return { icon:'📣', title:'Attire des financeurs', why:'Tu es éligible au financement Semeur. Publie au réseau pour gagner en visibilité.', from:50, to:80, val:taux, unit:'% de tenue', cta:'Publier au réseau', onclick:"evadPublishLieuToReseau()" };
-  return { icon:'🚀', title:'Élève ton impact', why:'Lieu à fort taux de tenue : fais auditer tes preuves pour viser la certification maximale.', from:80, to:100, val:taux, unit:'% de tenue', cta:'Voir mon impact', onclick:goImpact };
+  return { icon:'🚀', title:'Élève ton impact', why:'Lieu à fort indice de confiance : fais auditer tes preuves pour viser la certification maximale.', from:80, to:100, val:taux, unit:'% de tenue', cta:'Voir mon impact', onclick:goImpact };
 }
 
 // Remplit l'« état du lieu » (comparatif Vadance/Vadité + triptyque) et le « prochain cran ».
@@ -7602,7 +7602,7 @@ function apercuRender() {
   const L = (typeof myLieuData !== 'undefined' && myLieuData && myLieuData.nom) ? myLieuData : (typeof cData !== 'undefined' ? cData : {});
   const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
   setTxt('apercu-lieu-nom', (L && L.nom) ? L.nom : 'mon lieu');
-  // Comparatif Vadance (promesse) ↔ Vadité (preuve) + taux de tenue
+  // Comparatif Vadance (promesse) ↔ Vadité (preuve) + indice de confiance
   setTxt('apercu-vadance-num', hasV ? imp.vadance : '-');
   setTxt('apercu-vadite-num', hasV ? imp.vadite : '-');
   setTxt('apercu-taux-num', hasV ? imp.taux + ' %' : '-');
@@ -7876,7 +7876,7 @@ function evadSyncMyLieuOnMap() {
     lbl.style.color = 'var(--fern)';
   }
   const pv = document.getElementById('evad-mylieu-preuve');
-  if (pv) pv.textContent = '✅ Vadité ' + imp.vadite + '/100 · ⚖️ Taux de tenue ' + imp.taux + '%';
+  if (pv) pv.textContent = '✅ Vadité ' + imp.vadite + '/100 · ⚖️ Indice de confiance ' + imp.taux + '%';
   if (evadMyLieuMarker && typeof myLieuData !== 'undefined' && myLieuData) {
     try {
       evadMyLieuMarker.setPopupContent(
@@ -7893,7 +7893,7 @@ function evadSyncMyLieuOnMap() {
 function updateApercuFromQuetes() {
   const d = evadLieuScoreData();
   if (typeof myLieuData !== 'undefined' && myLieuData) myLieuData.score = d.score;
-  // Hero : Vadance (promesse) + Vadité (preuve) + taux de tenue
+  // Hero : Vadance (promesse) + Vadité (preuve) + indice de confiance
   if (typeof evadReflectImpact === 'function') evadReflectImpact();
   const wallet = document.getElementById('apercu-graines-wallet');
   if (wallet) wallet.textContent = d.graines.toLocaleString('fr');

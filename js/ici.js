@@ -213,7 +213,7 @@ function iciScoreGlobal(mesures, mode) {
   return wsum ? total / wsum : null;
 }
 
-// Bilan complet : triptyque (Vadance + Vadité), globaux, taux de tenue, alerte plancher.
+// Bilan complet : triptyque (Vadance + Vadité), globaux, indice de confiance, alerte plancher.
 function iciBilan(mesures) {
   const capFor = (mode) => {
     const o = {};
@@ -230,7 +230,7 @@ function iciBilan(mesures) {
   const minCapital = presents.length ? Math.min(...presents) : null;
   const alertePlancher = minCapital != null && minCapital < ICI_PLANCHER;
 
-  // 6) Taux de tenue = Vadité / Vadance.
+  // 6) Indice de confiance = Vadité / Vadance.
   const tauxDeTenue = (vadanceGlobal && vadanceGlobal > 0 && vaditeGlobal != null)
     ? (vaditeGlobal / vadanceGlobal) * 100 : null;
 
@@ -274,7 +274,7 @@ function iciSetMode(mode) { window._iciMode = mode; iciRenderMesureImpact(); }
 
 const iciFmtScore = (v) => (v == null ? '-' : Math.round(v));
 
-// Triptyque + global + Vadance/Vadité distinctes + taux de tenue + alerte plancher.
+// Triptyque + global + Vadance/Vadité distinctes + indice de confiance + alerte plancher.
 function iciRenderMesureImpact() {
   const box = document.getElementById('ici-mesure-impact');
   if (!box) return;
@@ -317,7 +317,7 @@ function iciRenderMesureImpact() {
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem">
         ${globalBox('#018262', 'Vadance · promesse', iciFmtScore(b.vadanceGlobal) + '<span style="font-size:.65rem;opacity:.4">/100</span>', 'score global projeté')}
         ${globalBox('#3a6e8c', 'Vadité · preuve', iciFmtScore(b.vaditeGlobal) + '<span style="font-size:.65rem;opacity:.4">/100</span>', 'global prouvé · décoté preuve')}
-        ${globalBox('#c8732a', 'Taux de tenue', (b.tauxDeTenue == null ? '-' : Math.round(b.tauxDeTenue) + '%'), 'Vadité / Vadance')}
+        ${globalBox('#c8732a', 'Indice de confiance', (b.tauxDeTenue == null ? '-' : Math.round(b.tauxDeTenue) + '%'), 'Vadité / Vadance')}
       </div>
     </div>`;
 }

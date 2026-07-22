@@ -35,10 +35,10 @@ Triple capital (le « triptyque ») : trois livres toujours présentés ensemble
 Non-compensation : un capital élevé ne rachète jamais un capital faible. Un plancher par capital déclenche une alerte si un capital passe sous le seuil.
 Pondération : par défaut les 3 capitaux pèsent à parts égales (un tiers chacun). Variantes possibles : pondération territorialisée (fixée par la gouvernance) ou vue par usage (un financeur applique ses propres poids sans altérer les scores canoniques).
 
-## Vadance, Vadité, taux de tenue, échelle de preuve
+## Vadance, Vadité, indice de confiance, échelle de preuve
 - Vadance : le score d'impact PROJETÉ d'un lieu ou projet, sur 100. La promesse. Calculée sur les valeurs projetées (plan, modélisation). Elle sert à mobiliser et à lever le capital.
 - Vadité : l'impact réellement PROUVÉ et vérifié. La preuve. Calculée sur les valeurs prouvées, chaque sous-score étant décoté selon son niveau de preuve. C'est ce que reçoit le financeur ; elle libère le capital.
-- Taux de tenue = Vadité ÷ Vadance : la capacité d'un lieu à transformer ses promesses en preuves. L'indicateur anti-greenwashing par excellence.
+- Indice de confiance = Vadité ÷ Vadance : la capacité d'un lieu à transformer ses promesses en preuves. L'indicateur anti-greenwashing par excellence.
 - Échelle de preuve (du plus faible au plus fort ; le sous-score est d'autant plus décoté que la preuve est faible) : déclaratif → documentaire → validé par les pairs → audit tiers indépendant.
 
 ## La monnaie Vade
@@ -62,7 +62,7 @@ La méthode est un commun ouvert : référentiel public, inspectable et amendabl
 - Vadité : l'impact réellement prouvé et vérifié (la preuve).
 - Triptyque : l'affichage des trois capitaux ensemble, jamais un score nu.
 - Plancher : le seuil par capital qui déclenche l'alerte de non-compensation.
-- Taux de tenue : Vadité ÷ Vadance.
+- Indice de confiance : Vadité ÷ Vadance.
 - Vade : la monnaie locale, frappée sur impact prouvé, en boucle fermée.
 - Quête : une mission d'impact concrète portée par un lieu, à laquelle les Bâtisseurs contribuent.
 
